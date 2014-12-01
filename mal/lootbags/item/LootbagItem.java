@@ -123,14 +123,32 @@ public class LootbagItem extends Item {
 	
 	private static ItemStack getLootItem()
 	{
-		int count = LootBags.LOOTCATEGORYLIST.length;
+		int count = LootBags.LOOTCATEGORYLIST.length + ((LootBags.LOOTWHITELIST.isEmpty())?(0):(1));
 		int rand = random.nextInt(count);
 		ItemStack is = null;
-		try {
-			is = ChestGenHooks.getOneItem(LootBags.LOOTCATEGORYLIST[rand], random).copy();
-		} catch (IllegalArgumentException e) {
-			FMLLog.log(Level.ERROR, "DANGER DANGER DANGER!! Attempted Chest Gen Hook \""+LootBags.LOOTCATEGORYLIST[rand]+"\" is unrecognized by Forge or has no items!  You should have listened to the comment in the config!!");
+		
+		if(rand==LootBags.LOOTCATEGORYLIST.length)
+		{
+			int i = random.nextInt(LootBags.LOOTWHITELIST.size());
+			is = LootBags.LOOTWHITELIST.get(i).copy();
 		}
+		else {
+			try {
+				is = ChestGenHooks.getOneItem(LootBags.LOOTCATEGORYLIST[rand], random).copy();
+			} catch (IllegalArgumentException e) {
+				FMLLog.log(Level.ERROR, "DANGER DANGER DANGER!! Attempted Chest Gen Hook \""+LootBags.LOOTCATEGORYLIST[rand]+"\" is unrecognized by Forge or has no items!  You should have listened to the comment in the config!!");
+			}
+		}
+		boolean reroll = false;
+		for(ItemStack istack:LootBags.LOOTBLACKLIST)
+		{
+			if(is.isItemEqual(istack))
+			{
+				reroll = true;
+			}
+		}
+		if(reroll)
+			return getLootItem();
 		return is;
 	}
 	
