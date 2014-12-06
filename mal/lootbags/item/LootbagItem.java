@@ -7,15 +7,21 @@ import org.apache.logging.log4j.Level;
 import org.lwjgl.input.Keyboard;
 
 import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Optional;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
 import mal.lootbags.LootBags;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
 
@@ -107,11 +113,15 @@ public class LootbagItem extends Item {
 				ItemStack inv = getLootItem();
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setInteger("Slot", i);
-				if (inv != null) {
+				if (inv != null && inv.stackSize>0) {
 					inv.writeToNBT(var4);
 				}
 				else
+				{
+					System.out.println("Skipping null slot.");
 					i--;
+					numitems--;
+				}
 				nbtinventory.appendTag(var4);
 			}
 
@@ -121,16 +131,27 @@ public class LootbagItem extends Item {
 		}
 	}
 	
-	private static ItemStack getLootItem()
+	private static ItemStack getLootItem(){return getLootItem(0);}
+	private static ItemStack getLootItem(int rerollCount)
 	{
 		int count = LootBags.LOOTCATEGORYLIST.length + ((LootBags.LOOTWHITELIST.isEmpty())?(0):(1));
 		int rand = random.nextInt(count);
+		boolean reroll = false;
 		ItemStack is = null;
 		
 		if(rand==LootBags.LOOTCATEGORYLIST.length)
 		{
 			int i = random.nextInt(LootBags.LOOTWHITELIST.size());
-			is = LootBags.LOOTWHITELIST.get(i).copy();
+			if(random.nextInt(100)<LootBags.WHITELISTCHANCE.get(i))
+			{
+				is = LootBags.LOOTWHITELIST.get(i).copy();
+				int stack = random.nextInt((is.stackSize<=is.getMaxStackSize())?(is.stackSize):(is.getMaxStackSize()))+1;
+				is.stackSize = stack;
+			}
+			else
+			{
+				reroll = true;
+			}
 		}
 		else {
 			try {
@@ -139,16 +160,30 @@ public class LootbagItem extends Item {
 				FMLLog.log(Level.ERROR, "DANGER DANGER DANGER!! Attempted Chest Gen Hook \""+LootBags.LOOTCATEGORYLIST[rand]+"\" is unrecognized by Forge or has no items!  You should have listened to the comment in the config!!");
 			}
 		}
-		boolean reroll = false;
-		for(ItemStack istack:LootBags.LOOTBLACKLIST)
+		if(!reroll)
 		{
-			if(is.isItemEqual(istack))
+			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(is.getItem());
+			for(String modid:LootBags.MODBLACKLIST)
 			{
-				reroll = true;
+				if(modid.equalsIgnoreCase(u.modId))
+					reroll = true;
+			}
+			
+			for(ItemStack istack:LootBags.LOOTBLACKLIST)
+			{
+				if(is.isItemEqual(istack))
+				{
+					reroll = true;
+				}
 			}
 		}
-		if(reroll)
-			return getLootItem();
+		if(reroll && rerollCount<LootBags.MAXREROLLCOUNT)
+		{
+			System.out.println("Rerolling " + rerollCount);
+			return getLootItem(++rerollCount);
+		}
+		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
+			return null;
 		return is;
 	}
 	
@@ -178,12 +213,72 @@ public class LootbagItem extends Item {
 
 	public ItemStack onItemRightClick(ItemStack is, World world,
 			EntityPlayer player) {
-		if (!world.isRemote) {
+		if (!world.isRemote && !player.isSneaking()) {
 			LootbagItem.generateInventory(is);
 			player.openGui(LootBags.LootBagsInstance, 0, world, 0, 0, 0);
 		}
 
 		return is;
+	}
+	
+	@Override
+	public boolean onItemUse(ItemStack is, EntityPlayer player, World world, int x, int y, int z, int side, float px, float py, float pz)
+	{
+		if(!world.isRemote)
+		{
+			if(!player.isSneaking())
+				return false;
+			TileEntity te = world.getTileEntity(x, y, z);
+			if(te instanceof IInventory)
+			{
+				LootbagItem.generateInventory(is);
+				ItemStack[] iss = LootbagItem.getInventory(is);
+				for(int j = 0; j < iss.length; j++)
+				{
+					ItemStack stack = iss[j];
+					if(stack!=null)
+					{
+						IInventory ite = ((IInventory)te);
+						int size = ite.getSizeInventory();
+						for(int i = 0; i < size; i++)
+						{
+							ItemStack itstack = ite.getStackInSlot(i);
+							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (ite.getStackInSlot(i).isItemEqual(stack) || ite.getStackInSlot(i) == null)))
+							{
+								if(itstack == null)
+								{
+									ite.setInventorySlotContents(i, stack);
+									iss[j] = null;
+									break;
+								}
+								else if(itstack.stackSize+stack.stackSize<=itstack.getMaxStackSize())
+								{
+									itstack.stackSize += stack.stackSize;
+									iss[j] = null;
+									break;
+								}
+								else if(itstack.stackSize<itstack.getMaxStackSize())
+								{
+									int diff =  itstack.getMaxStackSize()-itstack.stackSize;
+									ite.getStackInSlot(i).stackSize = ite.getStackInSlot(i).getMaxStackSize();
+									stack.stackSize -= diff;
+									if(stack.stackSize<=0)
+									{
+										iss[j] = null;
+										break;
+									}	
+								}
+							}
+						}
+					}
+				}
+				LootbagItem.setTagCompound(is, iss);
+				if(LootbagItem.checkInventory(is))
+					player.inventory.mainInventory[player.inventory.currentItem] = null;
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
