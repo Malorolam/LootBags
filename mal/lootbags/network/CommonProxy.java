@@ -2,6 +2,8 @@ package mal.lootbags.network;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.gui.LootbagContainer;
+import mal.lootbags.gui.RecyclerContainer;
+import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
@@ -14,8 +16,10 @@ public class CommonProxy implements IGuiHandler{
 			int x, int y, int z) {
 		if(ID==0 && player.getCurrentEquippedItem() != null && Item.getIdFromItem(player.getCurrentEquippedItem().getItem()) == Item.getIdFromItem(LootBags.lootbag))
 		{
-			return new LootbagContainer(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem()));
+			return new LootbagContainer(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem(), player.inventory.currentItem));
 		}
+		if(ID==1)
+			return new RecyclerContainer(player.inventory, (TileEntityRecycler) world.getTileEntity(x, y, z));
 		return null;
 	}
 

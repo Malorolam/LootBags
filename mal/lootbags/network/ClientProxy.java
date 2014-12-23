@@ -2,6 +2,8 @@ package mal.lootbags.network;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.gui.LootbagGui;
+import mal.lootbags.gui.RecyclerGui;
+import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.world.World;
@@ -20,8 +22,10 @@ public class ClientProxy extends CommonProxy{
 			int x, int y, int z) {
 		if(ID==0 && player.getCurrentEquippedItem() != null && Item.getIdFromItem(player.getCurrentEquippedItem().getItem()) == Item.getIdFromItem(LootBags.lootbag))
 		{
-			return new LootbagGui(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem()));
+			return new LootbagGui(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem(), player.inventory.currentItem));
 		}
+		if(ID==1)
+			return new RecyclerGui(player.inventory, (TileEntityRecycler) world.getTileEntity(x, y, z));
 		return null;
 	}
 }

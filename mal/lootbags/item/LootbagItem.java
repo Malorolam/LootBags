@@ -179,7 +179,6 @@ public class LootbagItem extends Item {
 		}
 		if(reroll && rerollCount<LootBags.MAXREROLLCOUNT)
 		{
-			System.out.println("Rerolling " + rerollCount);
 			return getLootItem(++rerollCount);
 		}
 		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
@@ -243,7 +242,7 @@ public class LootbagItem extends Item {
 						for(int i = 0; i < size; i++)
 						{
 							ItemStack itstack = ite.getStackInSlot(i);
-							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (ite.getStackInSlot(i).isItemEqual(stack) || ite.getStackInSlot(i) == null)))
+							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (LootBags.areItemStacksEqualItem(itstack, stack) || ite.getStackInSlot(i) == null)))
 							{
 								if(itstack == null)
 								{
@@ -280,7 +279,7 @@ public class LootbagItem extends Item {
 		}
 		return false;
 	}
-
+    
 	@Override
 	public void registerIcons(IIconRegister ir) {
 		this.itemIcon = ir.registerIcon("lootbags:lootbagItemTexture");

@@ -11,10 +11,12 @@ public class LootbagWrapper implements IInventory {
 
 	private final ItemStack stack;
 	private ItemStack[] inventory = new ItemStack[5];
+	public int Invslot;
 	
-	public LootbagWrapper(ItemStack is)
+	public LootbagWrapper(ItemStack is, int slot)
 	{
 		stack = is;
+		Invslot = slot;
 		
 		if (!this.stack.hasTagCompound()) 
 		{

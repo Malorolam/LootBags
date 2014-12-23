@@ -38,7 +38,10 @@ public class LootbagContainer extends Container{
         //hotbar, so 45-53
         for (int i = 0; i < 9; ++i)
         {
-            this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 103));
+        	if(i == wrapper.Invslot)
+        		this.addSlotToContainer(new FixedSlot(player, i, 8 + i * 18, 103));
+        	else
+        		this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 103));
         }
 	}
 	

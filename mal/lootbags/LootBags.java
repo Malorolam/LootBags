@@ -1,22 +1,31 @@
 package mal.lootbags;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 import org.apache.logging.log4j.Level;
 
+import mal.lootbags.blocks.BlockRecycler;
 import mal.lootbags.handler.ItemDumpCommand;
 import mal.lootbags.handler.MobDropHandler;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.CommonProxy;
+import mal.lootbags.network.LootbagsPacketHandler;
+import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.util.WeightedRandom;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -29,17 +38,19 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.2.0";
+	public static final String VERSION = "1.3.1";
 
 	public static int MONSTERDROPCHANCE = 40;
 	public static int PASSIVEDROPCHANCE = 20;
 	public static int PLAYERDROPCHANCE = 5;
 	
 	public static int MAXREROLLCOUNT = 50;
+	public static int TOTALVALUEPERBAG = 1000;//total amount of drop chance required to create a lootbag
 	
 	public static String[] LOOTCATEGORYLIST = null;
 	public static ArrayList<ItemStack> LOOTBLACKLIST = new ArrayList<ItemStack>();
@@ -52,10 +63,17 @@ public class LootBags {
 	private String[] blacklistlist;
 	private String[] whitelistlist;
 	
+	private HashMap<String,Integer> totalvaluemap = new HashMap<String,Integer>();
+	
+	private boolean disableRecycler = false;
+	
+	private static Random random = new Random();
+	
 	@SidedProxy(clientSide="mal.lootbags.network.ClientProxy", serverSide="mal.lootbags.network.CommonProxy")
 	public static CommonProxy prox;
 
 	public static LootbagItem lootbag = new LootbagItem();
+	public static BlockRecycler recycler = new BlockRecycler();
 
 	@Instance(value = LootBags.MODID)
 	public static LootBags LootBagsInstance;
@@ -69,10 +87,10 @@ public class LootBags {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		
-		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Monster Drop Chance 0-100", 40);
+		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Monster Drop Chance 0-100", 20);
 		prop.comment = "This controls the drop chance for monsters, passive mobs, and players.";
 		MONSTERDROPCHANCE = prop.getInt();
-		PASSIVEDROPCHANCE = config.get(Configuration.CATEGORY_GENERAL, "Passive Mob Drop Chance 0-100", 20).getInt();
+		PASSIVEDROPCHANCE = config.get(Configuration.CATEGORY_GENERAL, "Passive Mob Drop Chance 0-100", 10).getInt();
 		PLAYERDROPCHANCE = config.get(Configuration.CATEGORY_GENERAL, "Player Drop Chance 0-100", 10).getInt();
 		
 		Property prop2 = config.get("Loot Categories", "ChestGenHooks Dropped",  new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
@@ -102,6 +120,15 @@ public class LootBags {
 		prop6.comment = "If the bag encounters an item it cannot place in the bag it will reroll, this sets a limit to the number of times the bag will" +
 				" reroll before it just skips the slot.  Extremely high or low numbers may result in undesired performance of the mod.";
 		MAXREROLLCOUNT = prop6.getInt();
+		
+		Property prop7 = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1000);
+		prop7.comment = "This is kind of ambiguous, but essentially it's the total amount of stuff ranked based off of rarity you need to make a new bag in the recycler.  " +
+				"The rarer something is the more it's worth and once the recycler has collected this amount of value it will make a new loot bag. The larger the max stack size " +
+				"is the lower the value is as well.";
+		TOTALVALUEPERBAG = prop7.getInt();
+		
+		Property prop8 = config.get(Configuration.CATEGORY_GENERAL, "Disable Recycler Recipe", false);
+		disableRecycler = prop8.getBoolean();
 		
 		config.save();
 		
@@ -149,11 +176,24 @@ public class LootBags {
 			FMLLog.log(Level.WARN, "Reroll count has to be at least 1 (fancy error prevention stuff)");
 			MAXREROLLCOUNT=1;
 		}
+		
+		if(TOTALVALUEPERBAG<=0)
+		{
+			FMLLog.log(Level.WARN, "Free or negative value required for lootbag creation is not a good thing.  Setting it to 1.");
+			TOTALVALUEPERBAG=1;
+		}
+		
+		LootbagsPacketHandler.init();
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		GameRegistry.registerItem(lootbag, "itemlootbag");
+		GameRegistry.registerBlock(recycler, "blockrecycler");
+		GameRegistry.registerTileEntity(TileEntityRecycler.class, "tileentityrecycler");
+		
+		if(!disableRecycler)
+			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recycler), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.chest), 'I', "ingotIron"}));
 		
 		if(LOOTBAGINDUNGEONLOOT.length>0)
 		{
@@ -248,6 +288,96 @@ public class LootBags {
 	{
 		event.registerServerCommand(new ItemDumpCommand());
 	}
+	
+	public static ArrayList<ItemStack> getLootbagDropList()
+	{
+		ArrayList<ItemStack> itemlist = new ArrayList<ItemStack>();
+		for(String s:LootBags.LOOTBAGINDUNGEONLOOT)
+		{
+			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
+			for(WeightedRandomChestContent con:contents)
+			{
+				itemlist.add(con.theItemId);
+			}
+		}
+		
+		for(int i = 0; i < LootBags.LOOTWHITELIST.size(); i++)
+		{
+			itemlist.add(LootBags.LOOTWHITELIST.get(i));
+		}
+		
+		return itemlist;
+	}
+	
+	/**
+	 * Checks to see if an item can be dropped by a lootbag
+	 */
+	public static boolean isItemDroppable(ItemStack item)
+	{
+		for(ItemStack is: LOOTBLACKLIST)
+		{
+			if(areItemStacksEqualItem(is, item))
+				return false;
+		}
+		UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(item.getItem());
+		for(String modid:MODBLACKLIST)
+		{
+			if(modid.equalsIgnoreCase(u.modId))
+				return false;
+		}
+		
+		for(String s:LOOTBAGINDUNGEONLOOT)
+		{
+			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
+			for(WeightedRandomChestContent con:contents)
+			{
+				if(areItemStacksEqualItem(con.theItemId, item))
+					return true;
+			}
+		}
+		
+		for(int i = 0; i < LOOTWHITELIST.size(); i++)
+		{
+			if(areItemStacksEqualItem(LOOTWHITELIST.get(i), item))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public static int getItemChance(ItemStack item)
+	{
+		for(String s:LOOTBAGINDUNGEONLOOT)
+		{
+			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
+			for(WeightedRandomChestContent con:contents)
+			{
+				if(areItemStacksEqualItem(con.theItemId, item))
+					return WeightedRandom.getTotalWeight(ChestGenHooks.getItems(s, random))/(con.itemWeight*item.getMaxStackSize());
+			}
+		}
+		
+		for(int i = 0; i < LOOTWHITELIST.size(); i++)
+		{
+			if(areItemStacksEqualItem(LOOTWHITELIST.get(i), item))
+				return (100-WHITELISTCHANCE.get(i))/LOOTWHITELIST.get(i).getMaxStackSize();
+		}
+		
+		return 0;
+	}
+	
+    public static boolean areItemStacksEqualItem(ItemStack is1, ItemStack is2)
+    {
+    	if(is1==null ^ is2==null)
+    		return false;
+    	if(Item.getIdFromItem(is1.getItem()) != Item.getIdFromItem(is2.getItem()))
+    		return false;
+    	if(is1.getItemDamage() != is2.getItemDamage())
+    		return false;
+    	if(!ItemStack.areItemStackTagsEqual(is1, is2))
+    		return false;
+    	return true;
+    }
 }
 /*******************************************************************************
  * Copyright (c) 2014 Malorolam.
