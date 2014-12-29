@@ -69,7 +69,7 @@ public class RecyclerContainer extends Container{
             }
             else if(slot>0 && slot<=27)
             {
-            	if (!this.mergeItemStack(var5, 27, 64, true))
+            	if (!this.mergeItemStack(var5, 28, 64, true))
                 {
                     return null;
                 }
