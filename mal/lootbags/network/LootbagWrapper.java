@@ -164,7 +164,7 @@ public class LootbagWrapper implements IInventory {
 	@Override
 	public void closeInventory() {
 		// TODO Auto-generated method stub
-		
+		this.markDirty();
 	}
 
 	@Override

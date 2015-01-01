@@ -61,7 +61,6 @@ public class LootbagItem extends Item {
 	public static void setTagCompound(ItemStack is, ItemStack[] inventory) {
 		NBTTagCompound nbt = new NBTTagCompound();
 			
-
 		// inventory
 		NBTTagList nbtinventory = new NBTTagList();
 

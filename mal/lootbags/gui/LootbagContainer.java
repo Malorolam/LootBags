@@ -31,14 +31,17 @@ public class LootbagContainer extends Container{
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 46 + i * 18));
+            	if(areItemStacksEqualItem(player.getStackInSlot(j+i*9+9), wrapper.getStack(), true, false))
+            		this.addSlotToContainer(new FixedSlot(player, j+ i*9+9, 8 + i * 18, 46 + i*18));
+            	else
+            		this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 46 + i * 18));
             }
         }
 
         //hotbar, so 45-53
         for (int i = 0; i < 9; ++i)
         {
-        	if(i == wrapper.Invslot)
+        	if(areItemStacksEqualItem(player.getStackInSlot(i), wrapper.getStack(), true, false))
         		this.addSlotToContainer(new FixedSlot(player, i, 8 + i * 18, 103));
         	else
         		this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 103));
@@ -50,6 +53,23 @@ public class LootbagContainer extends Container{
 		return true;
 	}
 
+	public void detectAndSendChanges()
+    {
+		super.detectAndSendChanges();
+		
+		if(areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false))
+		{
+			if(LootbagItem.checkInventory(wrapper.getStack()))
+			{
+				player.mainInventory[islot] = null;
+			}
+			else
+			{
+				player.mainInventory[islot] = wrapper.getStack();
+			}
+		}
+    }
+	
 	@Override
 	public void onContainerClosed(EntityPlayer player)
 	{
@@ -66,10 +86,10 @@ public class LootbagContainer extends Container{
 					player.inventory.mainInventory[islot] = wrapper.getStack();
 				}
 			}
-			else
+			/*else
 			{
 				player.dropPlayerItemWithRandomChoice(((Slot)this.inventorySlots.get(0)).getStack(), false);
-			}
+			}*/
 		}
 		super.onContainerClosed(player);
 	}
