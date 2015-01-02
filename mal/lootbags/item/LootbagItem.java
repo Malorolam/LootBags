@@ -241,7 +241,7 @@ public class LootbagItem extends Item {
 						for(int i = 0; i < size; i++)
 						{
 							ItemStack itstack = ite.getStackInSlot(i);
-							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (LootBags.areItemStacksEqualItem(itstack, stack) || ite.getStackInSlot(i) == null)))
+							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (LootBags.areItemStacksEqualItem(itstack, stack, false, true) || ite.getStackInSlot(i) == null)))
 							{
 								if(itstack == null)
 								{

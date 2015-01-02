@@ -278,7 +278,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		{
 			for(ItemStack item: LootBags.getLootbagDropList())
 			{
-				if(LootBags.areItemStacksEqualItem(item, stack))
+				if(LootBags.areItemStacksEqualItem(item, stack, false, false))
 					return true;
 			}
 		}

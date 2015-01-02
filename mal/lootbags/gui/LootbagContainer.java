@@ -1,5 +1,6 @@
 package mal.lootbags.gui;
 
+import mal.lootbags.LootBags;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -31,7 +32,7 @@ public class LootbagContainer extends Container{
         {
             for (int j = 0; j < 9; ++j)
             {
-            	if(areItemStacksEqualItem(player.getStackInSlot(j+i*9+9), wrapper.getStack(), true, false))
+            	if(LootBags.areItemStacksEqualItem(player.getStackInSlot(j+i*9+9), wrapper.getStack(), true, false))
             		this.addSlotToContainer(new FixedSlot(player, j+ i*9+9, 8 + i * 18, 46 + i*18));
             	else
             		this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 46 + i * 18));
@@ -41,7 +42,7 @@ public class LootbagContainer extends Container{
         //hotbar, so 45-53
         for (int i = 0; i < 9; ++i)
         {
-        	if(areItemStacksEqualItem(player.getStackInSlot(i), wrapper.getStack(), true, false))
+        	if(LootBags.areItemStacksEqualItem(player.getStackInSlot(i), wrapper.getStack(), true, false))
         		this.addSlotToContainer(new FixedSlot(player, i, 8 + i * 18, 103));
         	else
         		this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 103));
@@ -57,7 +58,7 @@ public class LootbagContainer extends Container{
     {
 		super.detectAndSendChanges();
 		
-		if(areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false))
+		if(LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false))
 		{
 			if(LootbagItem.checkInventory(wrapper.getStack()))
 			{
@@ -75,7 +76,7 @@ public class LootbagContainer extends Container{
 	{
 		if(!player.worldObj.isRemote)
 		{
-			if(areItemStacksEqualItem(player.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+			if(LootBags.areItemStacksEqualItem(player.inventory.mainInventory[islot], wrapper.getStack(), true, false))
 			{
 				if(LootbagItem.checkInventory(wrapper.getStack()))
 				{
@@ -93,19 +94,6 @@ public class LootbagContainer extends Container{
 		}
 		super.onContainerClosed(player);
 	}
-	
-	private boolean areItemStacksEqualItem(ItemStack is1, ItemStack is2, boolean considerDamage, boolean considerNBT)
-    {
-    	if(is1==null ^ is2==null)
-    		return false;
-    	if(Item.getIdFromItem(is1.getItem()) != Item.getIdFromItem(is2.getItem()))
-    		return false;
-    	if(considerDamage && is1.getItemDamage() != is2.getItemDamage())
-    		return false;
-    	if(considerNBT && !ItemStack.areItemStackTagsEqual(is1, is2))
-    		return false;
-    	return true;
-    }
 	
 	/**
      * Called when a player shift-clicks on a slot. You must override this or you will crash when someone does that.
