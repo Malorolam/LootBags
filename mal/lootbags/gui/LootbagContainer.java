@@ -33,7 +33,7 @@ public class LootbagContainer extends Container{
             for (int j = 0; j < 9; ++j)
             {
             	if(LootBags.areItemStacksEqualItem(player.getStackInSlot(j+i*9+9), wrapper.getStack(), true, false))
-            		this.addSlotToContainer(new FixedSlot(player, j+ i*9+9, 8 + i * 18, 46 + i*18));
+            		this.addSlotToContainer(new FixedSlot(player, j+ i*9+9, 8 + j * 18, 46 + i*18));
             	else
             		this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 46 + i * 18));
             }
