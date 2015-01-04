@@ -51,25 +51,13 @@ public class ItemDumpCommand implements ICommand{
 	@Override
 	public void processCommand(ICommandSender icommand, String[] astring) {
 		ArrayList<String> stringlist = new ArrayList<String>();
-		stringlist.add("modid  itemname  itemdamage  dropweighting");
-		for(String s:LootBags.LOOTBAGINDUNGEONLOOT)
+		stringlist.add("XXXX LootBags Drop Table XXXX");
+		stringlist.add("modid  itemname  itemdamage  droppercent weight");
+		for(WeightedRandomChestContent c : LootBags.LOOTMAP.getMapAsChestList())
 		{
-			stringlist.add("XXXX " + s + " XXXX");
-			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
-			for(WeightedRandomChestContent con:contents)
-			{
-				UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(con.theItemId.getItem());
-				if(u != null)
-					stringlist.add(u.modId + "  " + u.name + "  " + con.theItemId.getItemDamage() + "  " + con.itemWeight);
-			}
-			stringlist.add("");
-		}
-		
-		stringlist.add("XXXX LootBags Whitelist XXXX");
-		for(int i = 0; i < LootBags.LOOTWHITELIST.size(); i++)
-		{
-			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(LootBags.LOOTWHITELIST.get(i).getItem());
-			stringlist.add(u.modId + "  " + u.name + "  " + + LootBags.LOOTWHITELIST.get(i).getItemDamage() + "  " + LootBags.WHITELISTCHANCE.get(i));
+			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
+			float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
+			stringlist.add(u.modId + "  " + u.name + "  " + c.theItemId.getItemDamage() + "  " + String.format("%.3f", percent) + "  " + c.itemWeight);
 		}
 		
 		stringlist.add("");

@@ -31,18 +31,21 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 				if(inventory[i] != null)
 					if(LootBags.isItemDroppable(inventory[i]))
 					{
-						totalValue += LootBags.getItemChance(inventory[i]);
-						inventory[i].stackSize--;
-						if(inventory[i].stackSize <= 0)
-							inventory[i] = null;
+						int val = LootBags.getItemValue(inventory[i]);
+						if(totalValue <= Integer.MAX_VALUE-val)
+						{
+							totalValue += val;
+							inventory[i].stackSize--;
+							if(inventory[i].stackSize <= 0)
+								inventory[i] = null;
+						}
 					}
 			}
 			
-			if(totalValue >= LootBags.TOTALVALUEPERBAG)
+			if(totalValue >= LootBags.TOTALVALUEPERBAG && lootbagCount < Integer.MAX_VALUE-1)
 			{
-				int temp = (int)Math.floor(totalValue/LootBags.TOTALVALUEPERBAG);
-				totalValue -= temp*LootBags.TOTALVALUEPERBAG;
-				lootbagCount += temp;
+				totalValue -= LootBags.TOTALVALUEPERBAG;
+				lootbagCount += 1;
 			}
 			
 			if(lootbagSlot == null && lootbagCount > 0)
@@ -50,6 +53,8 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 				lootbagSlot = new ItemStack(LootBags.lootbag);
 				lootbagCount--;
 			}
+			if(lootbagCount <= 0)
+				lootbagCount = 0;
 			
 			LootbagsPacketHandler.instance.sendToAll(new RecyclerMessageServer(this, lootbagCount, totalValue));
 		}

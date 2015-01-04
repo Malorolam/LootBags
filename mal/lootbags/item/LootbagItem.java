@@ -10,11 +10,14 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import mal.lootbags.LootBags;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -22,6 +25,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ChestGenHooks;
 
@@ -34,27 +39,102 @@ import net.minecraftforge.common.ChestGenHooks;
 public class LootbagItem extends Item {
 
 	private static Random random = new Random();
+	private IIcon[] iconlist = new IIcon[6];
 
 	public LootbagItem() {
 		super();
 		this.setUnlocalizedName("lootbag");
 		this.maxStackSize = 1;
-		this.setMaxDamage(1);
+		this.setMaxDamage(0);
+		this.hasSubtypes = true;
 		this.setCreativeTab(CreativeTabs.tabMisc);
 	}
 
 	public void addInformation(ItemStack is, EntityPlayer ep, List list,
 			boolean bool) {
+		switch(is.getItemDamage())
+		{
+		case 0:
+			list.add(EnumChatFormatting.WHITE + "Common");
+			break;
+		case 1:
+			list.add(EnumChatFormatting.GREEN + "Uncommon");
+			break;
+		case 2:
+			list.add(EnumChatFormatting.BLUE + "Rare");
+			break;
+		case 3:
+			list.add(EnumChatFormatting.DARK_PURPLE + "Epic");
+			break;
+		case 4:
+			list.add(EnumChatFormatting.GOLD + "Legendary");
+			break;
+		case 5:
+			list.add("\u00A7d" + "Bacon");
+		}
+		
 		if(is.getTagCompound() != null && is.getTagCompound().getBoolean("generated"))
 		{
-			list.add("\u00A7b" + "What's inside is not as");
-			list.add("\u00A7b" + "interesting as not knowing.");
+			if(is.getItemDamage()==5)
+			{
+				list.add("\u00A7d" + "Turns out there is bacon inside...");
+			}
+			else
+			{
+				list.add("\u00A7b" + "What's inside is not as");
+				list.add("\u00A7b" + "interesting as not knowing.");
+			}
 		}
 		else
 			list.add("\u00A7b" + "Ooh, what could be inside?");
 		if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)) {
-			list.add("\u00A77" + "Current Drop Rates: Monster: " + LootBags.MONSTERDROPCHANCE + "%");
-			list.add("\u00A77" + "Passive: " + LootBags.PASSIVEDROPCHANCE + "% Player: " + LootBags.PLAYERDROPCHANCE + "%");
+			if(is.getItemDamage() != 5)
+			{
+				int mchance;
+				int pchance;
+				int lchance;
+				switch(is.getItemDamage())
+				{
+				case 0:
+					mchance = LootBags.CMONSTERDROPCHANCE;
+					pchance = LootBags.CPASSIVEDROPCHANCE;
+					lchance = LootBags.CPLAYERDROPCHANCE;
+					break;
+				case 1:
+					mchance = LootBags.UMONSTERDROPCHANCE;
+					pchance = LootBags.UPASSIVEDROPCHANCE;
+					lchance = LootBags.UPLAYERDROPCHANCE;
+					break;
+				case 2:
+					mchance = LootBags.RMONSTERDROPCHANCE;
+					pchance = LootBags.RPASSIVEDROPCHANCE;
+					lchance = LootBags.RPLAYERDROPCHANCE;
+					break;
+				case 3:
+					mchance = LootBags.EMONSTERDROPCHANCE;
+					pchance = LootBags.EPASSIVEDROPCHANCE;
+					lchance = LootBags.EPLAYERDROPCHANCE;
+					break;
+				case 4:
+					mchance = LootBags.LMONSTERDROPCHANCE;
+					pchance = LootBags.LPASSIVEDROPCHANCE;
+					lchance = LootBags.LPLAYERDROPCHANCE;
+					break;
+				default:
+					mchance = LootBags.CMONSTERDROPCHANCE;
+					pchance = LootBags.CPASSIVEDROPCHANCE;
+					lchance = LootBags.CPLAYERDROPCHANCE;
+					break;
+				}
+				list.add("\u00A77" + "Current Drop Rates: Monster: " + String.format("%.2f", mchance/10.0f) + "%");
+				list.add("\u00A77" + "Passive: " + String.format("%.2f", pchance/10.0f) + "% Player: " + String.format("%.2f", lchance/10.0f) + "%");
+			}
+			else
+			{
+				list.add("\u00A77" + "Three out of every four bacons agree");
+				list.add("\u00A77" + "that they don't have enough bacon.");
+				list.add("\u00A77" + "The fourth has a bag full of bacon.");
+			}
 		}
 	}
 
@@ -109,7 +189,7 @@ public class LootbagItem extends Item {
 			NBTTagList nbtinventory = new NBTTagList();
 
 			for (int i = 0; i < numitems; i++) {
-				ItemStack inv = getLootItem();
+				ItemStack inv = getLootItem(is.getItemDamage());
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setInteger("Slot", i);
 				if (inv != null && inv.stackSize>0) {
@@ -130,61 +210,49 @@ public class LootbagItem extends Item {
 		}
 	}
 	
-	private static ItemStack getLootItem(){return getLootItem(0);}
-	private static ItemStack getLootItem(int rerollCount)
+	private static ItemStack getLootItem(int damage){return getLootItem(0, damage);}
+	private static ItemStack getLootItem(int rerollCount, int damage)
 	{
-		int count = LootBags.LOOTCATEGORYLIST.length + ((LootBags.LOOTWHITELIST.isEmpty())?(0):(1));
-		int rand = random.nextInt(count);
-		boolean reroll = false;
-		ItemStack is = null;
-		
-		if(rand==LootBags.LOOTCATEGORYLIST.length)
+		if(damage == 5)
 		{
-			int i = random.nextInt(LootBags.LOOTWHITELIST.size());
-			if(random.nextInt(100)<LootBags.WHITELISTCHANCE.get(i))
-			{
-				is = LootBags.LOOTWHITELIST.get(i).copy();
-				int stack = random.nextInt((is.stackSize<=is.getMaxStackSize())?(is.stackSize):(is.getMaxStackSize()))+1;
-				is.stackSize = stack;
-			}
+			ItemStack[] stacks;
+			if(random.nextInt(2)==0)
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.porkchop), 4, 16);
 			else
-			{
-				reroll = true;
-			}
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cooked_porkchop), 4, 16);
+	        return (stacks.length > 0 ? stacks[0] : null);
 		}
-		else {
-			try {
-				is = ChestGenHooks.getOneItem(LootBags.LOOTCATEGORYLIST[rand], random).copy();
-			} catch (IllegalArgumentException e) {
-				FMLLog.log(Level.ERROR, "DANGER DANGER DANGER!! Attempted Chest Gen Hook \""+LootBags.LOOTCATEGORYLIST[rand]+"\" is unrecognized by Forge or has no items!  You should have listened to the comment in the config!!");
-			}
-		}
-		if(!reroll)
-		{
-			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(is.getItem());
-			for(String modid:LootBags.MODBLACKLIST)
-			{
-				if(modid.equalsIgnoreCase(u.modId))
-					reroll = true;
-			}
-			
-			for(ItemStack istack:LootBags.LOOTBLACKLIST)
-			{
-				if(is.isItemEqual(istack))
-				{
-					reroll = true;
-				}
-			}
-		}
+		boolean reroll = false;
+		ItemStack is = LootBags.LOOTMAP.getRandomItem(getWeightFromDamage(damage));
+		if(is == null || is.getItem()==null || is.stackSize<= 0)
+			reroll = true;
 		if(reroll && rerollCount<LootBags.MAXREROLLCOUNT)
 		{
-			return getLootItem(++rerollCount);
+			return getLootItem(++rerollCount, damage);
 		}
 		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
 			return null;
 		return is;
 	}
 	
+	private static int getWeightFromDamage(int damage)
+	{
+		switch(damage)
+		{
+		case 0:
+			return -1;
+		case 1:
+			return LootBags.LOOTMAP.generatePercentileWeight(75);
+		case 2:
+			return LootBags.LOOTMAP.generatePercentileWeight(50);
+		case 3:
+			return LootBags.LOOTMAP.generatePercentileWeight(25);
+		case 4:
+			return LootBags.LOOTMAP.generatePercentileWeight(5);
+		default:
+			return -1;
+		}
+	}
 	/**
 	 * Returns true if the stack should be removed
 	 * @param is
@@ -280,10 +348,63 @@ public class LootbagItem extends Item {
 	}
     
 	@Override
+	public String getUnlocalizedName(ItemStack is)
+	{
+		switch(is.getItemDamage())
+		{
+		case 0:
+			return "item.lootbag.common";
+		case 1:
+			return "item.lootbag.uncommon";
+		case 2:
+			return "item.lootbag.rare";
+		case 3:
+			return "item.lootbag.epic";
+		case 4:
+			return "item.lootbag.legendary";
+		case 5:
+			return "item.lootbag.bacon";
+		default:
+			return "item.lootbag.derp";
+		}
+	}
+	@Override
 	public void registerIcons(IIconRegister ir) {
-		this.itemIcon = ir.registerIcon("lootbags:lootbagItemTexture");
+		iconlist[0] = ir.registerIcon("lootbags:lootbagCommonItemTexture");
+		iconlist[1] = ir.registerIcon("lootbags:lootbagUncommonItemTexture");
+		iconlist[2] = ir.registerIcon("lootbags:lootbagRareItemTexture");
+		iconlist[3] = ir.registerIcon("lootbags:lootbagEpicItemTexture");
+		iconlist[4] = ir.registerIcon("lootbags:lootbagLegendaryItemTexture");
+		iconlist[5] = ir.registerIcon("lootbags:lootbagBaconItemTexture");
 	}
 
+	public IIcon getIconFromDamage(int value)
+	{
+		return iconlist[value];
+	}
+	
+    /**
+     * From the specified side and block metadata retrieves the blocks texture. Args: side, metadata
+     */
+    public IIcon getBlockTextureFromSideAndMetadata(int par1, int par2)
+    {
+        if (par2 < 0 || par2 >= this.iconlist.length)
+        {
+            par2 = 0;
+        }
+
+        return this.iconlist[par2];
+    }
+    
+    public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+    {
+        par3List.add(new ItemStack(par1, 1, 0));
+        par3List.add(new ItemStack(par1, 1, 1));
+        par3List.add(new ItemStack(par1, 1, 2));
+        par3List.add(new ItemStack(par1, 1, 3));
+        par3List.add(new ItemStack(par1, 1, 4));
+        par3List.add(new ItemStack(par1, 1, 5));
+    }
 	@Override
 	public boolean getShareTag() {
 		return true;

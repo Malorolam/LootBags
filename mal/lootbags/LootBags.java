@@ -26,6 +26,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
@@ -43,22 +44,40 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.3.4";
+	public static final String VERSION = "1.4.0";
 
-	public static int MONSTERDROPCHANCE = 40;
-	public static int PASSIVEDROPCHANCE = 20;
-	public static int PLAYERDROPCHANCE = 5;
+	public static int CMONSTERDROPCHANCE = 40;
+	public static int CPASSIVEDROPCHANCE = 20;
+	public static int CPLAYERDROPCHANCE = 5;
+	
+	public static int UMONSTERDROPCHANCE = 40;
+	public static int UPASSIVEDROPCHANCE = 20;
+	public static int UPLAYERDROPCHANCE = 5;
+	
+	public static int RMONSTERDROPCHANCE = 40;
+	public static int RPASSIVEDROPCHANCE = 20;
+	public static int RPLAYERDROPCHANCE = 5;
+	
+	public static int EMONSTERDROPCHANCE = 40;
+	public static int EPASSIVEDROPCHANCE = 20;
+	public static int EPLAYERDROPCHANCE = 5;
+	
+	public static int LMONSTERDROPCHANCE = 40;
+	public static int LPASSIVEDROPCHANCE = 20;
+	public static int LPLAYERDROPCHANCE = 5;
+	
+	public static boolean LIMITONEBAGPERDROP = false;
 	
 	public static int MAXREROLLCOUNT = 50;
 	public static int TOTALVALUEPERBAG = 1000;//total amount of drop chance required to create a lootbag
 	
-	public static String[] LOOTCATEGORYLIST = null;
+	private static String[] LOOTCATEGORYLIST = null;
 	public static ArrayList<ItemStack> LOOTBLACKLIST = new ArrayList<ItemStack>();
 	public static ArrayList<String> MODBLACKLIST = new ArrayList<String>();
-	public static ArrayList<ItemStack> LOOTWHITELIST = new ArrayList<ItemStack>();
-	public static ArrayList<Integer> WHITELISTCHANCE = new ArrayList<Integer>();
 	
-	public static String[] LOOTBAGINDUNGEONLOOT;
+	private static String[] LOOTBAGINDUNGEONLOOT;
+	
+	public static LootMap LOOTMAP = new LootMap();
 	
 	private String[] blacklistlist;
 	private String[] whitelistlist;
@@ -66,6 +85,9 @@ public class LootBags {
 	private HashMap<String,Integer> totalvaluemap = new HashMap<String,Integer>();
 	
 	private boolean disableRecycler = false;
+	
+	private int numBagsToUpgrade = 9;
+	private int maxTierCraftable = 4;
 	
 	private static Random random = new Random();
 	
@@ -87,11 +109,27 @@ public class LootBags {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		
-		Property prop = config.get(Configuration.CATEGORY_GENERAL, "Monster Drop Chance 0-100", 20);
-		prop.comment = "This controls the drop chance for monsters, passive mobs, and players.";
-		MONSTERDROPCHANCE = prop.getInt();
-		PASSIVEDROPCHANCE = config.get(Configuration.CATEGORY_GENERAL, "Passive Mob Drop Chance 0-100", 10).getInt();
-		PLAYERDROPCHANCE = config.get(Configuration.CATEGORY_GENERAL, "Player Drop Chance 0-100", 10).getInt();
+		Property prop = config.get("Drop Chances", "Common Bag Monster Drop Chance 0-1000", 200);
+		prop.comment = "This controls the drop chance for monsters, passive mobs, and players for each bag in a resolution up to 0.1%.";
+		CMONSTERDROPCHANCE = prop.getInt();
+		CPASSIVEDROPCHANCE = config.get("Drop Chances", "Common Bag Passive Mob Drop Chance 0-1000", 100).getInt();
+		CPLAYERDROPCHANCE = config.get("Drop Chances", "Common Bag Player Drop Chance 0-1000", 100).getInt();
+		
+		UMONSTERDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Monster Drop Chance 0-1000", 100).getInt();
+		UPASSIVEDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Passive Mob Drop Chance 0-1000", 50).getInt();
+		UPLAYERDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Player Drop Chance 0-1000", 50).getInt();
+		
+		RMONSTERDROPCHANCE = config.get("Drop Chances", "Rare Bag Monster Drop Chance 0-1000", 50).getInt();
+		RPASSIVEDROPCHANCE = config.get("Drop Chances", "Rare Bag Passive Mob Drop Chance 0-1000", 25).getInt();
+		RPLAYERDROPCHANCE = config.get("Drop Chances", "Rare Bag Player Drop Chance 0-1000", 25).getInt();
+		
+		EMONSTERDROPCHANCE = config.get("Drop Chances", "Epic Bag Monster Drop Chance 0-1000", 25).getInt();
+		EPASSIVEDROPCHANCE = config.get("Drop Chances", "Epic Bag Passive Mob Drop Chance 0-1000", 10).getInt();
+		EPLAYERDROPCHANCE = config.get("Drop Chances", "Epic Bag Player Drop Chance 0-1000", 10).getInt();
+		
+		LMONSTERDROPCHANCE = config.get("Drop Chances", "Legendary Bag Monster Drop Chance 0-1000", 10).getInt();
+		LPASSIVEDROPCHANCE = config.get("Drop Chances", "Legendary Bag Passive Mob Drop Chance 0-1000", 5).getInt();
+		LPLAYERDROPCHANCE = config.get("Drop Chances", "Legendary Bag Player Drop Chance 0-1000", 5).getInt();
 		
 		Property prop2 = config.get("Loot Categories", "ChestGenHooks Dropped",  new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
 				ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST, ChestGenHooks.PYRAMID_JUNGLE_DISPENSER,
@@ -130,39 +168,208 @@ public class LootBags {
 		Property prop8 = config.get(Configuration.CATEGORY_GENERAL, "Disable Recycler Recipe", false);
 		disableRecycler = prop8.getBoolean();
 		
+		Property prop9 = config.get(Configuration.CATEGORY_GENERAL, "Number of Bags to Upgrade", 4);
+		prop8.comment = "The number of bags needed to upgrade a bag into it's next level counterpart.";
+		numBagsToUpgrade = prop9.getInt();
+		if(numBagsToUpgrade<1)
+		{
+			FMLLog.log(Level.WARN, "Number of bags to upgrade must be at least 1.");
+			numBagsToUpgrade = 1;
+		}
+		if(numBagsToUpgrade>9)
+		{
+			FMLLog.log(Level.WARN, "Number of bags to upgrade cannot be larger than 9.");
+			numBagsToUpgrade = 9;
+		}
+		
+		Property prop10 = config.get(Configuration.CATEGORY_GENERAL, "Max Tier Craftable", "Legendary");
+		prop10.comment = "Maxiumum tier of bag that can be crafted from other bags.  None will disable bag crafting.  Allowable names: None, Uncommon, Rare, Epic, Legendary.";
+		String tier = prop10.getString();
+		if(tier.equalsIgnoreCase("none"))
+			maxTierCraftable=-1;
+		else if(tier.equalsIgnoreCase("uncommon"))
+			maxTierCraftable=1;
+		else if(tier.equalsIgnoreCase("rare"))
+			maxTierCraftable=2;
+		else if(tier.equalsIgnoreCase("epic"))
+			maxTierCraftable=3;
+		else if(tier.equalsIgnoreCase("legendary"))
+			maxTierCraftable=4;
+		else
+		{
+			FMLLog.log(Level.WARN, "Invalid tier name: " + tier + ".  Setting tier to allow all crafting.");
+			maxTierCraftable=4;
+		}
+		
+		Property prop11 = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", false);
+		prop11.comment = "This limits the loot bags to only drop one bag.  Rarer bags will be favored over common bags.";
+		LIMITONEBAGPERDROP = prop11.getBoolean();
+		
 		config.save();
 		
-		if(MONSTERDROPCHANCE<0)
+		if(CMONSTERDROPCHANCE<0)
 		{
-			FMLLog.log(Level.WARN, "Monster drop chance cannot be below 0%, adjusting to 0%");
-			MONSTERDROPCHANCE=0;
+			FMLLog.log(Level.WARN, "Monster common drop chance cannot be below 0%, adjusting to 0%");
+			CMONSTERDROPCHANCE=0;
 		}
-		else if(MONSTERDROPCHANCE>100)
+		else if(CMONSTERDROPCHANCE>1000)
 		{
-			FMLLog.log(Level.WARN, "Monster drop chance cannot be above 100%, adjusting to 100%");
-			MONSTERDROPCHANCE=100;
-		}
-		
-		if(PASSIVEDROPCHANCE<0)
-		{
-			FMLLog.log(Level.WARN, "Passive Mob drop chance cannot be below 0%, adjusting to 0%");
-			PASSIVEDROPCHANCE=0;
-		}
-		else if(PASSIVEDROPCHANCE>100)
-		{
-			FMLLog.log(Level.WARN, "Passive Mob drop chance cannot be above 100%, adjusting to 100%");
-			PASSIVEDROPCHANCE=100;
+			FMLLog.log(Level.WARN, "Monster common drop chance cannot be above 100%, adjusting to 100%");
+			CMONSTERDROPCHANCE=1000;
 		}
 		
-		if(PLAYERDROPCHANCE<0)
+		if(CPASSIVEDROPCHANCE<0)
 		{
-			FMLLog.log(Level.WARN, "Player drop chance cannot be below 0%, adjusting to 0%");
-			PLAYERDROPCHANCE=0;
+			FMLLog.log(Level.WARN, "Passive Mob common drop chance cannot be below 0%, adjusting to 0%");
+			CPASSIVEDROPCHANCE=0;
 		}
-		else if(PLAYERDROPCHANCE>100)
+		else if(CPASSIVEDROPCHANCE>1000)
 		{
-			FMLLog.log(Level.WARN, "Player drop chance cannot be above 100%, adjusting to 100%");
-			PLAYERDROPCHANCE=100;
+			FMLLog.log(Level.WARN, "Passive Mob common drop chance cannot be above 100%, adjusting to 100%");
+			CPASSIVEDROPCHANCE=1000;
+		}
+		
+		if(CPLAYERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Player drop common chance cannot be below 0%, adjusting to 0%");
+			CPLAYERDROPCHANCE=0;
+		}
+		else if(CPLAYERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Player drop common chance cannot be above 100%, adjusting to 100%");
+			CPLAYERDROPCHANCE=1000;
+		}
+		
+		if(UMONSTERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Monster uncommon drop chance cannot be below 0%, adjusting to 0%");
+			UMONSTERDROPCHANCE=0;
+		}
+		else if(UMONSTERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Monster uncommon drop chance cannot be above 100%, adjusting to 100%");
+			UMONSTERDROPCHANCE=1000;
+		}
+		
+		if(UPASSIVEDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob uncommon drop chance cannot be below 0%, adjusting to 0%");
+			UPASSIVEDROPCHANCE=0;
+		}
+		else if(UPASSIVEDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob uncommon drop chance cannot be above 100%, adjusting to 100%");
+			UPASSIVEDROPCHANCE=1000;
+		}
+		
+		if(UPLAYERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Player drop uncommon chance cannot be below 0%, adjusting to 0%");
+			UPLAYERDROPCHANCE=0;
+		}
+		else if(UPLAYERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Player drop uncommon chance cannot be above 100%, adjusting to 100%");
+			UPLAYERDROPCHANCE=1000;
+		}
+		
+		if(RMONSTERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Monster rare drop chance cannot be below 0%, adjusting to 0%");
+			RMONSTERDROPCHANCE=0;
+		}
+		else if(RMONSTERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Monster rare drop chance cannot be above 100%, adjusting to 100%");
+			RMONSTERDROPCHANCE=1000;
+		}
+		
+		if(RPASSIVEDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob rare drop chance cannot be below 0%, adjusting to 0%");
+			RPASSIVEDROPCHANCE=0;
+		}
+		else if(RPASSIVEDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob rare drop chance cannot be above 100%, adjusting to 100%");
+			RPASSIVEDROPCHANCE=1000;
+		}
+		
+		if(RPLAYERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Player drop rare chance cannot be below 0%, adjusting to 0%");
+			RPLAYERDROPCHANCE=0;
+		}
+		else if(RPLAYERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Player drop rare chance cannot be above 100%, adjusting to 100%");
+			RPLAYERDROPCHANCE=1000;
+		}
+		
+		if(EMONSTERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Monster epic drop chance cannot be below 0%, adjusting to 0%");
+			EMONSTERDROPCHANCE=0;
+		}
+		else if(EMONSTERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Monster epic drop chance cannot be above 100%, adjusting to 100%");
+			EMONSTERDROPCHANCE=1000;
+		}
+		
+		if(EPASSIVEDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob epic drop chance cannot be below 0%, adjusting to 0%");
+			EPASSIVEDROPCHANCE=0;
+		}
+		else if(EPASSIVEDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob epic drop chance cannot be above 100%, adjusting to 100%");
+			EPASSIVEDROPCHANCE=1000;
+		}
+		
+		if(EPLAYERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Player drop epic chance cannot be below 0%, adjusting to 0%");
+			EPLAYERDROPCHANCE=0;
+		}
+		else if(EPLAYERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Player drop epic chance cannot be above 100%, adjusting to 100%");
+			EPLAYERDROPCHANCE=1000;
+		}
+		
+		if(LMONSTERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Monster legendary drop chance cannot be below 0%, adjusting to 0%");
+			LMONSTERDROPCHANCE=0;
+		}
+		else if(LMONSTERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Monster legendary drop chance cannot be above 100%, adjusting to 100%");
+			LMONSTERDROPCHANCE=1000;
+		}
+		
+		if(LPASSIVEDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob legendary drop chance cannot be below 0%, adjusting to 0%");
+			LPASSIVEDROPCHANCE=0;
+		}
+		else if(LPASSIVEDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Passive Mob legendary drop chance cannot be above 100%, adjusting to 100%");
+			LPASSIVEDROPCHANCE=1000;
+		}
+		
+		if(LPLAYERDROPCHANCE<0)
+		{
+			FMLLog.log(Level.WARN, "Player drop legendary chance cannot be below 0%, adjusting to 0%");
+			LPLAYERDROPCHANCE=0;
+		}
+		else if(LPLAYERDROPCHANCE>1000)
+		{
+			FMLLog.log(Level.WARN, "Player drop legendary chance cannot be above 100%, adjusting to 100%");
+			LPLAYERDROPCHANCE=1000;
 		}
 		
 		if(LOOTCATEGORYLIST.length<=0)
@@ -195,9 +402,19 @@ public class LootBags {
 		if(!disableRecycler)
 			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recycler), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.chest), 'I', "ingotIron"}));
 		
+		for(int i = 0; i < maxTierCraftable; i++)
+		{
+			Object[] c = new Object[numBagsToUpgrade];
+			for(int j = 0; j < c.length; j++)
+			{
+				c[j] = new ItemStack(lootbag, 1, i);
+			}
+			CraftingManager.getInstance().getRecipeList().add(new ShapelessOreRecipe(new ItemStack(lootbag, 1, i+1), c));
+		}
+		
 		if(LOOTBAGINDUNGEONLOOT.length>0)
 		{
-			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag), 0, 1, 45);
+			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag), 1, 1, 45);
 			for(String s:LOOTBAGINDUNGEONLOOT)
 				ChestGenHooks.addItem(s, con);
 		}
@@ -242,45 +459,14 @@ public class LootBags {
 					}
 				}
 			}
-		}
-
-		for(String s: whitelistlist)
+		}	
+		
+		//TODO: Make more finalish
+		for(int i = 0; i < LOOTCATEGORYLIST.length; i++)
 		{
-			String trim = s.trim();
-			if(!trim.isEmpty())
-			{
-				String[] words = trim.split("\\s+");
-				if(words.length == 3)
-				{
-					if(!OreDictionary.getOres(words[0]).isEmpty())
-					{
-						FMLLog.log(Level.INFO, "Added Whitelist item from OreDictionary: " + words[0] + "x" + words[1]);
-						ItemStack is = OreDictionary.getOres(words[0]).get(0).copy();
-						is.stackSize=Integer.parseInt(words[1]);
-						LOOTWHITELIST.add(is);
-						WHITELISTCHANCE.add(Integer.parseInt(words[2]));
-					}
-				}
-				if(words.length == 5)
-				{
-					ItemStack stack = null;
-					//one of these should be not null
-					Block block = GameRegistry.findBlock(words[0], words[1]);
-					Item item = GameRegistry.findItem(words[0], words[1]);
-					if(item != null)
-						stack = new ItemStack(item,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
-					else if(block != null)
-						stack = new ItemStack(block,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
-					if(stack != null && stack.getItem() != null)
-					{
-						FMLLog.log(Level.INFO, "Added Whitelist item: " + stack.toString());
-						LOOTWHITELIST.add(stack);
-						WHITELISTCHANCE.add(Integer.parseInt(words[4]));
-					}
-				}
-			}
+			LOOTMAP.addLootCategory(LOOTCATEGORYLIST[i]);
 		}
-			
+		LOOTMAP.addWhitelistedItems(whitelistlist);
 	}
 	
 	@EventHandler
@@ -291,22 +477,7 @@ public class LootBags {
 	
 	public static ArrayList<ItemStack> getLootbagDropList()
 	{
-		ArrayList<ItemStack> itemlist = new ArrayList<ItemStack>();
-		for(String s:LootBags.LOOTBAGINDUNGEONLOOT)
-		{
-			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
-			for(WeightedRandomChestContent con:contents)
-			{
-				itemlist.add(con.theItemId);
-			}
-		}
-		
-		for(int i = 0; i < LootBags.LOOTWHITELIST.size(); i++)
-		{
-			itemlist.add(LootBags.LOOTWHITELIST.get(i));
-		}
-		
-		return itemlist;
+		return LOOTMAP.getMapAsList();
 	}
 	
 	/**
@@ -326,46 +497,20 @@ public class LootBags {
 				return false;
 		}
 		
-		for(String s:LOOTBAGINDUNGEONLOOT)
-		{
-			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
-			for(WeightedRandomChestContent con:contents)
-			{
-				if(areItemStacksEqualItem(con.theItemId, item, false, false))
-					return true;
-			}
-		}
-		
-		for(int i = 0; i < LOOTWHITELIST.size(); i++)
-		{
-			if(areItemStacksEqualItem(LOOTWHITELIST.get(i), item, false, false))
-				return true;
-		}
-		
-		return false;
+		return LOOTMAP.isItemInMap(item);
 	}
 	
-	public static int getItemChance(ItemStack item)
+	public static int getItemValue(ItemStack item)
 	{
-		for(String s:LOOTBAGINDUNGEONLOOT)
+		for(WeightedRandomChestContent c : LOOTMAP.getMapAsChestList())
 		{
-			WeightedRandomChestContent[] contents = ChestGenHooks.getItems(s, random);
-			for(WeightedRandomChestContent con:contents)
+			if(areItemStacksEqualItem(c.theItemId, item, false, false))
 			{
-				if(areItemStacksEqualItem(con.theItemId, item, false, false))
-				{
-					double value = Math.ceil(WeightedRandom.getTotalWeight(ChestGenHooks.getItems(s, random))/(con.itemWeight*((item.getMaxStackSize()==1)?(1):(8))));
-					if(value <= 0)
-						value = 1;
-					return (int)value;
-				}
+				double value = Math.ceil(LOOTMAP.getTotalWeight()/(c.itemWeight*((item.getMaxStackSize()==1)?(1):(8))));
+				if(value <= 0)
+					value = 1;
+				return (int)value;
 			}
-		}
-		
-		for(int i = 0; i < LOOTWHITELIST.size(); i++)
-		{
-			if(areItemStacksEqualItem(LOOTWHITELIST.get(i), item, false, false))
-				return (100-WHITELISTCHANCE.get(i))/LOOTWHITELIST.get(i).getMaxStackSize();
 		}
 		
 		return 0;
