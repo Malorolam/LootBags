@@ -39,7 +39,7 @@ import net.minecraftforge.common.ChestGenHooks;
 public class LootbagItem extends Item {
 
 	private static Random random = new Random();
-	private IIcon[] iconlist = new IIcon[6];
+	private IIcon[] iconlist = new IIcon[7];
 
 	public LootbagItem() {
 		super();
@@ -71,6 +71,10 @@ public class LootbagItem extends Item {
 			break;
 		case 5:
 			list.add("\u00A7d" + "Bacon");
+			break;
+		case 6:
+			list.add(EnumChatFormatting.GRAY + "Worn Out");
+			break;
 		}
 		
 		if(is.getTagCompound() != null && is.getTagCompound().getBoolean("generated"))
@@ -78,6 +82,11 @@ public class LootbagItem extends Item {
 			if(is.getItemDamage()==5)
 			{
 				list.add("\u00A7d" + "Turns out there is bacon inside...");
+			}
+			else if(is.getItemDamage()==6)
+			{
+				list.add("\u00A7b" + "I told you my bags don't");
+				list.add("\u00A7b" + "drop beds! baconNub");
 			}
 			else
 			{
@@ -88,7 +97,7 @@ public class LootbagItem extends Item {
 		else
 			list.add("\u00A7b" + "Ooh, what could be inside?");
 		if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)) {
-			if(is.getItemDamage() != 5)
+			if(is.getItemDamage() < 5)
 			{
 				int mchance;
 				int pchance;
@@ -129,11 +138,19 @@ public class LootbagItem extends Item {
 				list.add("\u00A77" + "Current Drop Rates: Monster: " + String.format("%.2f", mchance/10.0f) + "%");
 				list.add("\u00A77" + "Passive: " + String.format("%.2f", pchance/10.0f) + "% Player: " + String.format("%.2f", lchance/10.0f) + "%");
 			}
-			else
+			else if(is.getItemDamage() == 5)
 			{
 				list.add("\u00A77" + "Three out of every four bacons agree");
 				list.add("\u00A77" + "that they don't have enough bacon.");
 				list.add("\u00A77" + "The fourth has a bag full of bacon.");
+				list.add("\u00A7b" + "(It still isn't enough bacon.)");
+			}
+			else if(is.getItemDamage() == 6)
+			{
+				list.add("\u00A77" + "My bags are not configured");
+				list.add("\u00A77" + "to drop beds in this pack.");
+				list.add("\u00A77" + "I am 100% certain about this.");
+				list.add(EnumChatFormatting.DARK_PURPLE + "~Malorolam");
 			}
 		}
 	}
@@ -184,7 +201,7 @@ public class LootbagItem extends Item {
 		if(is.getTagCompound()!=null)
 			gen = is.getTagCompound().getBoolean("generated");
 		if (!gen) {
-			int numitems = random.nextInt(5) + 1;
+			int numitems = (is.getItemDamage()==6)?(1):(random.nextInt(5) + 1);
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagList nbtinventory = new NBTTagList();
 
@@ -197,7 +214,7 @@ public class LootbagItem extends Item {
 				}
 				else
 				{
-					System.out.println("Skipping null slot.");
+					//System.out.println("Skipping null slot.");
 					i--;
 					numitems--;
 				}
@@ -220,6 +237,16 @@ public class LootbagItem extends Item {
 				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.porkchop), 4, 16);
 			else
 				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cooked_porkchop), 4, 16);
+	        return (stacks.length > 0 ? stacks[0] : null);
+		}
+		if(damage == 6)
+		{
+			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cake), 1, 1);
+	        return (stacks.length > 0 ? stacks[0] : null);
+		}
+		if(random.nextInt(1000)==0)
+		{
+			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(LootBags.lootbag, 1, 6), 1, 1);
 	        return (stacks.length > 0 ? stacks[0] : null);
 		}
 		boolean reroll = false;
@@ -364,6 +391,8 @@ public class LootbagItem extends Item {
 			return "item.lootbag.legendary";
 		case 5:
 			return "item.lootbag.bacon";
+		case 6:
+			return "item.lootbag.wornout";
 		default:
 			return "item.lootbag.derp";
 		}
@@ -376,6 +405,7 @@ public class LootbagItem extends Item {
 		iconlist[3] = ir.registerIcon("lootbags:lootbagEpicItemTexture");
 		iconlist[4] = ir.registerIcon("lootbags:lootbagLegendaryItemTexture");
 		iconlist[5] = ir.registerIcon("lootbags:lootbagBaconItemTexture");
+		iconlist[6] = ir.registerIcon("lootbags:lootbagCommonItemTexture");
 	}
 
 	public IIcon getIconFromDamage(int value)
@@ -404,6 +434,7 @@ public class LootbagItem extends Item {
         par3List.add(new ItemStack(par1, 1, 3));
         par3List.add(new ItemStack(par1, 1, 4));
         par3List.add(new ItemStack(par1, 1, 5));
+        //par3List.add(new ItemStack(par1, 1, 6));
     }
 	@Override
 	public boolean getShareTag() {

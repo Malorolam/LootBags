@@ -44,7 +44,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.4.0";
+	public static final String VERSION = "1.4.1";
 
 	public static int CMONSTERDROPCHANCE = 40;
 	public static int CPASSIVEDROPCHANCE = 20;
@@ -144,8 +144,8 @@ public class LootBags {
 		blacklistlist = prop3.getStringList();
 		
 		Property prop4 = config.get("Whitelist", "Whitelisted Items", new String[]{});
-		prop4.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will add the item to the Loot Bag drop table.  Example to whitelist up to 16 iron ingots with a 50%" +
-				" chance to spawn: minecraft iron_ingot 0 16 50 <OR> ingotIron 16 50";
+		prop4.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will add the item to the Loot Bag drop table.  Example to whitelist up to 16 iron ingots with a weight of 50" +
+				": minecraft iron_ingot 0 16 50 <OR> ingotIron 16 50";
 		whitelistlist = prop4.getStringList();
 		
 		Property prop5 = config.get("Loot Categories", "Loot Bags in worldgen chests", new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
@@ -201,7 +201,7 @@ public class LootBags {
 			maxTierCraftable=4;
 		}
 		
-		Property prop11 = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", false);
+		Property prop11 = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", true);
 		prop11.comment = "This limits the loot bags to only drop one bag.  Rarer bags will be favored over common bags.";
 		LIMITONEBAGPERDROP = prop11.getBoolean();
 		
@@ -372,11 +372,11 @@ public class LootBags {
 			LPLAYERDROPCHANCE=1000;
 		}
 		
-		if(LOOTCATEGORYLIST.length<=0)
+/*		if(LOOTCATEGORYLIST.length<=0)
 		{
 			FMLLog.log(Level.WARN, "Drop tables must contain at least one ChestGenHook, adding DUNGEON_CHEST as a default.");
 			LOOTCATEGORYLIST = new String[]{ChestGenHooks.DUNGEON_CHEST};
-		}
+		}*/
 		
 		if(MAXREROLLCOUNT<=0)
 		{
@@ -459,9 +459,8 @@ public class LootBags {
 					}
 				}
 			}
-		}	
+		}
 		
-		//TODO: Make more finalish
 		for(int i = 0; i < LOOTCATEGORYLIST.length; i++)
 		{
 			LOOTMAP.addLootCategory(LOOTCATEGORYLIST[i]);

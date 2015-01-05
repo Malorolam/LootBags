@@ -221,7 +221,7 @@ public class LootMap {
 			weights.add(c.itemWeight);
 		}
 		Collections.sort(weights);
-		return weights.get((int) Math.round(val));
+		return weights.get((int) Math.floor(val));
 	}
 	public ArrayList<ItemStack> getMapAsList()
 	{
@@ -268,3 +268,10 @@ public class LootMap {
 		System.out.println("Total Weight: " + totalWeight);
 	}
 }
+/*******************************************************************************
+ * Copyright (c) 2014 Malorolam.
+ * 
+ * All rights reserved. This program and the accompanying materials are made
+ * available under the terms of the included license.
+ * 
+ *********************************************************************************/
