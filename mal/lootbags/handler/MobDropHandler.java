@@ -31,86 +31,145 @@ public class MobDropHandler {
 		{
 			if (event.entityLiving instanceof EntityPlayer)
 			{
-				if(chance < LootBags.LPLAYERDROPCHANCE && LootBags.LPLAYERDROPCHANCE > 0)
+				//try a weighting system instead so there is a better distribution of bags
+				int totalweight = LootBags.LPLAYERDROPCHANCE+LootBags.EPLAYERDROPCHANCE+LootBags.RPLAYERDROPCHANCE+LootBags.UPLAYERDROPCHANCE+LootBags.CPLAYERDROPCHANCE;
+				
+				if(chance < totalweight)//getting a bag
 				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.EPLAYERDROPCHANCE && LootBags.EPLAYERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.RPLAYERDROPCHANCE && LootBags.RPLAYERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.UPLAYERDROPCHANCE && LootBags.UPLAYERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.CPLAYERDROPCHANCE && LootBags.CPLAYERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
-					bagdrop = true;
+					if(chance < LootBags.CPLAYERDROPCHANCE && LootBags.CPLAYERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.CPLAYERDROPCHANCE > 0)
+						chance -= LootBags.CPLAYERDROPCHANCE;
+					
+					if(chance < LootBags.UPLAYERDROPCHANCE && LootBags.UPLAYERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.UPLAYERDROPCHANCE > 0)
+						chance -= LootBags.UPLAYERDROPCHANCE;
+					
+					if(chance < LootBags.RPLAYERDROPCHANCE && LootBags.RPLAYERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.RPLAYERDROPCHANCE > 0)
+						chance -= LootBags.RPLAYERDROPCHANCE;
+					
+					if(chance < LootBags.EPLAYERDROPCHANCE && LootBags.EPLAYERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.EPLAYERDROPCHANCE > 0)
+						chance -= LootBags.EPLAYERDROPCHANCE;
+					
+					if(chance < LootBags.LPLAYERDROPCHANCE && LootBags.LPLAYERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.LPLAYERDROPCHANCE > 0)
+						chance -= LootBags.LPLAYERDROPCHANCE;
 				}
 			}
 			if (event.entityLiving instanceof EntityAnimal)
 			{
-				if(chance < LootBags.LPASSIVEDROPCHANCE && LootBags.LPASSIVEDROPCHANCE > 0)
+				int totalweight = LootBags.LPASSIVEDROPCHANCE+LootBags.EPASSIVEDROPCHANCE+LootBags.RPASSIVEDROPCHANCE+LootBags.UPASSIVEDROPCHANCE+LootBags.CPASSIVEDROPCHANCE;
+				
+				if(chance < totalweight)//getting a bag
 				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.EPASSIVEDROPCHANCE && LootBags.EPASSIVEDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.RPASSIVEDROPCHANCE && LootBags.RPASSIVEDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.UPASSIVEDROPCHANCE && LootBags.UPASSIVEDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.CPASSIVEDROPCHANCE && LootBags.CPASSIVEDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
-					bagdrop = true;
+					if(chance < LootBags.CPASSIVEDROPCHANCE && LootBags.CPASSIVEDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.CPASSIVEDROPCHANCE > 0)
+						chance -= LootBags.CPASSIVEDROPCHANCE;
+					
+					if(chance < LootBags.UPASSIVEDROPCHANCE && LootBags.UPASSIVEDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.UPASSIVEDROPCHANCE > 0)
+						chance -= LootBags.UPASSIVEDROPCHANCE;
+					
+					if(chance < LootBags.RPASSIVEDROPCHANCE && LootBags.RPASSIVEDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.RPASSIVEDROPCHANCE > 0)
+						chance -= LootBags.RPASSIVEDROPCHANCE;
+					
+					if(chance < LootBags.EPASSIVEDROPCHANCE && LootBags.EPASSIVEDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.EPASSIVEDROPCHANCE > 0)
+						chance -= LootBags.EPASSIVEDROPCHANCE;
+					
+					if(chance < LootBags.LPASSIVEDROPCHANCE && LootBags.LPASSIVEDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.LPASSIVEDROPCHANCE > 0)
+						chance -= LootBags.LPASSIVEDROPCHANCE;
 				}
 			}
 			if (event.entityLiving instanceof EntityMob)
 			{
-				if(chance < LootBags.LMONSTERDROPCHANCE && LootBags.LMONSTERDROPCHANCE > 0)
+				int totalweight = LootBags.LMONSTERDROPCHANCE+LootBags.EMONSTERDROPCHANCE+LootBags.RMONSTERDROPCHANCE+LootBags.UMONSTERDROPCHANCE+LootBags.CMONSTERDROPCHANCE;
+				//System.out.println(chance + "/" + totalweight);
+				
+				if(chance < totalweight)//getting a bag
 				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.EMONSTERDROPCHANCE && LootBags.EMONSTERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.RMONSTERDROPCHANCE && LootBags.RMONSTERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.UMONSTERDROPCHANCE && LootBags.UMONSTERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
-					bagdrop = true;
-				}
-				if(!bagdrop && chance < LootBags.CMONSTERDROPCHANCE && LootBags.CMONSTERDROPCHANCE > 0)
-				{
-					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
-					bagdrop = true;
+					if(chance < LootBags.CMONSTERDROPCHANCE && LootBags.CMONSTERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.CMONSTERDROPCHANCE > 0)
+						chance -= LootBags.CMONSTERDROPCHANCE;
+					
+					if(chance < LootBags.UMONSTERDROPCHANCE && LootBags.UMONSTERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.UMONSTERDROPCHANCE > 0)
+						chance -= LootBags.UMONSTERDROPCHANCE;
+					
+					if(chance < LootBags.RMONSTERDROPCHANCE && LootBags.RMONSTERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.RMONSTERDROPCHANCE > 0)
+						chance -= LootBags.RMONSTERDROPCHANCE;
+					
+					if(chance < LootBags.EMONSTERDROPCHANCE && LootBags.EMONSTERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.EMONSTERDROPCHANCE > 0)
+						chance -= LootBags.EMONSTERDROPCHANCE;
+					
+					if(chance < LootBags.LMONSTERDROPCHANCE && LootBags.LMONSTERDROPCHANCE > 0)
+					{
+						event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
+						return;
+					}
+					else if(LootBags.LMONSTERDROPCHANCE > 0)
+						chance -= LootBags.LMONSTERDROPCHANCE;
 				}
 			}
 		}
@@ -121,23 +180,26 @@ public class MobDropHandler {
 				if(!bagdrop && chance < LootBags.CPLAYERDROPCHANCE && LootBags.CPLAYERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
-					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.UPLAYERDROPCHANCE && LootBags.UPLAYERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.RPLAYERDROPCHANCE && LootBags.RPLAYERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.EPLAYERDROPCHANCE && LootBags.EPLAYERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(chance < LootBags.LPLAYERDROPCHANCE && LootBags.LPLAYERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
@@ -151,21 +213,25 @@ public class MobDropHandler {
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.UPASSIVEDROPCHANCE && LootBags.UPASSIVEDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.RPASSIVEDROPCHANCE && LootBags.RPASSIVEDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.EPASSIVEDROPCHANCE && LootBags.EPASSIVEDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(chance < LootBags.LPASSIVEDROPCHANCE && LootBags.LPASSIVEDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
@@ -179,21 +245,25 @@ public class MobDropHandler {
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 0), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.UMONSTERDROPCHANCE && LootBags.UMONSTERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 1), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.RMONSTERDROPCHANCE && LootBags.RMONSTERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 2), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(!bagdrop && chance < LootBags.EMONSTERDROPCHANCE && LootBags.EMONSTERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 3), random.nextInt(2) + 1);
 					chance = random.nextInt(1000);
 				}
+				chance = random.nextInt(1000);
 				if(chance < LootBags.LMONSTERDROPCHANCE && LootBags.LMONSTERDROPCHANCE > 0)
 				{
 					event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 4), random.nextInt(2) + 1);
