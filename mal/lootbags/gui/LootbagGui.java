@@ -6,6 +6,7 @@ import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 
 public class LootbagGui extends GuiContainer{
@@ -29,6 +30,26 @@ public class LootbagGui extends GuiContainer{
         this.drawTexturedModalRect(var5, var6, 0, 0, this.xSize, this.ySize);
 	}
 
+    /**
+     * This function is what controls the hotbar shortcut check when you press a number key when hovering a stack.
+     */
+	@Override
+    protected boolean checkHotbarKeys(int p_146983_1_)
+    {
+/*        if (this.mc.thePlayer.inventory.getItemStack() == null && this.slotdummy != null && slotdummy.slotNumber != cont.islot)
+        {
+            for (int j = 0; j < 9; ++j)
+            {
+                if (p_146983_1_ == this.mc.gameSettings.keyBindsHotbar[j].getKeyCode())
+                {
+                    this.handleMouseClick(this.slotdummy, this.slotdummy.slotNumber, j, 2);
+                    return true;
+                }
+            }
+        }*/
+
+        return false;
+    }
 }
 /*******************************************************************************
  * Copyright (c) 2014 Malorolam.
