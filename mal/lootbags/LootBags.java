@@ -44,7 +44,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.4.2";
+	public static final String VERSION = "1.5.0";
 
 	public static int CMONSTERDROPCHANCE = 40;
 	public static int CPASSIVEDROPCHANCE = 20;
@@ -66,21 +66,27 @@ public class LootBags {
 	public static int LPASSIVEDROPCHANCE = 20;
 	public static int LPLAYERDROPCHANCE = 5;
 	
+	public static int CPERCENTILE = 100;
+	public static int UPERCENTILE = 75;
+	public static int RPERCENTILE = 50;
+	public static int EPERCENTILE = 25;
+	public static int LPERCENTILE = 5;
+	
 	public static boolean LIMITONEBAGPERDROP = false;
 	
 	public static int MAXREROLLCOUNT = 50;
 	public static int TOTALVALUEPERBAG = 1000;//total amount of drop chance required to create a lootbag
 	
 	private static String[] LOOTCATEGORYLIST = null;
-	public static ArrayList<ItemStack> LOOTBLACKLIST = new ArrayList<ItemStack>();
+	public static ArrayList<ArrayList<ItemStack>> BLACKLIST = new ArrayList<ArrayList<ItemStack>>();
 	public static ArrayList<String> MODBLACKLIST = new ArrayList<String>();
 	
 	private static String[] LOOTBAGINDUNGEONLOOT;
 	
 	public static LootMap LOOTMAP = new LootMap();
 	
-	private String[] blacklistlist;
-	private String[] whitelistlist;
+	private String[][] blacklistlist = new String[6][];
+	private String[][] whitelistlist = new String[6][];
 	
 	private HashMap<String,Integer> totalvaluemap = new HashMap<String,Integer>();
 	
@@ -137,16 +143,40 @@ public class LootBags {
 		prop2.comment = "This is a list of all Forge ChestGenHooks for different loot sources.  Probably a good idea to not mess with this unless you know what you're doing.";
 		LOOTCATEGORYLIST = prop2.getStringList();
 		
-		Property prop3 = config.get("Blacklist", "Blacklisted Items", new String[]{"lootbags itemlootbag 0"});
+		Property prop3 = config.get("Blacklisted Items", "Global Blacklist", new String[]{"lootbags itemlootbag 0"});
 		prop3.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will prevent the bag from dropping the item.  Tries for Ore Dictionary before trying through the modlist." +
 				"The modlist must be in the form <modid> <itemname> <damage> on a single line or it won't work right.  Example to blacklist iron ingots: minecraft iron_ingot 0 <OR> ingotIron.  An entire mod" +
-				"can be blacklisted by just entering a modid.";
-		blacklistlist = prop3.getStringList();
+				"can be blacklisted by just entering the modid and nothing else.";
+		blacklistlist[0] = prop3.getStringList();
+		prop3 = config.get("Blacklisted Bag Items", "Common Bag Blacklist", new String[]{});
+		prop3.comment = "These blacklists are related to the associated bag type, so an item blacklisted in Common bags still will show up in" +
+				" other bag types.";
+		blacklistlist[1] = prop3.getStringList();
+		prop3 = config.get("Blacklisted Bag Items", "Uncommon Bag Blacklist", new String[]{});
+		blacklistlist[2] = prop3.getStringList();
+		prop3 = config.get("Blacklisted Bag Items", "Rare Bag Blacklist", new String[]{});
+		blacklistlist[3] = prop3.getStringList();
+		prop3 = config.get("Blacklisted Bag Items", "Epic Bag Blacklist", new String[]{});
+		blacklistlist[4] = prop3.getStringList();
+		prop3 = config.get("Blacklisted Bag Items", "Legendary Bag Blacklist", new String[]{});
+		blacklistlist[5] = prop3.getStringList();
 		
-		Property prop4 = config.get("Whitelist", "Whitelisted Items", new String[]{});
+		Property prop4 = config.get("Whitelisted Items", "Global Whitelist", new String[]{});
 		prop4.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will add the item to the Loot Bag drop table.  Example to whitelist up to 16 iron ingots with a weight of 50" +
 				": minecraft iron_ingot 0 16 50 <OR> ingotIron 16 50";
-		whitelistlist = prop4.getStringList();
+		whitelistlist[0] = prop4.getStringList();
+		prop4 = config.get("Whitelisted Bag Items", "Common Bag Whitelist", new String[]{});
+		prop4.comment = "These whitelists are related to the associated bag type, so an item whitelisted in Common bags will not show up in" +
+				" other bag types.";
+		whitelistlist[1] = prop4.getStringList();
+		prop4 = config.get("Whitelisted Bag Items", "Uncommon Bag Whitelist", new String[]{});
+		whitelistlist[2] = prop4.getStringList();
+		prop4 = config.get("Whitelisted Bag Items", "Rare Bag Whitelist", new String[]{});
+		whitelistlist[3] = prop4.getStringList();
+		prop4 = config.get("Whitelisted Bag Items", "Epic Bag Whitelist", new String[]{});
+		whitelistlist[4] = prop4.getStringList();
+		prop4 = config.get("Whitelisted Bag Items", "Legendary Bag Whitelist", new String[]{});
+		whitelistlist[5] = prop4.getStringList();
 		
 		Property prop5 = config.get("Loot Categories", "Loot Bags in worldgen chests", new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
 				ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST, ChestGenHooks.PYRAMID_JUNGLE_DISPENSER,
@@ -414,51 +444,58 @@ public class LootBags {
 		
 		if(LOOTBAGINDUNGEONLOOT.length>0)
 		{
-			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag), 1, 1, 45);
+			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag, 1, 0), 1, 1, 30);
 			for(String s:LOOTBAGINDUNGEONLOOT)
+			{
 				ChestGenHooks.addItem(s, con);
-		}
-		
-		for(String s: blacklistlist)
-		{
-			if(!OreDictionary.getOres(s).isEmpty())
-			{
-				FMLLog.log(Level.INFO, "Added Blacklist items from OreDictionary: " + s);
-				LOOTBLACKLIST.addAll(OreDictionary.getOres(s));
 			}
-			else
+		}
+
+		for(int i = 0; i < blacklistlist.length; i++)
+		{
+			ArrayList<ItemStack> blstack = new ArrayList<ItemStack>();
+			for(String s: blacklistlist[i])
 			{
-				String trim = s.trim();
-				if(!trim.isEmpty())
+				if(!OreDictionary.getOres(s).isEmpty())
 				{
-					String[] words = trim.split("\\s+");
-					if(words.length == 1)
+					FMLLog.log(Level.INFO, "Added Blacklist items from OreDictionary: " + s);
+					blstack.addAll(OreDictionary.getOres(s));
+				}
+				else
+				{
+					String trim = s.trim();
+					if(!trim.isEmpty())
 					{
-						if(Loader.isModLoaded(words[0]) || words[0].equalsIgnoreCase("minecraft"))
+						String[] words = trim.split("\\s+");
+						if(words.length == 1 && i == 0)
 						{
-							MODBLACKLIST.add(words[0]);
-							FMLLog.log(Level.INFO, "Blacklisted Mod with ID: " + words[0] + ".");
+							if(Loader.isModLoaded(words[0]) || words[0].equalsIgnoreCase("minecraft"))
+							{
+								MODBLACKLIST.add(words[0]);
+								FMLLog.log(Level.INFO, "Blacklisted Mod with ID: " + words[0] + ".");
+							}
 						}
-					}
-					if(words.length == 3)
-					{
-						ItemStack stack = null;
-						//one of these should be not null
-						Block block = GameRegistry.findBlock(words[0], words[1]);
-						Item item = GameRegistry.findItem(words[0], words[1]);
-						if(item != null)
-							stack = new ItemStack(item,1,Integer.parseInt(words[2]));
-						else if(block != null)
-							stack = new ItemStack(block,1,Integer.parseInt(words[2]));
-						if(stack != null && stack.getItem() != null)
+						if(words.length == 3)
 						{
-							FMLLog.log(Level.INFO, "Added Blacklist item: " + stack.toString());
-							LOOTBLACKLIST.add(stack);
+							ItemStack stack = null;
+							//one of these should be not null
+							Block block = GameRegistry.findBlock(words[0], words[1]);
+							Item item = GameRegistry.findItem(words[0], words[1]);
+							if(item != null)
+								stack = new ItemStack(item,1,Integer.parseInt(words[2]));
+							else if(block != null)
+								stack = new ItemStack(block,1,Integer.parseInt(words[2]));
+							if(stack != null && stack.getItem() != null)
+							{
+								FMLLog.log(Level.INFO, i + " Added Blacklist item: " + stack.toString());
+								blstack.add(stack);
+							}
+
 						}
-						
 					}
 				}
 			}
+			BLACKLIST.add((ArrayList<ItemStack>) blstack.clone());
 		}
 		
 		for(int i = 0; i < LOOTCATEGORYLIST.length; i++)
@@ -466,6 +503,7 @@ public class LootBags {
 			LOOTMAP.addLootCategory(LOOTCATEGORYLIST[i]);
 		}
 		LOOTMAP.addWhitelistedItems(whitelistlist);
+		LOOTMAP.printMap();
 	}
 	
 	@EventHandler
@@ -484,10 +522,13 @@ public class LootBags {
 	 */
 	public static boolean isItemDroppable(ItemStack item)
 	{
-		for(ItemStack is: LOOTBLACKLIST)
+		for(ArrayList<ItemStack> as:BLACKLIST)
 		{
-			if(areItemStacksEqualItem(is, item, false, false))
-				return false;
+			for(ItemStack is: as)
+			{
+				if(areItemStacksEqualItem(is, item, false, false))
+					return false;
+			}
 		}
 		UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(item.getItem());
 		for(String modid:MODBLACKLIST)

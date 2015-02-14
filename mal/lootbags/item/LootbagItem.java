@@ -13,6 +13,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import mal.lootbags.BagTypes;
 import mal.lootbags.LootBags;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -244,13 +245,13 @@ public class LootbagItem extends Item {
 			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cake), 1, 1);
 	        return (stacks.length > 0 ? stacks[0] : null);
 		}
-		if(random.nextInt(1000)==0)
+		if(random.nextInt(1000000)==0)
 		{
 			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(LootBags.lootbag, 1, 6), 1, 1);
 	        return (stacks.length > 0 ? stacks[0] : null);
 		}
 		boolean reroll = false;
-		ItemStack is = LootBags.LOOTMAP.getRandomItem(getWeightFromDamage(damage));
+		ItemStack is = LootBags.LOOTMAP.getRandomItem(getWeightFromDamage(damage), getTypeFromDamage(damage));
 		if(is == null || is.getItem()==null || is.stackSize<= 0)
 			reroll = true;
 		if(reroll && rerollCount<LootBags.MAXREROLLCOUNT)
@@ -260,6 +261,29 @@ public class LootbagItem extends Item {
 		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
 			return null;
 		return is;
+	}
+	
+	private static BagTypes getTypeFromDamage(int damage)
+	{
+		switch(damage)
+		{
+		case 0:
+			return BagTypes.Common;
+		case 1:
+			return BagTypes.Uncommon;
+		case 2:
+			return BagTypes.Rare;
+		case 3:
+			return BagTypes.Epic;
+		case 4:
+			return BagTypes.Legendary;
+		case 5:
+			return BagTypes.Bacon;
+		case 6:
+			return BagTypes.WornOut;
+		default:
+			return BagTypes.Common;
+		}
 	}
 	
 	private static int getWeightFromDamage(int damage)
@@ -433,7 +457,7 @@ public class LootbagItem extends Item {
         par3List.add(new ItemStack(par1, 1, 2));
         par3List.add(new ItemStack(par1, 1, 3));
         par3List.add(new ItemStack(par1, 1, 4));
-        par3List.add(new ItemStack(par1, 1, 5));
+        //par3List.add(new ItemStack(par1, 1, 5));
         //par3List.add(new ItemStack(par1, 1, 6));
     }
 	@Override

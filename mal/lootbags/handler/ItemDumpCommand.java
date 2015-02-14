@@ -13,6 +13,7 @@ import mal.lootbags.LootBags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
@@ -51,21 +52,64 @@ public class ItemDumpCommand implements ICommand{
 	@Override
 	public void processCommand(ICommandSender icommand, String[] astring) {
 		ArrayList<String> stringlist = new ArrayList<String>();
+		stringlist.add("XXXX Max Weights Per Bag Tier XXXX");
+		stringlist.add("Common: " + LootBags.LOOTMAP.getLargestWeight());
+		stringlist.add("Uncommon: " + LootBags.LOOTMAP.generatePercentileWeight(75));
+		stringlist.add("Rare: " + LootBags.LOOTMAP.generatePercentileWeight(50));
+		stringlist.add("Epic: " + LootBags.LOOTMAP.generatePercentileWeight(25));
+		stringlist.add("Legendary: " + LootBags.LOOTMAP.generatePercentileWeight(5));
+		stringlist.add("");
 		stringlist.add("XXXX LootBags Drop Table XXXX");
 		stringlist.add("modid  itemname  itemdamage  droppercent weight");
 		for(WeightedRandomChestContent c : LootBags.LOOTMAP.getMapAsChestList())
 		{
 			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
-			float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
-			stringlist.add(u.modId + "  " + u.name + "  " + c.theItemId.getItemDamage() + "  " + String.format("%.3f", percent) + "  " + c.itemWeight);
+			if(u != null && c.theItemId != null)
+			{
+				float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
+				stringlist.add(u.modId + "  " + u.name + "  " + c.theItemId.getItemDamage() + "  " + String.format("%.3f", percent) + "  " + c.itemWeight);
+			}
+			else if(c.theItemId != null)
+			{
+				stringlist.add(c.toString() + ": Unique Identifier not found.");
+			}
+			else
+			{
+				stringlist.add("Found null item.  Whatever this is probably can't be dropped");
+			}
 		}
 		
 		stringlist.add("");
 		stringlist.add("XXXX LootBags Blacklist XXXX");
-		for(int i = 0; i < LootBags.LOOTBLACKLIST.size(); i++)
+		for(int i = 0; i < LootBags.BLACKLIST.size(); i++)
 		{
-			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(LootBags.LOOTBLACKLIST.get(i).getItem());
-			stringlist.add(u.modId + "  " + u.name + "  " + + LootBags.LOOTBLACKLIST.get(i).getItemDamage());
+			switch(i)
+			{
+			case 0:
+				stringlist.add("Global Blacklist:");
+				break;
+			case 1:
+				stringlist.add("Common Bag Blacklist:");
+				break;
+			case 2:
+				stringlist.add("Uncommon Bag Blacklist:");
+				break;
+			case 3:
+				stringlist.add("Rare Bag Blacklist:");
+				break;
+			case 4:
+				stringlist.add("Epic Bag Blacklist:");
+				break;
+			case 5:
+				stringlist.add("Legendary Bag Blacklist:");
+				break;
+			}
+			
+			for(ItemStack is:LootBags.BLACKLIST.get(i))
+			{
+				UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(is.getItem());
+				stringlist.add(u.modId + "  " + u.name + "  " + + is.getItemDamage());
+			}
 		}
 		
 		stringlist.add("");

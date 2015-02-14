@@ -26,7 +26,8 @@ import net.minecraftforge.oredict.OreDictionary;
  */
 public class LootMap {
 
-	private TreeMap<String, WeightedRandomChestContent> map = new TreeMap<String, WeightedRandomChestContent>();
+	private TreeMap<String, LootItem> map = new TreeMap<String, LootItem>();
+	//private TreeMap<String, ArrayList<WeightedRandomChestContent>> whitelists = new TreeMap<String, ArrayList<WeightedRandomChestContent>>();
 	
 	private int totalWeight=0;
 	private Random random = new Random();
@@ -47,108 +48,170 @@ public class LootMap {
 				if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
 					skip = true;
 			}
-			for(ItemStack istack:LootBags.LOOTBLACKLIST)
+			for(ItemStack istack:LootBags.BLACKLIST.get(0))
 			{
 				if(istack.isItemEqual(c.theItemId))
 					skip = true;
 			}
 			if(!skip)
 			{
+				ArrayList<BagTypes> ty = new ArrayList<BagTypes>();
+				for(BagTypes t:BagTypes.droppableValues())
+				{
+					for(ItemStack istack:LootBags.BLACKLIST.get(t.getIndex()+1))
+					{
+						if(istack.isItemEqual(c.theItemId))
+						{
+							ty.add(t);
+						}
+					}
+				}
+				
 				if(!map.containsKey(c.theItemId.toString()))
 				{
-					map.put(c.theItemId.toString(), c);
+					LootItem ii = new LootItem(c, BagTypes.Common, BagTypes.Legendary);
+					ii.removeBagTypes(ty);
+					map.put(c.theItemId.toString(), ii);
 					totalWeight+= c.itemWeight;
 				}
 				else
 				{
-					int weight = map.get(c.theItemId.toString()).itemWeight;
+					LootItem item = map.get(c.theItemId.toString());
+					int weight = item.getContentItem().itemWeight;
 					totalWeight -= weight;
 					weight = (weight+c.itemWeight)/2;
-					map.put(c.theItemId.toString(), c);
+					item.getContentItem().itemWeight = weight;
+					item.removeBagTypes(ty);
+					map.put(c.theItemId.toString(), item);
 					totalWeight += weight;
 				}
 			}
-			else
-			{
-				FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from " + categoryName + " from spawning in Loot Bags.");
-			}
 		}
 	}
 	
-	public void addWhitelistedItems(String[] whitelistlist)
+	public void addWhitelistedItems(String[][] whitelistlist)
 	{
-		for(String s: whitelistlist)
+		for(int i = 0; i < whitelistlist.length; i++)
 		{
-			String trim = s.trim();
-			if(!trim.isEmpty())
+			for(String s: whitelistlist[i])
 			{
-				String[] words = trim.split("\\s+");
-				if(words.length == 3)
+				String trim = s.trim();
+				if(!trim.isEmpty())
 				{
-					if(!OreDictionary.getOres(words[0]).isEmpty())
+					String[] words = trim.split("\\s+");
+					if(words.length == 3)
 					{
-						FMLLog.log(Level.INFO, "Added Whitelist item from OreDictionary: " + words[0] + "x" + words[1]);
-						ItemStack is = OreDictionary.getOres(words[0]).get(0).copy();
-						is.stackSize=Integer.parseInt(words[1]);
-						
-						WeightedRandomChestContent c = new WeightedRandomChestContent(is, 1, is.stackSize, Integer.parseInt(words[2]));
-						
-						boolean skip = false;
-						for(String modid:LootBags.MODBLACKLIST)
+						if(!OreDictionary.getOres(words[0]).isEmpty())
 						{
-							if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
-								skip = true;
-						}
-						for(ItemStack istack:LootBags.LOOTBLACKLIST)
-						{
-							if(istack.isItemEqual(c.theItemId))
-								skip = true;
-						}
-						if(!skip)
-						{
-							map.put(c.theItemId.toString(), c);
-							totalWeight+= c.itemWeight;
-						}
-						else
-						{
-							FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from the LootBags whitelist from spawning in Loot Bags.");
+							FMLLog.log(Level.INFO, "Added Whitelist item from OreDictionary: " + words[0] + "x" + words[1]);
+							ItemStack is = OreDictionary.getOres(words[0]).get(0).copy();
+							is.stackSize=Integer.parseInt(words[1]);
+							
+							WeightedRandomChestContent c = new WeightedRandomChestContent(is, 1, is.stackSize, Integer.parseInt(words[2]));
+							
+							boolean skip = false;
+							for(String modid:LootBags.MODBLACKLIST)
+							{
+								if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
+									skip = true;
+							}
+							for(ItemStack istack:LootBags.BLACKLIST.get(i))
+							{
+								if(istack.isItemEqual(c.theItemId))
+									skip = true;
+							}
+							if(!skip)
+							{
+								if(i == 0)
+								{
+									map.put(c.theItemId.toString(), new LootItem(c, BagTypes.Common, BagTypes.Legendary));
+									totalWeight+= c.itemWeight;
+								}
+								else
+								{
+									int tier = i-1;
+									BagTypes type;
+									if(BagTypes.droppableValues()[tier].getIndex() == tier)
+										type = BagTypes.droppableValues()[tier];
+									else
+										type = BagTypes.Common;
+									if(!map.containsKey(c.theItemId.toString()))
+									{
+										map.put(c.theItemId.toString(), new LootItem(c, type));
+										totalWeight += c.itemWeight;
+									}
+									else
+									{
+										LootItem item = map.get(c.theItemId.toString());
+										
+										item.addBagType(type);
+									}
+								}
+							}
+							else
+							{
+								FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from the LootBags whitelist from spawning in Loot Bags.");
+							}
 						}
 					}
-				}
-				if(words.length == 5)
-				{
-					ItemStack stack = null;
-					//one of these should be not null
-					Block block = GameRegistry.findBlock(words[0], words[1]);
-					Item item = GameRegistry.findItem(words[0], words[1]);
-					if(item != null)
-						stack = new ItemStack(item,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
-					else if(block != null)
-						stack = new ItemStack(block,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
-					if(stack != null && stack.getItem() != null)
+					if(words.length == 5)
 					{
-						FMLLog.log(Level.INFO, "Added Whitelist item: " + stack.toString());
-						WeightedRandomChestContent c = new WeightedRandomChestContent(stack, 1, stack.stackSize, Integer.parseInt(words[4]));
-						
-						boolean skip = false;
-						for(String modid:LootBags.MODBLACKLIST)
+						ItemStack stack = null;
+						//one of these should be not null
+						Block block = GameRegistry.findBlock(words[0], words[1]);
+						Item item = GameRegistry.findItem(words[0], words[1]);
+						if(item != null)
+							stack = new ItemStack(item,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
+						else if(block != null)
+							stack = new ItemStack(block,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
+						if(stack != null && stack.getItem() != null)
 						{
-							if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
-								skip = true;
-						}
-						for(ItemStack istack:LootBags.LOOTBLACKLIST)
-						{
-							if(istack.isItemEqual(c.theItemId))
-								skip = true;
-						}
-						if(!skip)
-						{
-							map.put(c.theItemId.toString(), c);
-							totalWeight+= c.itemWeight;
-						}
-						else
-						{
-							FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from the LootBags whitelist from spawning in Loot Bags.");
+							FMLLog.log(Level.INFO, "Added Whitelist item: " + stack.toString());
+							WeightedRandomChestContent c = new WeightedRandomChestContent(stack, 1, stack.stackSize, Integer.parseInt(words[4]));
+							
+							boolean skip = false;
+							for(String modid:LootBags.MODBLACKLIST)
+							{
+								if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
+									skip = true;
+							}
+							for(ItemStack istack:LootBags.BLACKLIST.get(i))
+							{
+								if(istack.isItemEqual(c.theItemId))
+									skip = true;
+							}
+							if(!skip)
+							{
+								if(i == 0)
+								{
+									map.put(c.theItemId.toString(), new LootItem(c, BagTypes.Common, BagTypes.Legendary));
+									totalWeight+= c.itemWeight;
+								}
+								else
+								{
+									int tier = i-1;
+									BagTypes type;
+									if(BagTypes.droppableValues()[tier].getIndex() == tier)
+										type = BagTypes.droppableValues()[tier];
+									else
+										type = BagTypes.Common;
+									if(!map.containsKey(c.theItemId.toString()))
+									{
+										map.put(c.theItemId.toString(), new LootItem(c, type));
+										totalWeight += c.itemWeight;
+									}
+									else
+									{
+										LootItem iitem = map.get(c.theItemId.toString());
+										
+										iitem.addBagType(type);
+									}
+								}
+							}
+							else
+							{
+								FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from the LootBags whitelist from spawning in Loot Bags.");
+							}
 						}
 					}
 				}
@@ -156,18 +219,22 @@ public class LootMap {
 		}
 	}
 	
-	public ItemStack getRandomItem(int maxWeight)
+	public ItemStack getRandomItem(int maxWeight, BagTypes type)
 	{
+		LootItem[] lcontent;
 		WeightedRandomChestContent[] content;
 		int randWeight;
 		if(maxWeight == -1)
 		{
-			content = map.values().toArray(new WeightedRandomChestContent[map.values().size()]);
+			lcontent = map.values().toArray(new LootItem[map.values().size()]);
+			content = new WeightedRandomChestContent[lcontent.length];
+			for(int i = 0; i < lcontent.length; i++)
+				content[i] = lcontent[i].getContentItem();
 			randWeight = random.nextInt(totalWeight);
 		}
 		else
 		{
-			content = generateContent(maxWeight);
+			content = generateContent(maxWeight, type);
 			randWeight = random.nextInt(generateMaxTotalWeight(maxWeight));
 		}
 		WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
@@ -184,13 +251,13 @@ public class LootMap {
         return (stacks.length > 0 ? stacks[0] : null);
 	}
 	
-	private WeightedRandomChestContent[] generateContent(int maxWeight)
+	private WeightedRandomChestContent[] generateContent(int maxWeight, BagTypes type)
 	{
 		ArrayList<WeightedRandomChestContent> list = new ArrayList<WeightedRandomChestContent>();
-		for(WeightedRandomChestContent c : map.values())
+		for(LootItem c : map.values())
 		{
-			if(c.itemWeight <= maxWeight)
-				list.add(c);
+			if(c.getContentItem().itemWeight <= maxWeight && c.canDrop(type))
+				list.add(c.getContentItem());
 		}
 		return list.toArray(new WeightedRandomChestContent[list.size()]);
 	}
@@ -198,10 +265,10 @@ public class LootMap {
 	private int generateMaxTotalWeight(int maxWeight)
 	{
 		int weight = 0;
-		for(WeightedRandomChestContent c : map.values())
+		for(LootItem c : map.values())
 		{
-			if(c.itemWeight <= maxWeight)
-				weight+= c.itemWeight;
+			if(c.getContentItem().itemWeight <= maxWeight)
+				weight+= c.getContentItem().itemWeight;
 		}
 		return weight;
 	}
@@ -214,7 +281,10 @@ public class LootMap {
 	public int generatePercentileWeight(int percentile)
 	{
 		double val = percentile/100.0*map.size();
-		WeightedRandomChestContent[] content = map.values().toArray(new WeightedRandomChestContent[map.values().size()]);
+		LootItem[] lcontent = map.values().toArray(new LootItem[map.values().size()]);
+		WeightedRandomChestContent[] content = new WeightedRandomChestContent[lcontent.length];
+		for(int i = 0; i < lcontent.length; i++)
+			content[i] = lcontent[i].getContentItem();
 		ArrayList<Integer> weights = new ArrayList<Integer>();
 		for(WeightedRandomChestContent c: content)
 		{
@@ -223,12 +293,25 @@ public class LootMap {
 		Collections.sort(weights);
 		return weights.get((int) Math.floor(val));
 	}
+	
+	public int getLargestWeight()
+	{
+		int weight = 0;
+		for(LootItem item : map.values())
+		{
+			if(item.getContentItem().itemWeight > weight)
+				weight = item.getContentItem().itemWeight;
+		}
+		
+		return weight;
+	}
+	
 	public ArrayList<ItemStack> getMapAsList()
 	{
 		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
-		for(WeightedRandomChestContent c : map.values())
+		for(LootItem c : map.values())
 		{
-			list.add(c.theItemId);
+			list.add(c.getContentItem().theItemId);
 		}
 		return list;
 	}
@@ -236,9 +319,9 @@ public class LootMap {
 	public ArrayList<WeightedRandomChestContent> getMapAsChestList()
 	{
 		ArrayList<WeightedRandomChestContent> list = new ArrayList<WeightedRandomChestContent>();
-		for(WeightedRandomChestContent c : map.values())
+		for(LootItem c : map.values())
 		{
-			list.add(c);
+			list.add(c.getContentItem());
 		}
 		return list;
 	}
@@ -263,7 +346,7 @@ public class LootMap {
 	{
 		for(String i: map.keySet())
 		{
-			System.out.println(i + ": " + map.get(i).itemWeight + ": " + map.get(i).theMinimumChanceToGenerateItem + ": " + map.get(i).theMaximumChanceToGenerateItem);
+			System.out.println(i + ": " + map.get(i).getContentItem().itemWeight + ": " + map.get(i).getContentItem().theMinimumChanceToGenerateItem + ": " + map.get(i).getContentItem().theMaximumChanceToGenerateItem);
 		}
 		System.out.println("Total Weight: " + totalWeight);
 	}
