@@ -3,7 +3,7 @@ package mal.lootbags;
 public enum BagTypes {
 
 	//typical bags are positive increasing, special bags are negative so they are skipped by things that cross all bags
-	Common(0), Uncommon(1), Rare(2), Epic(3), Legendary(4), Bacon(-4), WornOut(-5);
+	Common(0), Uncommon(1), Rare(2), Epic(3), Legendary(4), Bacon(-4), WornOut(-5), Soaryn(-6), Wyld(-7), Mal(-8);
 	
 	private int index;
 	

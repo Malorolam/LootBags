@@ -276,6 +276,12 @@ public class MobDropHandler {
 		{
 			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("bacon_donut"))
 				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 5), random.nextInt(2) + 1);
+			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("soaryn"))
+				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 7), random.nextInt(2) + 1);
+			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("wyld"))
+				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 8), random.nextInt(2) + 1);
+			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("giantwaffle"))
+				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 9), random.nextInt(2) + 1);
 		}
 	}
 }

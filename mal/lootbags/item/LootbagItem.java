@@ -18,6 +18,7 @@ import mal.lootbags.LootBags;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -40,7 +41,7 @@ import net.minecraftforge.common.ChestGenHooks;
 public class LootbagItem extends Item {
 
 	private static Random random = new Random();
-	private IIcon[] iconlist = new IIcon[7];
+	private IIcon[] iconlist = new IIcon[10];
 
 	public LootbagItem() {
 		super();
@@ -76,6 +77,15 @@ public class LootbagItem extends Item {
 		case 6:
 			list.add(EnumChatFormatting.GRAY + "Worn Out");
 			break;
+		case 7:
+			list.add(EnumChatFormatting.BLUE + "Soaryn");
+			break;
+		case 8:
+			list.add(EnumChatFormatting.RED + "Wyld");
+			break;
+		case 9:
+			list.add(EnumChatFormatting.YELLOW + "Waffle");
+			break;
 		}
 		
 		if(is.getTagCompound() != null && is.getTagCompound().getBoolean("generated"))
@@ -88,6 +98,20 @@ public class LootbagItem extends Item {
 			{
 				list.add("\u00A7b" + "I told you my bags don't");
 				list.add("\u00A7b" + "drop beds! baconNub");
+			}
+			else if(is.getItemDamage()==7)
+			{
+				list.add("\u00A7b" + "Everytime a random chest is placed,");
+				list.add("\u00A7b" + "a Soaryn gets more Chick Fil A.");
+			}
+			else if(is.getItemDamage()==8)
+			{
+				list.add("\u00A7b" + "Raise your Cluckingtons!");
+			}
+			else if(is.getItemDamage()==9)
+			{
+				list.add("\u00A7b" + "You have been banned from talking");
+				list.add("\u00A7b" + "in this channel's chat.");
 			}
 			else
 			{
@@ -153,6 +177,21 @@ public class LootbagItem extends Item {
 				list.add("\u00A77" + "I am 100% certain about this.");
 				list.add(EnumChatFormatting.DARK_PURPLE + "~Malorolam");
 			}
+			else if(is.getItemDamage() == 7)
+			{
+				list.add("\u00A77" + "One out of ever four chests");
+				list.add("\u00A77" + "is a Soaryn chest.");
+				list.add("\u00A77" + "Only you can prevent inventory");
+				list.add("\u00A77" + "clutter by creating more.");
+			}
+			else if(is.getItemDamage() == 8)
+			{
+				list.add("\u00A77" + "Cluck Cluck...");
+			}
+			else if(is.getItemDamage() == 9)
+			{
+				list.add("\u00A77" + "(Hay) (Cha)rcoal (T)orch");
+			}
 		}
 	}
 
@@ -202,12 +241,28 @@ public class LootbagItem extends Item {
 		if(is.getTagCompound()!=null)
 			gen = is.getTagCompound().getBoolean("generated");
 		if (!gen) {
-			int numitems = (is.getItemDamage()==6)?(1):(random.nextInt(5) + 1);
+			int numitems;
+			switch(is.getItemDamage())
+			{
+			case 6:
+			case 8:
+				numitems = 1;
+				break;
+			case 7:
+				numitems = 3;
+				break;
+			case 9:
+				numitems = 3;
+				break;
+			default:
+				numitems = (random.nextInt(5) + 1);
+				break;
+			}
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagList nbtinventory = new NBTTagList();
 
 			for (int i = 0; i < numitems; i++) {
-				ItemStack inv = getLootItem(is.getItemDamage());
+				ItemStack inv = getLootItem(is.getItemDamage(), i);
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setInteger("Slot", i);
 				if (inv != null && inv.stackSize>0) {
@@ -228,8 +283,8 @@ public class LootbagItem extends Item {
 		}
 	}
 	
-	private static ItemStack getLootItem(int damage){return getLootItem(0, damage);}
-	private static ItemStack getLootItem(int rerollCount, int damage)
+	private static ItemStack getLootItem(int damage, int slot){return getLootItem(0, damage, slot);}
+	private static ItemStack getLootItem(int rerollCount, int damage, int slot)
 	{
 		if(damage == 5)
 		{
@@ -244,6 +299,49 @@ public class LootbagItem extends Item {
 		{
 			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cake), 1, 1);
 	        return (stacks.length > 0 ? stacks[0] : null);
+		}
+		if(damage == 7)
+		{
+			ItemStack[] stacks;
+			switch(slot)
+			{
+			case 0:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Blocks.chest), 1, 2);
+				break;
+			case 1:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.stick), 1, 1);
+				break;
+			case 2:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.quartz), 4, 4);
+				break;
+			default:
+				stacks = null;
+			}
+			return(stacks.length > 0 ? stacks[0] : null);
+		}
+		if(damage == 8)
+		{
+			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.spawn_egg,1,93), 1, 1);
+			return (stacks.length > 0 ? stacks[0] : null);
+		}
+		if(damage == 9)
+		{
+			ItemStack[] stacks;
+			switch(slot)
+			{
+			case 0:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Blocks.hay_block), 1, 1);
+				break;
+			case 1:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.coal,1,1), 2, 2);
+				break;
+			case 2:
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Blocks.torch), 3, 3);
+				break;
+			default:
+				stacks = null;
+			}
+			return(stacks.length > 0 ? stacks[0] : null);
 		}
 		if(random.nextInt(1000000)==0)
 		{
@@ -417,6 +515,12 @@ public class LootbagItem extends Item {
 			return "item.lootbag.bacon";
 		case 6:
 			return "item.lootbag.wornout";
+		case 7:
+			return "item.lootbag.soaryn";
+		case 8:
+			return "item.lootbag.wyld";
+		case 9:
+			return "item.lootbag.waffle";
 		default:
 			return "item.lootbag.derp";
 		}
@@ -430,6 +534,9 @@ public class LootbagItem extends Item {
 		iconlist[4] = ir.registerIcon("lootbags:lootbagLegendaryItemTexture");
 		iconlist[5] = ir.registerIcon("lootbags:lootbagBaconItemTexture");
 		iconlist[6] = ir.registerIcon("lootbags:lootbagCommonItemTexture");
+		iconlist[7] = ir.registerIcon("lootbags:lootbagSoarynItemTexture");
+		iconlist[8] = ir.registerIcon("lootbags:lootbagWyldItemTexture");
+		iconlist[9] = ir.registerIcon("lootbags:lootbagWaffleItemTexture");
 	}
 
 	public IIcon getIconFromDamage(int value)
@@ -458,7 +565,7 @@ public class LootbagItem extends Item {
         par3List.add(new ItemStack(par1, 1, 3));
         par3List.add(new ItemStack(par1, 1, 4));
         //par3List.add(new ItemStack(par1, 1, 5));
-        //par3List.add(new ItemStack(par1, 1, 6));
+        //par3List.add(new ItemStack(par1, 1, 7));
     }
 	@Override
 	public boolean getShareTag() {
