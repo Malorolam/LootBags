@@ -44,7 +44,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.5.1";
+	public static final String VERSION = "1.5.2";
 
 	public static int CMONSTERDROPCHANCE = 40;
 	public static int CPASSIVEDROPCHANCE = 20;
@@ -71,6 +71,9 @@ public class LootBags {
 	public static int RPERCENTILE = 50;
 	public static int EPERCENTILE = 25;
 	public static int LPERCENTILE = 5;
+	
+	public static final int MINCHANCE = 0;
+	public static final int MAXCHANCE = 1000;
 	
 	public static boolean LIMITONEBAGPERDROP = false;
 	
@@ -111,6 +114,8 @@ public class LootBags {
 		MobDropHandler handler = new MobDropHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, prox);
+		
+		FMLLog.log(Level.INFO, "Your current LootBags version is: " + this.VERSION);
 		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
@@ -232,174 +237,174 @@ public class LootBags {
 		}
 		
 		Property prop11 = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", true);
-		prop11.comment = "This limits the loot bags to only drop one bag.  Rarer bags will be favored over common bags.";
+		prop11.comment = "This limits the loot bags to only drop one bag.  Bag weighting is dependant on drop chances.";
 		LIMITONEBAGPERDROP = prop11.getBoolean();
 		
 		config.save();
 		
-		if(CMONSTERDROPCHANCE<0)
+		if(CMONSTERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster common drop chance cannot be below 0%, adjusting to 0%");
-			CMONSTERDROPCHANCE=0;
+			CMONSTERDROPCHANCE=MINCHANCE;
 		}
-		else if(CMONSTERDROPCHANCE>1000)
+		else if(CMONSTERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster common drop chance cannot be above 100%, adjusting to 100%");
-			CMONSTERDROPCHANCE=1000;
+			CMONSTERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(CPASSIVEDROPCHANCE<0)
+		if(CPASSIVEDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob common drop chance cannot be below 0%, adjusting to 0%");
-			CPASSIVEDROPCHANCE=0;
+			CPASSIVEDROPCHANCE=MINCHANCE;
 		}
-		else if(CPASSIVEDROPCHANCE>1000)
+		else if(CPASSIVEDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob common drop chance cannot be above 100%, adjusting to 100%");
-			CPASSIVEDROPCHANCE=1000;
+			CPASSIVEDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(CPLAYERDROPCHANCE<0)
+		if(CPLAYERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop common chance cannot be below 0%, adjusting to 0%");
-			CPLAYERDROPCHANCE=0;
+			CPLAYERDROPCHANCE=MINCHANCE;
 		}
-		else if(CPLAYERDROPCHANCE>1000)
+		else if(CPLAYERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop common chance cannot be above 100%, adjusting to 100%");
-			CPLAYERDROPCHANCE=1000;
+			CPLAYERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(UMONSTERDROPCHANCE<0)
+		if(UMONSTERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster uncommon drop chance cannot be below 0%, adjusting to 0%");
-			UMONSTERDROPCHANCE=0;
+			UMONSTERDROPCHANCE=MINCHANCE;
 		}
-		else if(UMONSTERDROPCHANCE>1000)
+		else if(UMONSTERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster uncommon drop chance cannot be above 100%, adjusting to 100%");
-			UMONSTERDROPCHANCE=1000;
+			UMONSTERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(UPASSIVEDROPCHANCE<0)
+		if(UPASSIVEDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob uncommon drop chance cannot be below 0%, adjusting to 0%");
-			UPASSIVEDROPCHANCE=0;
+			UPASSIVEDROPCHANCE=MINCHANCE;
 		}
-		else if(UPASSIVEDROPCHANCE>1000)
+		else if(UPASSIVEDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob uncommon drop chance cannot be above 100%, adjusting to 100%");
-			UPASSIVEDROPCHANCE=1000;
+			UPASSIVEDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(UPLAYERDROPCHANCE<0)
+		if(UPLAYERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop uncommon chance cannot be below 0%, adjusting to 0%");
-			UPLAYERDROPCHANCE=0;
+			UPLAYERDROPCHANCE=MINCHANCE;
 		}
-		else if(UPLAYERDROPCHANCE>1000)
+		else if(UPLAYERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop uncommon chance cannot be above 100%, adjusting to 100%");
-			UPLAYERDROPCHANCE=1000;
+			UPLAYERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(RMONSTERDROPCHANCE<0)
+		if(RMONSTERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster rare drop chance cannot be below 0%, adjusting to 0%");
-			RMONSTERDROPCHANCE=0;
+			RMONSTERDROPCHANCE=MINCHANCE;
 		}
-		else if(RMONSTERDROPCHANCE>1000)
+		else if(RMONSTERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster rare drop chance cannot be above 100%, adjusting to 100%");
-			RMONSTERDROPCHANCE=1000;
+			RMONSTERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(RPASSIVEDROPCHANCE<0)
+		if(RPASSIVEDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob rare drop chance cannot be below 0%, adjusting to 0%");
-			RPASSIVEDROPCHANCE=0;
+			RPASSIVEDROPCHANCE=MINCHANCE;
 		}
-		else if(RPASSIVEDROPCHANCE>1000)
+		else if(RPASSIVEDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob rare drop chance cannot be above 100%, adjusting to 100%");
-			RPASSIVEDROPCHANCE=1000;
+			RPASSIVEDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(RPLAYERDROPCHANCE<0)
+		if(RPLAYERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop rare chance cannot be below 0%, adjusting to 0%");
-			RPLAYERDROPCHANCE=0;
+			RPLAYERDROPCHANCE=MINCHANCE;
 		}
-		else if(RPLAYERDROPCHANCE>1000)
+		else if(RPLAYERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop rare chance cannot be above 100%, adjusting to 100%");
-			RPLAYERDROPCHANCE=1000;
+			RPLAYERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(EMONSTERDROPCHANCE<0)
+		if(EMONSTERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster epic drop chance cannot be below 0%, adjusting to 0%");
-			EMONSTERDROPCHANCE=0;
+			EMONSTERDROPCHANCE=MINCHANCE;
 		}
-		else if(EMONSTERDROPCHANCE>1000)
+		else if(EMONSTERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster epic drop chance cannot be above 100%, adjusting to 100%");
-			EMONSTERDROPCHANCE=1000;
+			EMONSTERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(EPASSIVEDROPCHANCE<0)
+		if(EPASSIVEDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob epic drop chance cannot be below 0%, adjusting to 0%");
-			EPASSIVEDROPCHANCE=0;
+			EPASSIVEDROPCHANCE=MINCHANCE;
 		}
-		else if(EPASSIVEDROPCHANCE>1000)
+		else if(EPASSIVEDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob epic drop chance cannot be above 100%, adjusting to 100%");
-			EPASSIVEDROPCHANCE=1000;
+			EPASSIVEDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(EPLAYERDROPCHANCE<0)
+		if(EPLAYERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop epic chance cannot be below 0%, adjusting to 0%");
-			EPLAYERDROPCHANCE=0;
+			EPLAYERDROPCHANCE=MINCHANCE;
 		}
-		else if(EPLAYERDROPCHANCE>1000)
+		else if(EPLAYERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop epic chance cannot be above 100%, adjusting to 100%");
-			EPLAYERDROPCHANCE=1000;
+			EPLAYERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(LMONSTERDROPCHANCE<0)
+		if(LMONSTERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster legendary drop chance cannot be below 0%, adjusting to 0%");
-			LMONSTERDROPCHANCE=0;
+			LMONSTERDROPCHANCE=MINCHANCE;
 		}
-		else if(LMONSTERDROPCHANCE>1000)
+		else if(LMONSTERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Monster legendary drop chance cannot be above 100%, adjusting to 100%");
-			LMONSTERDROPCHANCE=1000;
+			LMONSTERDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(LPASSIVEDROPCHANCE<0)
+		if(LPASSIVEDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob legendary drop chance cannot be below 0%, adjusting to 0%");
-			LPASSIVEDROPCHANCE=0;
+			LPASSIVEDROPCHANCE=MINCHANCE;
 		}
-		else if(LPASSIVEDROPCHANCE>1000)
+		else if(LPASSIVEDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Passive Mob legendary drop chance cannot be above 100%, adjusting to 100%");
-			LPASSIVEDROPCHANCE=1000;
+			LPASSIVEDROPCHANCE=MAXCHANCE;
 		}
 		
-		if(LPLAYERDROPCHANCE<0)
+		if(LPLAYERDROPCHANCE<MINCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop legendary chance cannot be below 0%, adjusting to 0%");
-			LPLAYERDROPCHANCE=0;
+			LPLAYERDROPCHANCE=MINCHANCE;
 		}
-		else if(LPLAYERDROPCHANCE>1000)
+		else if(LPLAYERDROPCHANCE>MAXCHANCE)
 		{
 			FMLLog.log(Level.WARN, "Player drop legendary chance cannot be above 100%, adjusting to 100%");
-			LPLAYERDROPCHANCE=1000;
+			LPLAYERDROPCHANCE=MAXCHANCE;
 		}
 		
 /*		if(LOOTCATEGORYLIST.length<=0)

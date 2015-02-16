@@ -221,22 +221,11 @@ public class LootMap {
 	
 	public ItemStack getRandomItem(int maxWeight, BagTypes type)
 	{
-		LootItem[] lcontent;
 		WeightedRandomChestContent[] content;
 		int randWeight;
-		if(maxWeight == -1)
-		{
-			lcontent = map.values().toArray(new LootItem[map.values().size()]);
-			content = new WeightedRandomChestContent[lcontent.length];
-			for(int i = 0; i < lcontent.length; i++)
-				content[i] = lcontent[i].getContentItem();
-			randWeight = random.nextInt(totalWeight);
-		}
-		else
-		{
-			content = generateContent(maxWeight, type);
-			randWeight = random.nextInt(generateMaxTotalWeight(maxWeight));
-		}
+		content = generateContent(maxWeight, type);
+		randWeight = random.nextInt(generateMaxTotalWeight(content));
+		
 		WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
 		int r = 0;
 		while (item == null && r < LootBags.MAXREROLLCOUNT)
@@ -256,19 +245,18 @@ public class LootMap {
 		ArrayList<WeightedRandomChestContent> list = new ArrayList<WeightedRandomChestContent>();
 		for(LootItem c : map.values())
 		{
-			if(c.getContentItem().itemWeight <= maxWeight && c.canDrop(type))
+			if((c.getContentItem().itemWeight <= maxWeight || maxWeight==-1) && c.canDrop(type))
 				list.add(c.getContentItem());
 		}
 		return list.toArray(new WeightedRandomChestContent[list.size()]);
 	}
 	
-	private int generateMaxTotalWeight(int maxWeight)
+	private int generateMaxTotalWeight(WeightedRandomChestContent[] table)
 	{
 		int weight = 0;
-		for(LootItem c : map.values())
+		for(WeightedRandomChestContent c : table)
 		{
-			if(c.getContentItem().itemWeight <= maxWeight)
-				weight+= c.getContentItem().itemWeight;
+			weight+= c.itemWeight;
 		}
 		return weight;
 	}
@@ -278,17 +266,15 @@ public class LootMap {
 	 * @param percentile
 	 * @return
 	 */
-	public int generatePercentileWeight(int percentile)
+	public int generatePercentileWeight(int percentile, BagTypes type)
 	{
 		double val = percentile/100.0*map.size();
 		LootItem[] lcontent = map.values().toArray(new LootItem[map.values().size()]);
-		WeightedRandomChestContent[] content = new WeightedRandomChestContent[lcontent.length];
-		for(int i = 0; i < lcontent.length; i++)
-			content[i] = lcontent[i].getContentItem();
 		ArrayList<Integer> weights = new ArrayList<Integer>();
-		for(WeightedRandomChestContent c: content)
+		for(LootItem c: lcontent)
 		{
-			weights.add(c.itemWeight);
+			if(c.canDrop(type))
+				weights.add(c.getContentItem().itemWeight);
 		}
 		Collections.sort(weights);
 		return weights.get((int) Math.floor(val));

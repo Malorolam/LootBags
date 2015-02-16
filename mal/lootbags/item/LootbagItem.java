@@ -391,13 +391,13 @@ public class LootbagItem extends Item {
 		case 0:
 			return -1;
 		case 1:
-			return LootBags.LOOTMAP.generatePercentileWeight(75);
+			return LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon);
 		case 2:
-			return LootBags.LOOTMAP.generatePercentileWeight(50);
+			return LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare);
 		case 3:
-			return LootBags.LOOTMAP.generatePercentileWeight(25);
+			return LootBags.LOOTMAP.generatePercentileWeight(25, BagTypes.Epic);
 		case 4:
-			return LootBags.LOOTMAP.generatePercentileWeight(5);
+			return LootBags.LOOTMAP.generatePercentileWeight(5, BagTypes.Legendary);
 		default:
 			return -1;
 		}
@@ -541,6 +541,11 @@ public class LootbagItem extends Item {
 
 	public IIcon getIconFromDamage(int value)
 	{
+        if (value < 0 || value >= this.iconlist.length)
+        {
+            value = 0;
+        }
+        
 		return iconlist[value];
 	}
 	

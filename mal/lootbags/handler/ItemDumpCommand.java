@@ -9,6 +9,7 @@ import java.util.Random;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
+import mal.lootbags.BagTypes;
 import mal.lootbags.LootBags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
@@ -54,10 +55,10 @@ public class ItemDumpCommand implements ICommand{
 		ArrayList<String> stringlist = new ArrayList<String>();
 		stringlist.add("XXXX Max Weights Per Bag Tier XXXX");
 		stringlist.add("Common: " + LootBags.LOOTMAP.getLargestWeight());
-		stringlist.add("Uncommon: " + LootBags.LOOTMAP.generatePercentileWeight(75));
-		stringlist.add("Rare: " + LootBags.LOOTMAP.generatePercentileWeight(50));
-		stringlist.add("Epic: " + LootBags.LOOTMAP.generatePercentileWeight(25));
-		stringlist.add("Legendary: " + LootBags.LOOTMAP.generatePercentileWeight(5));
+		stringlist.add("Uncommon: " + LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon));
+		stringlist.add("Rare: " + LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare));
+		stringlist.add("Epic: " + LootBags.LOOTMAP.generatePercentileWeight(25, BagTypes.Epic));
+		stringlist.add("Legendary: " + LootBags.LOOTMAP.generatePercentileWeight(5, BagTypes.Legendary));
 		stringlist.add("");
 		stringlist.add("XXXX LootBags Drop Table XXXX");
 		stringlist.add("modid  itemname  itemdamage  droppercent weight");
