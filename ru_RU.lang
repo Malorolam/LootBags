@@ -1,0 +1,13 @@
+
+item.lootbag.common.name=Обычная сумка
+item.lootbag.uncommon.name=Необычная сумка
+item.lootbag.rare.name=Редкая сумка
+item.lootbag.epic.name=Эпическая сумка
+item.lootbag.legendary.name=Легендарная сумка
+item.lootbag.bacon.name=Сумка со свининой
+item.lootbag.wornout.name=Потрепанная сумка
+item.lootbag.soaryn.name=Сумка Soaryn
+item.lootbag.wyld.name=Сумка Wyld
+item.lootbag.waffle.name=Сумка Waffle
+
+tile.recyclerblock.name=Переработчик ресурсов
