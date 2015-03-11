@@ -268,7 +268,6 @@ public class LootMap {
 	 */
 	public int generatePercentileWeight(int percentile, BagTypes type)
 	{
-		double val = percentile/100.0*map.size();
 		LootItem[] lcontent = map.values().toArray(new LootItem[map.values().size()]);
 		ArrayList<Integer> weights = new ArrayList<Integer>();
 		for(LootItem c: lcontent)
@@ -277,6 +276,7 @@ public class LootMap {
 				weights.add(c.getContentItem().itemWeight);
 		}
 		Collections.sort(weights);
+		double val = percentile/100.0*weights.size();
 		return weights.get((int) Math.floor(val));
 	}
 	
