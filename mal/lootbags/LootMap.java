@@ -43,6 +43,14 @@ public class LootMap {
 		{
 			WeightedRandomChestContent c = h[i];
 			boolean skip = false;
+			//Do some fixing to prevent <1 errors in the bags
+			if(c.itemWeight < 1)
+			{
+				FMLLog.log(Level.ERROR, "Item " + c.theItemId.toString() + " has a weighting of " + c.itemWeight + ".  This is not a Lootbags error but an error in a different mod!  "
+						+ "The item for Lootbags is now weighted at 1.");
+				c.itemWeight = 1;
+			}
+			
 			for(String modid:LootBags.MODBLACKLIST)
 			{
 				if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
@@ -106,8 +114,9 @@ public class LootMap {
 							FMLLog.log(Level.INFO, "Added Whitelist item from OreDictionary: " + words[0] + "x" + words[1]);
 							ItemStack is = OreDictionary.getOres(words[0]).get(0).copy();
 							is.stackSize=Integer.parseInt(words[1]);
+							int weight = Integer.parseInt(words[2]);
 							
-							WeightedRandomChestContent c = new WeightedRandomChestContent(is, 1, is.stackSize, Integer.parseInt(words[2]));
+							WeightedRandomChestContent c = new WeightedRandomChestContent(is, 1, is.stackSize, weight);
 							
 							boolean skip = false;
 							for(String modid:LootBags.MODBLACKLIST)
@@ -224,20 +233,24 @@ public class LootMap {
 		WeightedRandomChestContent[] content;
 		int randWeight;
 		content = generateContent(maxWeight, type);
-		randWeight = random.nextInt(generateMaxTotalWeight(content));
-		
-		WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
-		int r = 0;
-		while (item == null && r < LootBags.MAXREROLLCOUNT)
+		if(content.length > 0 && generateMaxTotalWeight(content)>0)
 		{
-			System.out.println("reroll null item");
-			item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
-			r++;
+			randWeight = random.nextInt(generateMaxTotalWeight(content));
+		
+			WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
+			int r = 0;
+			while (item == null && r < LootBags.MAXREROLLCOUNT)
+			{
+				System.out.println("reroll null item");
+				item = (WeightedRandomChestContent) WeightedRandom.getItem(content, randWeight);
+				r++;
+			}
+			if(item == null)
+				return null;
+    		ItemStack[] stacks = ChestGenHooks.generateStacks(random, item.theItemId, item.theMinimumChanceToGenerateItem, item.theMaximumChanceToGenerateItem);
+        	return (stacks.length > 0 ? stacks[0] : null);
 		}
-		if(item == null)
-			return null;
-    	ItemStack[] stacks = ChestGenHooks.generateStacks(random, item.theItemId, item.theMinimumChanceToGenerateItem, item.theMaximumChanceToGenerateItem);
-        return (stacks.length > 0 ? stacks[0] : null);
+		return null;
 	}
 	
 	private WeightedRandomChestContent[] generateContent(int maxWeight, BagTypes type)
@@ -245,7 +258,7 @@ public class LootMap {
 		ArrayList<WeightedRandomChestContent> list = new ArrayList<WeightedRandomChestContent>();
 		for(LootItem c : map.values())
 		{
-			if((c.getContentItem().itemWeight <= maxWeight || maxWeight==-1) && c.canDrop(type))
+			if(((c.getContentItem().itemWeight <= maxWeight || maxWeight==-1) && c.getContentItem().itemWeight > 0) && c.canDrop(type))
 				list.add(c.getContentItem());
 		}
 		return list.toArray(new WeightedRandomChestContent[list.size()]);
