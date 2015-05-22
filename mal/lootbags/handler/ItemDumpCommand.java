@@ -53,7 +53,10 @@ public class ItemDumpCommand implements ICommand{
 	@Override
 	public void processCommand(ICommandSender icommand, String[] astring) {
 		ArrayList<String> stringlist = new ArrayList<String>();
-		stringlist.add("XXXX Max Weights Per Bag Tier XXXX");
+		if(!LootBags.REVERSEQUALITY)
+			stringlist.add("XXXX Max Weights Per Bag Tier XXXX");
+		else
+			stringlist.add("XXXX Min Weights Per Bag Tier XXXX");
 		stringlist.add("Common: " + LootBags.LOOTMAP.getLargestWeight());
 		stringlist.add("Uncommon: " + LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon));
 		stringlist.add("Rare: " + LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare));
@@ -121,7 +124,7 @@ public class ItemDumpCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "logs/LootBagsItemDump.txt");
+			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsItemDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
@@ -133,7 +136,7 @@ public class ItemDumpCommand implements ICommand{
 			{
 				write.println(s);
 			}
-			icommand.addChatMessage(new ChatComponentText("LootBags Item Dump Written - Look in your logs folder"));
+			icommand.addChatMessage(new ChatComponentText("LootBags Item Dump Written - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {

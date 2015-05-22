@@ -9,7 +9,9 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.common.util.FakePlayer;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
@@ -25,7 +27,18 @@ public class MobDropHandler {
 
 	@SubscribeEvent
 	public void onEntityDrop(LivingDropsEvent event) {
-		int chance = random.nextInt(1000);
+		if(LootBags.BAGFROMPLAYERKILL == 1)
+		{
+			if(event.source.getEntity() == null || !(event.source.getEntity() instanceof EntityPlayer))
+				return;
+		}
+		else if(LootBags.BAGFROMPLAYERKILL == 2)
+		{
+			if(event.source.getEntity() == null ||  event.source.getEntity() instanceof FakePlayer || !(event.source.getEntity() instanceof EntityPlayer))
+				return;
+		}
+		
+		int chance = random.nextInt(LootBags.DROPRESOLUTION);
 		boolean bagdrop = false;
 		if(LootBags.LIMITONEBAGPERDROP)
 		{
@@ -272,7 +285,7 @@ public class MobDropHandler {
 			}
 		}
 
-		if(event.entityLiving instanceof EntityLiving && chance < 250)
+		if(event.entityLiving instanceof EntityLiving && chance < LootBags.SPECIALDROPCHANCE && LootBags.SPECIALDROPCHANCE>0)
 		{
 			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("bacon_donut"))
 				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 5), random.nextInt(2) + 1);

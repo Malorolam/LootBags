@@ -160,8 +160,8 @@ public class LootbagItem extends Item {
 					lchance = LootBags.CPLAYERDROPCHANCE;
 					break;
 				}
-				list.add("\u00A77" + "Current Drop Rates: Monster: " + String.format("%.2f", mchance/10.0f) + "%");
-				list.add("\u00A77" + "Passive: " + String.format("%.2f", pchance/10.0f) + "% Player: " + String.format("%.2f", lchance/10.0f) + "%");
+				list.add("\u00A77" + "Current Drop Rates: Monster: " + String.format("%.2f", mchance*100.0f/LootBags.DROPRESOLUTION) + "%");
+				list.add("\u00A77" + "Passive: " + String.format("%.2f", pchance*100.0f/LootBags.DROPRESOLUTION) + "% Player: " + String.format("%.2f", lchance*100.0f/LootBags.DROPRESOLUTION) + "%");
 			}
 			else if(is.getItemDamage() == 5)
 			{
@@ -192,6 +192,10 @@ public class LootbagItem extends Item {
 			{
 				list.add("\u00A77" + "(Hay) (Cha)rcoal (T)orch");
 			}
+		}
+		else
+		{
+			list.add(EnumChatFormatting.AQUA + "<Press Shift for more info>");
 		}
 	}
 
@@ -244,6 +248,9 @@ public class LootbagItem extends Item {
 			int numitems;
 			switch(is.getItemDamage())
 			{
+			case 5:
+				numitems = random.nextInt(3)+1;
+				break;
 			case 6:
 			case 8:
 				numitems = 1;
@@ -290,9 +297,9 @@ public class LootbagItem extends Item {
 		{
 			ItemStack[] stacks;
 			if(random.nextInt(2)==0)
-				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.porkchop), 4, 16);
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.porkchop), 4, 8);
 			else
-				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cooked_porkchop), 4, 16);
+				stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.cooked_porkchop), 4, 8);
 	        return (stacks.length > 0 ? stacks[0] : null);
 		}
 		if(damage == 6)
@@ -343,7 +350,7 @@ public class LootbagItem extends Item {
 			}
 			return(stacks.length > 0 ? stacks[0] : null);
 		}
-		if(random.nextInt(1000000)==0)
+		if(random.nextInt(LootBags.DROPRESOLUTION*1000/LootBags.SPECIALDROPCHANCE)==0 && LootBags.SPECIALDROPCHANCE>0)
 		{
 			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(LootBags.lootbag, 1, 6), 1, 1);
 	        return (stacks.length > 0 ? stacks[0] : null);
@@ -386,20 +393,41 @@ public class LootbagItem extends Item {
 	
 	private static int getWeightFromDamage(int damage)
 	{
-		switch(damage)
+		if(!LootBags.REVERSEQUALITY)
 		{
-		case 0:
-			return -1;
-		case 1:
-			return LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon);
-		case 2:
-			return LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare);
-		case 3:
-			return LootBags.LOOTMAP.generatePercentileWeight(25, BagTypes.Epic);
-		case 4:
-			return LootBags.LOOTMAP.generatePercentileWeight(5, BagTypes.Legendary);
-		default:
-			return -1;
+			switch(damage)
+			{
+			case 0:
+				return -1;
+			case 1:
+				return LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon);
+			case 2:
+				return LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare);
+			case 3:
+				return LootBags.LOOTMAP.generatePercentileWeight(25, BagTypes.Epic);
+			case 4:
+				return LootBags.LOOTMAP.generatePercentileWeight(5, BagTypes.Legendary);
+			default:
+				return -1;
+			}
+		}
+		else
+		{
+			switch(damage)
+			{
+			case 4:
+				return -1;
+			case 3:
+				return LootBags.LOOTMAP.generateInversePercentileWeight(75, BagTypes.Epic);
+			case 2:
+				return LootBags.LOOTMAP.generateInversePercentileWeight(50, BagTypes.Rare);
+			case 1:
+				return LootBags.LOOTMAP.generateInversePercentileWeight(25, BagTypes.Uncommon);
+			case 0:
+				return LootBags.LOOTMAP.generateInversePercentileWeight(5, BagTypes.Common);
+			default:
+				return -1;
+			}
 		}
 	}
 	/**

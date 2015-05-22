@@ -44,7 +44,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.5.5";
+	public static final String VERSION = "1.6.0";
 
 	public static int CMONSTERDROPCHANCE = 40;
 	public static int CPASSIVEDROPCHANCE = 20;
@@ -66,16 +66,25 @@ public class LootBags {
 	public static int LPASSIVEDROPCHANCE = 20;
 	public static int LPLAYERDROPCHANCE = 5;
 	
+	public static int SPECIALDROPCHANCE = 250;
+	
+	public static int DROPRESOLUTION = 1000;
+	
+	public static int CHESTQUALITYWEIGHT = 20;
+	
 	public static int CPERCENTILE = 100;
 	public static int UPERCENTILE = 75;
 	public static int RPERCENTILE = 50;
 	public static int EPERCENTILE = 25;
 	public static int LPERCENTILE = 5;
 	
+	public static boolean REVERSEQUALITY = true;//reverses the quality to determine what can be dropped from a bag
+	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;
 	
 	public static boolean LIMITONEBAGPERDROP = false;
+	public static int BAGFROMPLAYERKILL = 2;//limit bag drops to only EntityPlayer kills, 0 is any source, 1 is EntityPlayer, 2 is forced real players
 	
 	public static int MAXREROLLCOUNT = 50;
 	public static int TOTALVALUEPERBAG = 1000;//total amount of drop chance required to create a lootbag
@@ -120,33 +129,49 @@ public class LootBags {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		
-		Property prop = config.get("Drop Chances", "Common Bag Monster Drop Chance 0-1000", 200);
+		Property prop = config.get("Drop Chances", "2 Common Bag Monster Drop Chance", 200);
 		prop.comment = "This controls the drop chance for monsters, passive mobs, and players for each bag in a resolution up to 0.1%.";
 		CMONSTERDROPCHANCE = prop.getInt();
-		CPASSIVEDROPCHANCE = config.get("Drop Chances", "Common Bag Passive Mob Drop Chance 0-1000", 100).getInt();
-		CPLAYERDROPCHANCE = config.get("Drop Chances", "Common Bag Player Drop Chance 0-1000", 100).getInt();
+		CPASSIVEDROPCHANCE = config.get("Drop Chances", "2 Common Bag Passive Mob Drop Chance", 100).getInt();
+		CPLAYERDROPCHANCE = config.get("Drop Chances", "2 Common Bag Player Drop Chance", 100).getInt();
 		
-		UMONSTERDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Monster Drop Chance 0-1000", 100).getInt();
-		UPASSIVEDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Passive Mob Drop Chance 0-1000", 50).getInt();
-		UPLAYERDROPCHANCE = config.get("Drop Chances", "Uncommon Bag Player Drop Chance 0-1000", 50).getInt();
+		UMONSTERDROPCHANCE = config.get("Drop Chances", "3 Uncommon Bag Monster Drop Chance", 100).getInt();
+		UPASSIVEDROPCHANCE = config.get("Drop Chances", "3 Uncommon Bag Passive Mob Drop Chance", 50).getInt();
+		UPLAYERDROPCHANCE = config.get("Drop Chances", "3 Uncommon Bag Player Drop Chance", 50).getInt();
 		
-		RMONSTERDROPCHANCE = config.get("Drop Chances", "Rare Bag Monster Drop Chance 0-1000", 50).getInt();
-		RPASSIVEDROPCHANCE = config.get("Drop Chances", "Rare Bag Passive Mob Drop Chance 0-1000", 25).getInt();
-		RPLAYERDROPCHANCE = config.get("Drop Chances", "Rare Bag Player Drop Chance 0-1000", 25).getInt();
+		RMONSTERDROPCHANCE = config.get("Drop Chances", "4 Rare Bag Monster Drop Chance", 50).getInt();
+		RPASSIVEDROPCHANCE = config.get("Drop Chances", "4 Rare Bag Passive Mob Drop Chance", 25).getInt();
+		RPLAYERDROPCHANCE = config.get("Drop Chances", "4 Rare Bag Player Drop Chance", 25).getInt();
 		
-		EMONSTERDROPCHANCE = config.get("Drop Chances", "Epic Bag Monster Drop Chance 0-1000", 25).getInt();
-		EPASSIVEDROPCHANCE = config.get("Drop Chances", "Epic Bag Passive Mob Drop Chance 0-1000", 10).getInt();
-		EPLAYERDROPCHANCE = config.get("Drop Chances", "Epic Bag Player Drop Chance 0-1000", 10).getInt();
+		EMONSTERDROPCHANCE = config.get("Drop Chances", "5 Epic Bag Monster Drop Chance", 25).getInt();
+		EPASSIVEDROPCHANCE = config.get("Drop Chances", "5 Epic Bag Passive Mob Drop Chance", 10).getInt();
+		EPLAYERDROPCHANCE = config.get("Drop Chances", "5 Epic Bag Player Drop Chance", 10).getInt();
 		
-		LMONSTERDROPCHANCE = config.get("Drop Chances", "Legendary Bag Monster Drop Chance 0-1000", 10).getInt();
-		LPASSIVEDROPCHANCE = config.get("Drop Chances", "Legendary Bag Passive Mob Drop Chance 0-1000", 5).getInt();
-		LPLAYERDROPCHANCE = config.get("Drop Chances", "Legendary Bag Player Drop Chance 0-1000", 5).getInt();
+		LMONSTERDROPCHANCE = config.get("Drop Chances", "6 Legendary Bag Monster Drop Chance", 10).getInt();
+		LPASSIVEDROPCHANCE = config.get("Drop Chances", "6 Legendary Bag Passive Mob Drop Chance", 5).getInt();
+		LPLAYERDROPCHANCE = config.get("Drop Chances", "6 Legendary Bag Player Drop Chance", 5).getInt();
+		
+		prop = config.get("Drop Chances", "1 Weighting Resolution", 1000);
+		prop.comment = "This is the resolution of the bag drop chances.  Only change this if you want bags with rarity resolutions > 0.1%";
+		DROPRESOLUTION = prop.getInt();
+		
+		prop = config.get("Drop Chances", "7 Special Bag Drop Chance", 250);
+		prop.comment = "This is the chance for any of the special hidden bags to appear, most are obtained by killing specific named entities.";
+		SPECIALDROPCHANCE = prop.getInt();
 		
 		Property prop2 = config.get("Loot Categories", "ChestGenHooks Dropped",  new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
 				ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST, ChestGenHooks.PYRAMID_JUNGLE_DISPENSER,
 				ChestGenHooks.STRONGHOLD_CORRIDOR, ChestGenHooks.STRONGHOLD_CROSSING, ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH});
 		prop2.comment = "This is a list of all Forge ChestGenHooks for different loot sources.  Probably a good idea to not mess with this unless you know what you're doing.";
 		LOOTCATEGORYLIST = prop2.getStringList();
+		prop2 = config.get("Loot Categories", "Chest Drop Weight", 20);
+		prop2.comment = "This is the weighting of the bags in any of the worldgen chests.";
+		CHESTQUALITYWEIGHT = prop2.getInt();
+		if(CHESTQUALITYWEIGHT <= 0)
+		{
+			FMLLog.log(Level.INFO, "Chest Weighting < 1, this causes problems for everything and is terrible.  Setting it to 1 instead.");
+			CHESTQUALITYWEIGHT = 1;
+		}
 		
 		Property prop3 = config.get("Blacklisted Items", "Global Blacklist", new String[]{"lootbags itemlootbag 0"});
 		prop3.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will prevent the bag from dropping the item.  Tries for Ore Dictionary before trying through the modlist." +
@@ -168,7 +193,7 @@ public class LootBags {
 		
 		Property prop4 = config.get("Whitelisted Items", "Global Whitelist", new String[]{});
 		prop4.comment = "Adding a modid and internal item name or Ore Dictionary name to this list will add the item to the Loot Bag drop table.  Example to whitelist up to 16 iron ingots with a weight of 50" +
-				": minecraft iron_ingot 0 16 50 <OR> ingotIron 16 50";
+				": minecraft iron_ingot 0 16 50 <OR> ingotIron 16 50 ALL.  The last word in the OreDictionary option is either ALL items that match or ONE item that matches.";
 		whitelistlist[0] = prop4.getStringList();
 		prop4 = config.get("Whitelisted Bag Items", "Common Bag Whitelist", new String[]{});
 		prop4.comment = "These whitelists are related to the associated bag type, so an item whitelisted in Common bags will not show up in" +
@@ -204,7 +229,7 @@ public class LootBags {
 		disableRecycler = prop8.getBoolean();
 		
 		Property prop9 = config.get(Configuration.CATEGORY_GENERAL, "Number of Bags to Upgrade", 4);
-		prop8.comment = "The number of bags needed to upgrade a bag into it's next level counterpart.";
+		prop9.comment = "The number of bags needed to upgrade a bag into it's next level counterpart.";
 		numBagsToUpgrade = prop9.getInt();
 		if(numBagsToUpgrade<1)
 		{
@@ -236,9 +261,28 @@ public class LootBags {
 			maxTierCraftable=4;
 		}
 		
+		prop10 = config.get(Configuration.CATEGORY_GENERAL, "Valid Kill Methods", "All");
+		prop10.comment = "Sources of entity death that are counted to determine if a bag can drop.  Allowable names: All, Player, Real.  All is any source of death, Player is any player entity including mod fake players, Real is only real players.";
+		String method = prop10.getString();
+		if(method.equalsIgnoreCase("all"))
+			BAGFROMPLAYERKILL = 0;
+		else if(method.equalsIgnoreCase("player"))
+			BAGFROMPLAYERKILL = 1;
+		else if(method.equalsIgnoreCase("real"))
+			BAGFROMPLAYERKILL = 2;
+		else
+		{
+			FMLLog.log(Level.WARN, "Invalid death source: " + method + ".  Setting method to allow all sources.");
+			BAGFROMPLAYERKILL=0;
+		}
+		
 		Property prop11 = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", true);
 		prop11.comment = "This limits the loot bags to only drop one bag.  Bag weighting is dependant on drop chances.";
 		LIMITONEBAGPERDROP = prop11.getBoolean();
+		
+		prop11 = config.get(Configuration.CATEGORY_GENERAL, "Reverse Rarity Weights", false);
+		prop11.comment = "This will reverse the loot distribution for bags, i.e. rarer bags have larger loot tables and common bags have more limited loot tables.";
+		REVERSEQUALITY = prop11.getBoolean();
 		
 		config.save();
 		
@@ -449,7 +493,7 @@ public class LootBags {
 		
 		if(LOOTBAGINDUNGEONLOOT.length>0)
 		{
-			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag, 1, 0), 1, 1, 30);
+			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbag, 1, 0), 1, 1, CHESTQUALITYWEIGHT);
 			for(String s:LOOTBAGINDUNGEONLOOT)
 			{
 				ChestGenHooks.addItem(s, con);
