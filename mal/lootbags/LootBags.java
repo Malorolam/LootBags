@@ -44,7 +44,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.6.0";
+	public static final String VERSION = "1.6.1";
 
 	public static int CMONSTERDROPCHANCE = 40;
 	public static int CPASSIVEDROPCHANCE = 20;
@@ -162,7 +162,7 @@ public class LootBags {
 		Property prop2 = config.get("Loot Categories", "ChestGenHooks Dropped",  new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
 				ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST, ChestGenHooks.PYRAMID_JUNGLE_DISPENSER,
 				ChestGenHooks.STRONGHOLD_CORRIDOR, ChestGenHooks.STRONGHOLD_CROSSING, ChestGenHooks.STRONGHOLD_LIBRARY, ChestGenHooks.VILLAGE_BLACKSMITH});
-		prop2.comment = "This is a list of all Forge ChestGenHooks for different loot sources.  Probably a good idea to not mess with this unless you know what you're doing.";
+		prop2.comment = "This is a list of the loot sources the bags pull from to generate the loot tables.  Probably a good idea to not mess with this unless you know what you're doing.";
 		LOOTCATEGORYLIST = prop2.getStringList();
 		prop2 = config.get("Loot Categories", "Chest Drop Weight", 20);
 		prop2.comment = "This is the weighting of the bags in any of the worldgen chests.";

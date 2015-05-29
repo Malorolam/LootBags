@@ -188,20 +188,20 @@ public class LootMap {
 						else if(block != null)
 							stack = new ItemStack(block,Integer.parseInt(words[3]),Integer.parseInt(words[2]));
 						}
-
-						if(stack.getItem() instanceof ItemRecord)
-						{
-							String tag = words[1].substring(7);
-							stack = new ItemStack(ItemRecord.getRecord("records."+tag),Integer.parseInt(words[3]),Integer.parseInt(words[2]));
-						}
-						else
-						{
-							stack.stackSize = Integer.parseInt(words[3]);
-							stack.setItemDamage(Integer.parseInt(words[2]));
-						}
 						
 						if(stack != null && stack.getItem() != null)
 						{
+							if(stack.getItem() instanceof ItemRecord)
+							{
+								String tag = words[1].substring(7);
+								stack = new ItemStack(ItemRecord.getRecord("records."+tag),Integer.parseInt(words[3]),Integer.parseInt(words[2]));
+							}
+							else
+							{
+								stack.stackSize = Integer.parseInt(words[3]);
+								stack.setItemDamage(Integer.parseInt(words[2]));
+							}
+							
 							FMLLog.log(Level.INFO, "Added Whitelist item: " + stack.toString());
 							WeightedRandomChestContent c = new WeightedRandomChestContent(stack, 1, stack.stackSize, Integer.parseInt(words[4]));
 							
@@ -248,6 +248,10 @@ public class LootMap {
 							{
 								FMLLog.log(Level.INFO, "Blacklisted item: " + GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).toString() + " dropping from the LootBags whitelist from spawning in Loot Bags.");
 							}
+						}
+						else
+						{
+							FMLLog.log(Level.ERROR, "There is a null item, it's string in the config is: " + s + " Make sure that the whitelist entry is correct.");
 						}
 					}
 				}
