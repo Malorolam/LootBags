@@ -69,6 +69,19 @@ public class LootItem {
 		return false;
 	}
 	
+	public boolean canOnlyDrop(BagTypes type)
+	{
+		boolean ret = false;
+		ret = canDrop(type);
+		for(int i = 0; i < possibleBags.length; i++)
+		{
+			if(i != type.getIndex())
+				if(possibleBags[type.getIndex()] != null)
+					ret = false;
+		}
+		return ret;
+	}
+	
 	public BagTypes[] getPossibleBags()
 	{
 		return possibleBags;

@@ -142,7 +142,7 @@ public class LootbagContainer extends Container{
     }
 }
 /*******************************************************************************
- * Copyright (c) 2014 Malorolam.
+ * Copyright (c) 2015 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

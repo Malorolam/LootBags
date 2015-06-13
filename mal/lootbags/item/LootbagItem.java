@@ -88,39 +88,45 @@ public class LootbagItem extends Item {
 			break;
 		}
 		
-		if(is.getTagCompound() != null && is.getTagCompound().getBoolean("generated"))
+		if(is.getItemDamage()<5 && LootBags.emptyBags[is.getItemDamage()]!=null)
+			list.add(EnumChatFormatting.RED + "Bag is disabled ~ Loot table is empty");
+		else
 		{
-			if(is.getItemDamage()==5)
+			if(is.getTagCompound() != null && is.getTagCompound().getBoolean("generated"))
 			{
-				list.add("\u00A7d" + "Turns out there is bacon inside...");
-			}
-			else if(is.getItemDamage()==6)
-			{
-				list.add("\u00A7b" + "I told you my bags don't");
-				list.add("\u00A7b" + "drop beds! baconNub");
-			}
-			else if(is.getItemDamage()==7)
-			{
-				list.add("\u00A7b" + "Everytime a random chest is placed,");
-				list.add("\u00A7b" + "a Soaryn gets more Chick Fil A.");
-			}
-			else if(is.getItemDamage()==8)
-			{
-				list.add("\u00A7b" + "Raise your Cluckingtons!");
-			}
-			else if(is.getItemDamage()==9)
-			{
-				list.add("\u00A7b" + "You have been banned from talking");
-				list.add("\u00A7b" + "in this channel's chat.");
+				if(is.getItemDamage()==5)
+				{
+					list.add("\u00A7d" + "Turns out there is bacon inside...");
+				}
+				else if(is.getItemDamage()==6)
+				{
+					list.add("\u00A7b" + "I told you my bags don't");
+					list.add("\u00A7b" + "drop beds! baconNub");
+				}
+				else if(is.getItemDamage()==7)
+				{
+					list.add("\u00A7b" + "Everytime a random chest is placed,");
+					list.add("\u00A7b" + "a Soaryn gets more Chick Fil A.");
+				}
+				else if(is.getItemDamage()==8)
+				{
+					list.add("\u00A7b" + "Raise your Cluckingtons!");
+				}
+				else if(is.getItemDamage()==9)
+				{
+					list.add("\u00A7b" + "You have been banned from talking");
+					list.add("\u00A7b" + "in this channel's chat.");
+				}
+				else
+				{
+					list.add("\u00A7b" + "What's inside is not as");
+					list.add("\u00A7b" + "interesting as not knowing.");
+				}
 			}
 			else
-			{
-				list.add("\u00A7b" + "What's inside is not as");
-				list.add("\u00A7b" + "interesting as not knowing.");
-			}
+				list.add("\u00A7b" + "Ooh, what could be inside?");
 		}
-		else
-			list.add("\u00A7b" + "Ooh, what could be inside?");
+		
 		if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)) {
 			if(is.getItemDamage() < 5)
 			{
@@ -130,34 +136,34 @@ public class LootbagItem extends Item {
 				switch(is.getItemDamage())
 				{
 				case 0:
-					mchance = LootBags.CMONSTERDROPCHANCE;
-					pchance = LootBags.CPASSIVEDROPCHANCE;
-					lchance = LootBags.CPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[0];
+					pchance = LootBags.PASSIVEDROPCHANCES[0];
+					lchance = LootBags.PLAYERDROPCHANCES[0];
 					break;
 				case 1:
-					mchance = LootBags.UMONSTERDROPCHANCE;
-					pchance = LootBags.UPASSIVEDROPCHANCE;
-					lchance = LootBags.UPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[1];
+					pchance = LootBags.PASSIVEDROPCHANCES[1];
+					lchance = LootBags.PLAYERDROPCHANCES[1];
 					break;
 				case 2:
-					mchance = LootBags.RMONSTERDROPCHANCE;
-					pchance = LootBags.RPASSIVEDROPCHANCE;
-					lchance = LootBags.RPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[2];
+					pchance = LootBags.PASSIVEDROPCHANCES[2];
+					lchance = LootBags.PLAYERDROPCHANCES[2];
 					break;
 				case 3:
-					mchance = LootBags.EMONSTERDROPCHANCE;
-					pchance = LootBags.EPASSIVEDROPCHANCE;
-					lchance = LootBags.EPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[3];
+					pchance = LootBags.PASSIVEDROPCHANCES[3];
+					lchance = LootBags.PLAYERDROPCHANCES[3];
 					break;
 				case 4:
-					mchance = LootBags.LMONSTERDROPCHANCE;
-					pchance = LootBags.LPASSIVEDROPCHANCE;
-					lchance = LootBags.LPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[4];
+					pchance = LootBags.PASSIVEDROPCHANCES[4];
+					lchance = LootBags.PLAYERDROPCHANCES[4];
 					break;
 				default:
-					mchance = LootBags.CMONSTERDROPCHANCE;
-					pchance = LootBags.CPASSIVEDROPCHANCE;
-					lchance = LootBags.CPLAYERDROPCHANCE;
+					mchance = LootBags.MONSTERDROPCHANCES[0];
+					pchance = LootBags.PASSIVEDROPCHANCES[0];
+					lchance = LootBags.PLAYERDROPCHANCES[0];
 					break;
 				}
 				list.add("\u00A77" + "Current Drop Rates: Monster: " + String.format("%.2f", mchance*100.0f/LootBags.DROPRESOLUTION) + "%");
@@ -241,6 +247,7 @@ public class LootbagItem extends Item {
 	}
 
 	public static void generateInventory(ItemStack is) {
+		
 		boolean gen = false;
 		if(is.getTagCompound()!=null)
 			gen = is.getTagCompound().getBoolean("generated");
@@ -391,7 +398,7 @@ public class LootbagItem extends Item {
 		}
 	}
 	
-	private static int getWeightFromDamage(int damage)
+	public static int getWeightFromDamage(int damage)
 	{
 		if(!LootBags.REVERSEQUALITY)
 		{
@@ -457,6 +464,8 @@ public class LootbagItem extends Item {
 	public ItemStack onItemRightClick(ItemStack is, World world,
 			EntityPlayer player) {
 		if (!world.isRemote && !player.isSneaking()) {
+			if(is.getItemDamage()<5 && LootBags.emptyBags[is.getItemDamage()]!=null)
+				return is;
 			LootbagItem.generateInventory(is);
 			player.openGui(LootBags.LootBagsInstance, 0, world, 0, 0, 0);
 		}
@@ -469,6 +478,8 @@ public class LootbagItem extends Item {
 	{
 		if(!world.isRemote)
 		{
+			if(is.getItemDamage()<5 && LootBags.emptyBags[is.getItemDamage()]!=null)
+				return false;
 			if(!player.isSneaking())
 				return false;
 			TileEntity te = world.getTileEntity(x, y, z);
@@ -597,12 +608,24 @@ public class LootbagItem extends Item {
         par3List.add(new ItemStack(par1, 1, 2));
         par3List.add(new ItemStack(par1, 1, 3));
         par3List.add(new ItemStack(par1, 1, 4));
-        //par3List.add(new ItemStack(par1, 1, 5));
-        //par3List.add(new ItemStack(par1, 1, 7));
+        
+//        par3List.add(new ItemStack(par1, 1, 6));
+//        par3List.add(new ItemStack(par1, 1, 7));
     }
 	@Override
 	public boolean getShareTag() {
 		return true;
+	}
+	
+	public int getEntityLifespan(ItemStack itemStack, World world)
+	{
+		if(!(itemStack.getItemDamage() <5))
+			return super.getEntityLifespan(itemStack, world);
+		
+		if(LootBags.emptyBags[itemStack.getItemDamage()]==null)
+			return super.getEntityLifespan(itemStack, world);
+		else
+			return 1;
 	}
 }
 /*******************************************************************************
