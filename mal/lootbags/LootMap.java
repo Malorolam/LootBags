@@ -113,6 +113,7 @@ public class LootMap {
 		{
 			for(String s: whitelistlist[i])
 			{
+				boolean skip = false;
 				String trim = s.trim();
 				if(!trim.isEmpty())
 				{
@@ -133,7 +134,6 @@ public class LootMap {
 								
 								WeightedRandomChestContent c = new WeightedRandomChestContent(is, 1, is.stackSize, weight);
 								
-								boolean skip = false;
 								for(String modid:LootBags.MODBLACKLIST)
 								{
 									if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
@@ -239,11 +239,24 @@ public class LootMap {
 								}
 								if(b>-1)
 								{
-									stack = ((ItemEnchantedBook) stack.getItem()).getEnchantedItemStack(new EnchantmentData(b, Integer.parseInt(words[3])));
+									int level = Integer.parseInt(words[3]);
+									if(level > Enchantment.enchantmentsList[b].getMaxLevel())
+									{
+										level = Enchantment.enchantmentsList[b].getMaxLevel();
+										FMLLog.log(Level.INFO,"Enchantment " + words[2] + " level exceeds maximum.  Setting to maximum value.");
+									}
+									if(level < Enchantment.enchantmentsList[b].getMinLevel())
+									{
+										level = Enchantment.enchantmentsList[b].getMinLevel();
+										FMLLog.log(Level.INFO,"Enchantment " + words[2] + " level below minimum.  Setting to minimum value.");
+									}
+									
+									stack = ((ItemEnchantedBook) stack.getItem()).getEnchantedItemStack(new EnchantmentData(b, level));
 								}
 								else
 								{
 									FMLLog.log(Level.INFO, "Enchantment " + words[2] + " not found.");
+									skip = true;
 								}
 							}
 							else
@@ -256,14 +269,14 @@ public class LootMap {
 								stack.stackSize = stack.getMaxStackSize();
 							
 							if(!damagerange)
-								addWhitelistItem(stack, i, words[1].startsWith("record"), Integer.parseInt(words[4]));
+								addWhitelistItem(stack, i, words[1].startsWith("record"), (stack.getItem() instanceof ItemEnchantedBook)?(words[2]):(null), Integer.parseInt(words[4]), skip);
 							else
 							{
 								for(int l = 0; l < damages.size(); l++)
 								{
 									ItemStack is = stack.copy();
 									is.setItemDamage(damages.get(l));
-									addWhitelistItem(is, i, words[1].startsWith("record"), Integer.parseInt(words[4]));
+									addWhitelistItem(is, i, words[1].startsWith("record"), (stack.getItem() instanceof ItemEnchantedBook)?(words[2]):(null), Integer.parseInt(words[4]), skip);
 								}
 							}
 						}
@@ -277,12 +290,11 @@ public class LootMap {
 		}
 	}
 	
-	private void addWhitelistItem(ItemStack stack, int i, boolean isRecord, int weight)
+	private void addWhitelistItem(ItemStack stack, int i, boolean isRecord, String enchantmentName, int weight, boolean skip)
 	{
 		FMLLog.log(Level.INFO, "Added Whitelist item: " + stack.toString());
 		WeightedRandomChestContent c = new WeightedRandomChestContent(stack, 1, stack.stackSize, weight);
 		
-		boolean skip = false;
 		for(String modid:LootBags.MODBLACKLIST)
 		{
 			if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))
@@ -295,9 +307,17 @@ public class LootMap {
 		}
 		if(!skip)
 		{
+			String key;
+			if(isRecord && stack.getItem() instanceof ItemRecord)
+				key = ((ItemRecord)stack.getItem()).recordName;
+			else if(enchantmentName !=null && stack.getItem() instanceof ItemEnchantedBook)
+				key = enchantmentName;
+			else
+				key = c.theItemId.getUnlocalizedName();
+			
 			if(i == 0)
 			{
-				map.put((isRecord && stack.getItem() instanceof ItemRecord)?(((ItemRecord)stack.getItem()).recordName):(c.theItemId.getUnlocalizedName()), new LootItem(c, BagTypes.Common, BagTypes.Legendary));
+				map.put(key, new LootItem(c, BagTypes.Common, BagTypes.Legendary));
 				totalWeight+= c.itemWeight;
 			}
 			else
@@ -308,14 +328,14 @@ public class LootMap {
 					type = BagTypes.droppableValues()[tier];
 				else
 					type = BagTypes.Common;
-				if(!map.containsKey((isRecord && stack.getItem() instanceof ItemRecord)?(((ItemRecord)stack.getItem()).recordName):(c.theItemId.getUnlocalizedName())))
+				if(!map.containsKey(key))
 				{
-					map.put((isRecord && stack.getItem() instanceof ItemRecord)?(((ItemRecord)stack.getItem()).recordName):(c.theItemId.getUnlocalizedName()), new LootItem(c, type));
+					map.put(key, new LootItem(c, type));
 					totalWeight += c.itemWeight;
 				}
 				else
 				{
-					LootItem iitem = map.get((isRecord && stack.getItem() instanceof ItemRecord)?(((ItemRecord)stack.getItem()).recordName):(c.theItemId.getUnlocalizedName()));
+					LootItem iitem = map.get(key);
 					
 					iitem.addBagType(type);
 				}

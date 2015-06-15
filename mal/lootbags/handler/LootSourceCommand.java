@@ -12,7 +12,9 @@ import mal.lootbags.LootBags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.ChestGenHooks;
 
 public class LootSourceCommand implements ICommand{
@@ -87,6 +89,17 @@ public class LootSourceCommand implements ICommand{
 			
 		} catch(Exception e) {
 			e.printStackTrace();
+		}
+		
+		//pull the full enchantment unlocalized names
+		stringlist.add("");
+		stringlist.add("==Enchantment Unlocalized Names==");
+		for(int i = 0; i < Enchantment.enchantmentsList.length; i++)
+		{
+			if(Enchantment.enchantmentsList[i] != null)
+			{
+				stringlist.add(StatCollector.translateToLocal(Enchantment.enchantmentsList[i].getName()) + ": " + Enchantment.enchantmentsList[i].getName());
+			}
 		}
 		
 		try {
