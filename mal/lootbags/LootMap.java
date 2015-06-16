@@ -240,11 +240,11 @@ public class LootMap {
 								if(b>-1)
 								{
 									int level = Integer.parseInt(words[3]);
-									if(level > Enchantment.enchantmentsList[b].getMaxLevel())
+									/*if(level > Enchantment.enchantmentsList[b].getMaxLevel())
 									{
 										level = Enchantment.enchantmentsList[b].getMaxLevel();
 										FMLLog.log(Level.INFO,"Enchantment " + words[2] + " level exceeds maximum.  Setting to maximum value.");
-									}
+									}*/
 									if(level < Enchantment.enchantmentsList[b].getMinLevel())
 									{
 										level = Enchantment.enchantmentsList[b].getMinLevel();
