@@ -45,7 +45,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.7.1.1";
+	public static final String VERSION = "1.8.0";
 
 	public static int[] MONSTERDROPCHANCES = new int[5];
 	public static int[] PASSIVEDROPCHANCES = new int[5];
@@ -90,6 +90,9 @@ public class LootBags {
 	
 	public static boolean LIMITONEBAGPERDROP = false;
 	public static int BAGFROMPLAYERKILL = 2;//limit bag drops to only EntityPlayer kills, 0 is any source, 1 is EntityPlayer, 2 is forced real players
+	public static int PREVENTDUPLICATELOOT = 0;//prevents the same item from showing up twice in a bag, 0 is not at all, 1 is if item and damage are the same, 2 is if item is the same
+	public static int MINITEMSDROPPED = 1;//minimum number of items dropped by a bag
+	public static int MAXITEMSDROPPED = 5;//maximum number of items dropped by a bag
 	
 	public static int MAXREROLLCOUNT = 50;
 	public static int TOTALVALUEPERBAG = 1000;//total amount of drop chance required to create a lootbag
@@ -225,6 +228,60 @@ public class LootBags {
 		prop6.comment = "If the bag encounters an item it cannot place in the bag it will reroll, this sets a limit to the number of times the bag will" +
 				" reroll before it just skips the slot.  Extremely high or low numbers may result in undesired performance of the mod.";
 		MAXREROLLCOUNT = prop6.getInt();
+		
+		prop6 = config.get(Configuration.CATEGORY_GENERAL, "Maximum Items Per Bag", 5);
+		prop6.comment = "This is the maximum number of items that can be contained in a bag.  It must be no less than 1, no greater than 5, and equal or larger than the minimum number of items.";
+		MAXITEMSDROPPED = prop6.getInt();
+		
+		prop6 = config.get(Configuration.CATEGORY_GENERAL, "Minimum Items Per Bag", 1);
+		prop6.comment = "This is the minimum number of items that can be contained in a bag.  It must be no less than 1, no greater than 5, and equal or smaller than the maximum number of items.";
+		MINITEMSDROPPED = prop6.getInt();
+		
+		if(MINITEMSDROPPED < 1)
+		{
+			FMLLog.log(Level.WARN, "Minimum items dropped must be at least 1.  Setting minimum to 1.");
+			MINITEMSDROPPED = 1;
+		}
+		if(MINITEMSDROPPED > 5)
+		{
+			FMLLog.log(Level.WARN, "Minimum items dropped cannot exceed 5.  Setting minimum to 5.");
+			MINITEMSDROPPED = 5;
+		}
+		
+		if(MAXITEMSDROPPED < 1)
+		{
+			FMLLog.log(Level.WARN, "Minimum items dropped must be at least 1.  Setting minimum to 1.");
+			MAXITEMSDROPPED = 1;
+		}
+		if(MAXITEMSDROPPED > 5)
+		{
+			FMLLog.log(Level.WARN, "Minimum items dropped cannot exceed 5.  Setting minimum to 5.");
+			MAXITEMSDROPPED = 5;
+		}
+		
+		if(MINITEMSDROPPED > MAXITEMSDROPPED)
+		{
+			FMLLog.log(Level.WARN, "Minimum dropped items greater than maximum.  Swapping values.");
+			int temp = MINITEMSDROPPED;
+			MINITEMSDROPPED = MAXITEMSDROPPED;
+			MAXITEMSDROPPED = temp;
+		}
+		
+		prop6 = config.get(Configuration.CATEGORY_GENERAL, "Prevent Item Duplicates", "NONE");
+		prop6.comment = "This will limit how items can show up in the bag.  If the word is NONE then any sort of duplicates are allowed.  DAMAGE will prevent items with the same class and damage, but same class and different damage values are allowed.  ITEM will prevent any duplicates of class." +
+				"If the loot table is small (<50 items in total), there may be some performance issues, so limiting the maximum number of items may be a better option.";
+		String dupe = prop6.getString();
+		if(dupe.equalsIgnoreCase("NONE"))
+			PREVENTDUPLICATELOOT = 0;
+		else if(dupe.equalsIgnoreCase("DAMAGE"))
+			PREVENTDUPLICATELOOT = 2;
+		else if(dupe.equalsIgnoreCase("ITEM"))
+			PREVENTDUPLICATELOOT = 1;
+		else
+		{
+			FMLLog.log(Level.WARN, "Duplicate prevention word: " + dupe + " not recognized.  Using NONE instead.");
+			PREVENTDUPLICATELOOT = 0;
+		}
 		
 		Property prop7 = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1000);
 		prop7.comment = "This is kind of ambiguous, but essentially it's the total amount of stuff ranked based off of rarity you need to make a new bag in the recycler.  " +
@@ -549,7 +606,7 @@ public class LootBags {
 			LOOTMAP.addLootCategory(LOOTCATEGORYLIST[i]);
 		}
 		LOOTMAP.addWhitelistedItems(whitelistlist);
-		//LOOTMAP.printMap();
+		LOOTMAP.printMap();
 		
 		emptyBags = LOOTMAP.checkEmptyBags();
 		

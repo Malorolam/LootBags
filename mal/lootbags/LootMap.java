@@ -21,6 +21,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
@@ -55,7 +57,7 @@ public class LootMap {
 			{
 				FMLLog.log(Level.ERROR, "Item " + c.theItemId.toString() + " has a weighting of " + c.itemWeight + ".  This is not a Lootbags error but an error in a different mod!  "
 						+ "This item will be removed from the loot table.");
-				ChestGenHooks.removeItem(categoryName, c.theItemId);
+//				ChestGenHooks.removeItem(categoryName, c.theItemId);
 			}
 			else
 			{
@@ -84,22 +86,24 @@ public class LootMap {
 						}
 					}
 					
-					if(!map.containsKey(c.theItemId.getUnlocalizedName()))
+					String key = c.theItemId.getUnlocalizedName()+c.theItemId.getItemDamage();
+					
+					if(!map.containsKey(key))
 					{
 						LootItem ii = new LootItem(c, BagTypes.Common, BagTypes.Legendary);
 						ii.removeBagTypes(ty);
-						map.put(c.theItemId.getUnlocalizedName(), ii);
+						map.put(key, ii);
 						totalWeight+= c.itemWeight;
 					}
 					else
 					{
-						LootItem item = map.get(c.theItemId.getUnlocalizedName());
+						LootItem item = map.get(key);
 						int weight = item.getContentItem().itemWeight;
 						totalWeight -= weight;
 						weight = (weight+c.itemWeight)/2;
 						item.getContentItem().itemWeight = weight;
 						item.removeBagTypes(ty);
-						map.put(c.theItemId.getUnlocalizedName(), item);
+						map.put(key, item);
 						totalWeight += weight;
 					}
 				}
@@ -124,11 +128,11 @@ public class LootMap {
 						{
 							FMLLog.log(Level.INFO, "Added Whitelist item from OreDictionary: " + words[0] + "x" + words[1] + " - " + words[3]);
 							ArrayList<ItemStack> ll = OreDictionary.getOres(words[0]);
-							System.out.println(ll.size());
+							//System.out.println(ll.size());
 							for(int j = 0; j < (words[3].equalsIgnoreCase("ALL")?(ll.size()):(1)); j++)
 							{
 								ItemStack is = ll.get(j).copy();
-								System.out.println(((ItemRecord)is.getItem()).recordName);
+								//System.out.println(((ItemRecord)is.getItem()).recordName);
 								is.stackSize=Integer.parseInt(words[1]);
 								int weight = Integer.parseInt(words[2]);
 								
@@ -146,9 +150,13 @@ public class LootMap {
 								}
 								if(!skip)
 								{
+									String key = c.theItemId.getUnlocalizedName()+c.theItemId.getItemDamage();
+									if(words[0].equalsIgnoreCase("record") && is.getItem() instanceof ItemRecord)
+										key = ((ItemRecord)is.getItem()).recordName;
+									
 									if(i == 0)
 									{
-										map.put((words[0].equalsIgnoreCase("record") && is.getItem() instanceof ItemRecord)?(((ItemRecord)is.getItem()).recordName):(c.theItemId.getUnlocalizedName()), new LootItem(c, BagTypes.Common, BagTypes.Legendary));
+										map.put(key, new LootItem(c, BagTypes.Common, BagTypes.Legendary));
 										totalWeight+= c.itemWeight;
 									}
 									else
@@ -159,14 +167,14 @@ public class LootMap {
 											type = BagTypes.droppableValues()[tier];
 										else
 											type = BagTypes.Common;
-										if(!map.containsKey((words[0].equalsIgnoreCase("record") && is.getItem() instanceof ItemRecord)?(((ItemRecord)is.getItem()).recordName):(c.theItemId.getUnlocalizedName())))
+										if(!map.containsKey(key))
 										{
-											map.put((words[0].equalsIgnoreCase("record") && is.getItem() instanceof ItemRecord)?(((ItemRecord)is.getItem()).recordName):(c.theItemId.getUnlocalizedName()), new LootItem(c, type));
+											map.put(key, new LootItem(c, type));
 											totalWeight += c.itemWeight;
 										}
 										else
 										{
-											LootItem item = map.get((words[0].equalsIgnoreCase("record") && is.getItem() instanceof ItemRecord)?(((ItemRecord)is.getItem()).recordName):(c.theItemId.getUnlocalizedName()));
+											LootItem item = map.get(key);
 											
 											item.addBagType(type);
 										}
@@ -311,9 +319,13 @@ public class LootMap {
 			if(isRecord && stack.getItem() instanceof ItemRecord)
 				key = ((ItemRecord)stack.getItem()).recordName;
 			else if(enchantmentName !=null && stack.getItem() instanceof ItemEnchantedBook)
+			{
 				key = enchantmentName;
+				NBTTagCompound tag = c.theItemId.stackTagCompound;
+				tag.setBoolean("LootbagsWhitelist", true);
+			}
 			else
-				key = c.theItemId.getUnlocalizedName();
+				key = c.theItemId.getUnlocalizedName()+c.theItemId.getItemDamage();
 			
 			if(i == 0)
 			{
@@ -370,6 +382,25 @@ public class LootMap {
 			}
 			if(item == null)
 				return null;
+			if(item.theItemId.getItem() instanceof ItemEnchantedBook)
+			{
+				NBTTagCompound tag = item.theItemId.getTagCompound();
+				if(tag != null)
+				{
+					if(tag.hasKey("LootbagsWhitelist"))
+					{
+						//System.out.println("removed whitelist tag");
+						item = new WeightedRandomChestContent(item.theItemId.copy(), 1, item.theItemId.stackSize, item.itemWeight);
+						tag = item.theItemId.getTagCompound();
+						tag.removeTag("LootbagsWhitelist");
+					}
+					else
+					{
+						//System.out.println("refreshed enchantment");
+						item = ((ItemEnchantedBook)item.theItemId.getItem()).func_92112_a(random,item.theMinimumChanceToGenerateItem,item.theMaximumChanceToGenerateItem, item.itemWeight);
+					}
+				}
+			}
     		ItemStack[] stacks = ChestGenHooks.generateStacks(random, item.theItemId, item.theMinimumChanceToGenerateItem, item.theMaximumChanceToGenerateItem);
         	return (stacks.length > 0 ? stacks[0] : null);
 		}

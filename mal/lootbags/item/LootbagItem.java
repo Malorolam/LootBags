@@ -269,14 +269,17 @@ public class LootbagItem extends Item {
 				numitems = 3;
 				break;
 			default:
-				numitems = (random.nextInt(5) + 1);
+				numitems = (random.nextInt(LootBags.MAXITEMSDROPPED-LootBags.MINITEMSDROPPED+1) + LootBags.MINITEMSDROPPED);
 				break;
 			}
+			ItemStack[] items = new ItemStack[numitems];
+			
 			NBTTagCompound nbt = new NBTTagCompound();
 			NBTTagList nbtinventory = new NBTTagList();
 
 			for (int i = 0; i < numitems; i++) {
-				ItemStack inv = getLootItem(is.getItemDamage(), i);
+				ItemStack inv = getLootItem(is.getItemDamage(), i, items);
+				items[i] = inv;
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setInteger("Slot", i);
 				if (inv != null && inv.stackSize>0) {
@@ -297,8 +300,8 @@ public class LootbagItem extends Item {
 		}
 	}
 	
-	private static ItemStack getLootItem(int damage, int slot){return getLootItem(0, damage, slot);}
-	private static ItemStack getLootItem(int rerollCount, int damage, int slot)
+	private static ItemStack getLootItem(int damage, int slot, ItemStack[] items){return getLootItem(0, damage, slot, items);}
+	private static ItemStack getLootItem(int rerollCount, int damage, int slot, ItemStack[] items)
 	{
 		if(damage == 5)
 		{
@@ -366,13 +369,37 @@ public class LootbagItem extends Item {
 		ItemStack is = LootBags.LOOTMAP.getRandomItem(getWeightFromDamage(damage), getTypeFromDamage(damage));
 		if(is == null || is.getItem()==null || is.stackSize<= 0)
 			reroll = true;
+		if(itemAlreadyRolled(is, items))
+			reroll = true;
 		if(reroll && rerollCount<LootBags.MAXREROLLCOUNT)
 		{
-			return getLootItem(++rerollCount, damage);
+			rerollCount += items.length;
+			return getLootItem(rerollCount, damage, slot, items);
 		}
 		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
 			return null;
 		return is;
+	}
+	
+	private static boolean itemAlreadyRolled(ItemStack stack, ItemStack[] items)
+	{
+		System.out.println(LootBags.PREVENTDUPLICATELOOT);
+		if(items == null)
+			return false;
+		if(LootBags.PREVENTDUPLICATELOOT==0)
+			return false;
+
+		for(int i = 0; i < items.length; i++)
+		{
+			if(items[i] != null)
+			{
+				if(LootBags.PREVENTDUPLICATELOOT==1 && stack.isItemEqual(items[i]))
+					return true;
+				if(LootBags.PREVENTDUPLICATELOOT==2 && stack.getItem()==items[i].getItem())
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	private static BagTypes getTypeFromDamage(int damage)
