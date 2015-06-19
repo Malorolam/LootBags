@@ -41,7 +41,7 @@ import net.minecraftforge.common.ChestGenHooks;
 public class LootbagItem extends Item {
 
 	private static Random random = new Random();
-	private IIcon[] iconlist = new IIcon[10];
+	private IIcon[] iconlist = new IIcon[11];
 
 	public LootbagItem() {
 		super();
@@ -86,6 +86,9 @@ public class LootbagItem extends Item {
 		case 9:
 			list.add(EnumChatFormatting.YELLOW + "Waffle");
 			break;
+		case 10:
+			list.add(EnumChatFormatting.DARK_GRAY + "Na Na Na Na Na Na Na Na");
+			break;
 		}
 		
 		if(is.getItemDamage()<5 && LootBags.emptyBags[is.getItemDamage()]!=null)
@@ -117,6 +120,11 @@ public class LootbagItem extends Item {
 					list.add("\u00A7b" + "You have been banned from talking");
 					list.add("\u00A7b" + "in this channel's chat.");
 				}
+				else if(is.getItemDamage()==10)
+				{
+					list.add(EnumChatFormatting.GREEN + "Paging Doctor Bat, paging Doctor Bat!");
+					list.add(EnumChatFormatting.GREEN + "Is there a Doctor Bat in the room?");
+				}
 				else
 				{
 					list.add("\u00A7b" + "What's inside is not as");
@@ -124,7 +132,16 @@ public class LootbagItem extends Item {
 				}
 			}
 			else
-				list.add("\u00A7b" + "Ooh, what could be inside?");
+			{
+				if(is.getItemDamage()==10)
+				{
+					list.add(EnumChatFormatting.GREEN + "Where, oh where has my little Bat gone?");
+					list.add(EnumChatFormatting.GREEN + "Oh where, oh where can he be? His cowl, his scowl,");
+					list.add(EnumChatFormatting.GREEN + "his temper so foul. I do hope he's coming for me.");
+				}
+				else
+					list.add("\u00A7b" + "Ooh, what could be inside?");
+			}
 		}
 		
 		if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54)) {
@@ -198,6 +215,11 @@ public class LootbagItem extends Item {
 			{
 				list.add("\u00A77" + "(Hay) (Cha)rcoal (T)orch");
 			}
+			else if(is.getItemDamage()==10)
+			{
+				list.add(EnumChatFormatting.DARK_GREEN + "A hero with no praise or glory");
+				list.add(EnumChatFormatting.DARK_GREEN + "Just his cape and his cave and his.... meow");
+			}
 		}
 		else
 		{
@@ -260,6 +282,7 @@ public class LootbagItem extends Item {
 				break;
 			case 6:
 			case 8:
+			case 10:
 				numitems = 1;
 				break;
 			case 7:
@@ -359,6 +382,11 @@ public class LootbagItem extends Item {
 				stacks = null;
 			}
 			return(stacks.length > 0 ? stacks[0] : null);
+		}
+		if(damage == 10)
+		{
+			ItemStack[] stacks = ChestGenHooks.generateStacks(random, new ItemStack(Items.spawn_egg,1,65), 1, 1);
+			return (stacks.length > 0 ? stacks[0] : null);
 		}
 		if(random.nextInt(LootBags.DROPRESOLUTION*1000/LootBags.SPECIALDROPCHANCE)==0 && LootBags.SPECIALDROPCHANCE>0)
 		{
@@ -587,6 +615,8 @@ public class LootbagItem extends Item {
 			return "item.lootbag.wyld";
 		case 9:
 			return "item.lootbag.waffle";
+		case 10:
+			return "item.lootbag.bat";
 		default:
 			return "item.lootbag.derp";
 		}
@@ -603,6 +633,7 @@ public class LootbagItem extends Item {
 		iconlist[7] = ir.registerIcon("lootbags:lootbagSoarynItemTexture");
 		iconlist[8] = ir.registerIcon("lootbags:lootbagWyldItemTexture");
 		iconlist[9] = ir.registerIcon("lootbags:lootbagWaffleItemTexture");
+		iconlist[10] = ir.registerIcon("lootbags:lootbagBatItemTexture");
 	}
 
 	public IIcon getIconFromDamage(int value)
@@ -636,8 +667,15 @@ public class LootbagItem extends Item {
         par3List.add(new ItemStack(par1, 1, 3));
         par3List.add(new ItemStack(par1, 1, 4));
         
-//        par3List.add(new ItemStack(par1, 1, 6));
-//        par3List.add(new ItemStack(par1, 1, 7));
+        if(LootBags.SHOWSECRETBAGS)
+        {
+        	par3List.add(new ItemStack(par1, 1, 5));
+        	par3List.add(new ItemStack(par1, 1, 6));
+        	par3List.add(new ItemStack(par1, 1, 7));
+        	par3List.add(new ItemStack(par1, 1, 8));
+        	par3List.add(new ItemStack(par1, 1, 9));
+        	par3List.add(new ItemStack(par1, 1, 10));
+        }
     }
 	@Override
 	public boolean getShareTag() {

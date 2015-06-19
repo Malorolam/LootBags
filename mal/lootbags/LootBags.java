@@ -45,7 +45,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "1.8.0";
+	public static final String VERSION = "1.8.1";
 
 	public static int[] MONSTERDROPCHANCES = new int[5];
 	public static int[] PASSIVEDROPCHANCES = new int[5];
@@ -84,6 +84,8 @@ public class LootBags {
 	public static int LPERCENTILE = 5;
 	
 	public static boolean REVERSEQUALITY = true;//reverses the quality to determine what can be dropped from a bag
+	
+	public static boolean SHOWSECRETBAGS = true;//shows the secret bags in NEI/creative inventory
 	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;
@@ -282,6 +284,10 @@ public class LootBags {
 			FMLLog.log(Level.WARN, "Duplicate prevention word: " + dupe + " not recognized.  Using NONE instead.");
 			PREVENTDUPLICATELOOT = 0;
 		}
+		
+		prop6 = config.get(Configuration.CATEGORY_GENERAL, "Show Secret Bags", false);
+		prop6.comment = "This if true will show all the secret bags in NEI or creative inventory.  Kind of ruins the fun if you ask me.";
+		SHOWSECRETBAGS = prop6.getBoolean();
 		
 		Property prop7 = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1000);
 		prop7.comment = "This is kind of ambiguous, but essentially it's the total amount of stuff ranked based off of rarity you need to make a new bag in the recycler.  " +

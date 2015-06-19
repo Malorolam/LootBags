@@ -295,6 +295,8 @@ public class MobDropHandler {
 				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 8), random.nextInt(2) + 1);
 			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("giantwaffle"))
 				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 9), random.nextInt(2) + 1);
+			if(((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("batman") || ((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("joker") || ((EntityLiving)event.entityLiving).getCustomNameTag().equalsIgnoreCase("batdan"))
+				event.entityLiving.entityDropItem(new ItemStack(LootBags.lootbag, 1, 10), random.nextInt(2) + 1);
 		}
 	}
 }
