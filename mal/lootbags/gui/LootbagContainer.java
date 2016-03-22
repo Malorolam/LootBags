@@ -87,10 +87,10 @@ public class LootbagContainer extends Container{
 					player.inventory.mainInventory[islot] = wrapper.getStack();
 				}
 			}
-			/*else
+			else
 			{
 				player.dropPlayerItemWithRandomChoice(((Slot)this.inventorySlots.get(0)).getStack(), false);
-			}*/
+			}
 		}
 		super.onContainerClosed(player);
 	}
@@ -98,7 +98,6 @@ public class LootbagContainer extends Container{
 	/**
      * Called when a player shift-clicks on a slot. You must override this or you will crash when someone does that.
      */
-	//TODO: Make it actually do stuff instead of being lazy
     @Override
     public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int slot)
     {
@@ -142,7 +141,7 @@ public class LootbagContainer extends Container{
     }
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

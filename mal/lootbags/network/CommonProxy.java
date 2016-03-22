@@ -6,6 +6,7 @@ import mal.lootbags.gui.RecyclerContainer;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+//import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 
@@ -14,7 +15,7 @@ public class CommonProxy implements IGuiHandler{
 	@Override
 	public Object getServerGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) {
-		if(ID==0 && player.getCurrentEquippedItem() != null && Item.getIdFromItem(player.getCurrentEquippedItem().getItem()) == Item.getIdFromItem(LootBags.lootbag))
+		if(ID==0 && player.getCurrentEquippedItem() != null && Item.getIdFromItem(player.getCurrentEquippedItem().getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
 		{
 			return new LootbagContainer(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem(), player.inventory.currentItem));
 		}
@@ -26,7 +27,6 @@ public class CommonProxy implements IGuiHandler{
 	@Override
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
 			int x, int y, int z) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -34,9 +34,11 @@ public class CommonProxy implements IGuiHandler{
     {
         return null;
     }
+
+	public void registerRenderers() {}
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

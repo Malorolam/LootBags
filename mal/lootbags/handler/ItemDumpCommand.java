@@ -9,12 +9,14 @@ import java.util.Random;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
-import mal.lootbags.BagTypes;
+import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
+import mal.lootbags.loot.LootItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
+//import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraftforge.common.ChestGenHooks;
@@ -26,23 +28,17 @@ public class ItemDumpCommand implements ICommand{
 	
 	public ItemDumpCommand()
 	{
-		aliases.add("lootbagsitemdump");
-	}
-	
-	@Override
-	public int compareTo(Object o) {
-		// TODO Auto-generated method stub
-		return 0;
+		aliases.add("lootbags_itemdump");
 	}
 
 	@Override
 	public String getCommandName() {
-		return "/lootbagsitemdump";
+		return "/lootbags_itemdump";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "/lootbagsitemdump";
+		return "/lootbags_itemdump";
 	}
 
 	@Override
@@ -53,25 +49,16 @@ public class ItemDumpCommand implements ICommand{
 	@Override
 	public void processCommand(ICommandSender icommand, String[] astring) {
 		ArrayList<String> stringlist = new ArrayList<String>();
-		if(!LootBags.REVERSEQUALITY)
-			stringlist.add("XXXX Max Weights Per Bag Tier XXXX");
-		else
-			stringlist.add("XXXX Min Weights Per Bag Tier XXXX");
-		stringlist.add("Common: " + LootBags.LOOTMAP.getLargestWeight());
-		stringlist.add("Uncommon: " + LootBags.LOOTMAP.generatePercentileWeight(75, BagTypes.Uncommon));
-		stringlist.add("Rare: " + LootBags.LOOTMAP.generatePercentileWeight(50, BagTypes.Rare));
-		stringlist.add("Epic: " + LootBags.LOOTMAP.generatePercentileWeight(25, BagTypes.Epic));
-		stringlist.add("Legendary: " + LootBags.LOOTMAP.generatePercentileWeight(5, BagTypes.Legendary));
-		stringlist.add("");
-		stringlist.add("XXXX LootBags Drop Table XXXX");
-		stringlist.add("modid  itemname  itemdamage  droppercent weight");
-		for(WeightedRandomChestContent c : LootBags.LOOTMAP.getMapAsChestList())
+		stringlist.add("XXXX LootBags General Drop Table XXXX");
+		stringlist.add("<modid>:<itemname>:<itemdamage>:<droppercent>:<weight>");
+		for(LootItem it : LootBags.LOOTMAP.getMap().values())
 		{
+			WeightedRandomChestContent c = it.getContentItem();
 			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
 			if(u != null && c.theItemId != null)
 			{
 				float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
-				stringlist.add(u.modId + "  " + u.name + "  " + c.theItemId.getItemDamage() + "  " + String.format("%.3f", percent) + "  " + c.itemWeight);
+				stringlist.add(u.modId + ":" + u.name + ":" + c.theItemId.getItemDamage() + ":" + String.format("%.3f", percent) + ":" + c.itemWeight);
 			}
 			else if(c.theItemId != null)
 			{
@@ -84,43 +71,27 @@ public class ItemDumpCommand implements ICommand{
 		}
 		
 		stringlist.add("");
-		stringlist.add("XXXX LootBags Blacklist XXXX");
-		for(int i = 0; i < LootBags.BLACKLIST.size(); i++)
+		for(Bag bag:BagHandler.getBagList().values())
 		{
-			switch(i)
+			stringlist.add("XXXX " + bag.getBagName() + " Drop Table XXXX");
+			for(LootItem it: bag.getMap().values())
 			{
-			case 0:
-				stringlist.add("Global Blacklist:");
-				break;
-			case 1:
-				stringlist.add("Common Bag Blacklist:");
-				break;
-			case 2:
-				stringlist.add("Uncommon Bag Blacklist:");
-				break;
-			case 3:
-				stringlist.add("Rare Bag Blacklist:");
-				break;
-			case 4:
-				stringlist.add("Epic Bag Blacklist:");
-				break;
-			case 5:
-				stringlist.add("Legendary Bag Blacklist:");
-				break;
+				WeightedRandomChestContent c = it.getContentItem();
+				UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
+				if(u != null && c.theItemId != null)
+				{
+					float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
+					stringlist.add(u.modId + ":" + u.name + ":" + c.theItemId.getItemDamage() + ":" + String.format("%.3f", percent) + ":" + c.itemWeight);
+				}
+				else if(c.theItemId != null)
+				{
+					stringlist.add(c.toString() + ": Unique Identifier not found.");
+				}
+				else
+				{
+					stringlist.add("Found null item.  Whatever this is probably can't be dropped");
+				}
 			}
-			
-			for(ItemStack is:LootBags.BLACKLIST.get(i))
-			{
-				UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(is.getItem());
-				stringlist.add(u.modId + "  " + u.name + "  " + + is.getItemDamage());
-			}
-		}
-		
-		stringlist.add("");
-		stringlist.add("XXXX LootBags Blacklisted Mod IDs XXXX");
-		for(int i = 0; i < LootBags.MODBLACKLIST.size(); i++)
-		{
-			stringlist.add(LootBags.MODBLACKLIST.get(0));
 		}
 		
 		try {
@@ -151,19 +122,36 @@ public class ItemDumpCommand implements ICommand{
 	}
 
 	@Override
+	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
+		return false;
+	}
+
+	@Override
+	public int compareTo(Object arg0) {
+		return 0;
+	}
+
+	@Override
 	public List addTabCompletionOptions(ICommandSender p_71516_1_,
 			String[] p_71516_2_) {
 		return null;
 	}
 
-	@Override
-	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
-		return false;
+	
+/*	@Override
+	public int compareTo(ICommand arg0) {
+		return 0;
 	}
+
+	@Override
+	public List<String> addTabCompletionOptions(ICommandSender sender,
+			String[] args, BlockPos pos) {
+		return null;
+	}*/
 
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

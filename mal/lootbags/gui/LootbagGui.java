@@ -33,10 +33,11 @@ public class LootbagGui extends GuiContainer{
     /**
      * This function is what controls the hotbar shortcut check when you press a number key when hovering a stack.
      */
-	@Override
+	//TODO: Overrode this for some reason
+/*	@Override
     protected boolean checkHotbarKeys(int p_146983_1_)
     {
-/*        if (this.mc.thePlayer.inventory.getItemStack() == null && this.slotdummy != null && slotdummy.slotNumber != cont.islot)
+        if (this.mc.thePlayer.inventory.getItemStack() == null && this.slotdummy != null && slotdummy.slotNumber != cont.islot)
         {
             for (int j = 0; j < 9; ++j)
             {
@@ -46,13 +47,13 @@ public class LootbagGui extends GuiContainer{
                     return true;
                 }
             }
-        }*/
+        }
 
         return false;
-    }
+    }*/
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

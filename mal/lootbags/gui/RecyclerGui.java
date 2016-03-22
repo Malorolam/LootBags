@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.handler.BagHandler;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -48,12 +49,13 @@ public class RecyclerGui extends GuiContainer{
 		super.drawScreen(par1, par2, par3);
 		
 		//see if the mouse is over the fuel bar
+		//TODO: fix
 		if(isPointInRegion(48, 35, 80, 8, par1, par2, guiLeft, guiTop))
 		{
 			ArrayList list = new ArrayList();
 			
 			list.add("\u00A73" + "Stored Loot Value:");
-			list.add("\u00A78" + bench.getValue() + "/" + LootBags.TOTALVALUEPERBAG);
+			list.add("\u00A78" + bench.getValue() + "/" + (BagHandler.getBag(LootBags.RECYCLEDID).getBagWeight()*LootBags.TOTALVALUEMULTIPLIER));
 			
 	        this.drawHoveringText(list, par1, par2, fontRendererObj);
 		}
@@ -67,7 +69,7 @@ public class RecyclerGui extends GuiContainer{
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

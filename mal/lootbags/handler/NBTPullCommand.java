@@ -1,6 +1,9 @@
 package mal.lootbags.handler;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -8,34 +11,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
+
 import mal.lootbags.LootBags;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 //import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.ChestGenHooks;
 
-public class LootSourceCommand implements ICommand{
+/**
+ * Hopefully a way to pull nbt data and use it for configs
+ * @author Mal
+ *
+ */
+public class NBTPullCommand implements ICommand{
 
 	private List aliases = new ArrayList();
-	private Random random = new Random();
 	
-	public LootSourceCommand()
+	public NBTPullCommand()
 	{
-		aliases.add("lootbags_identifysources");
+		aliases.add("lootbags_pullnbt");
 	}
 
 	@Override
 	public String getCommandName() {
-		return "/lootbags_identifysources";
+		return "/lootbags_pullnbt";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "/lootbags_identifysources";
+		return "/lootbags_pullnbt";
 	}
 
 	@Override
@@ -45,60 +58,40 @@ public class LootSourceCommand implements ICommand{
 
 	@Override
 	public void processCommand(ICommandSender icommand, String[] p_71515_2_) {
-		ArrayList<String> stringlist = new ArrayList<String>();
-		
-		if(LootBags.LOOTBAGINDUNGEONLOOT != null)
+		EntityPlayer player = null;
+		if(icommand instanceof EntityPlayer)
+			player = (EntityPlayer)icommand;
+		else
 		{
-			stringlist.add("==Loot Sources Bags are found in==");
-			for(int i = 0; i < LootBags.LOOTBAGINDUNGEONLOOT.length; i++)
-			{
-				stringlist.add(LootBags.LOOTBAGINDUNGEONLOOT[i]);
-			}
-		}
-		stringlist.add("");
-		
-		if(LootBags.LOOTCATEGORYLIST != null)
-		{
-			stringlist.add("==Loot Sources That Provide Loot Found in Bags==");
-			for(int i = 0; i < LootBags.LOOTCATEGORYLIST.length; i++)
-			{
-				stringlist.add(LootBags.LOOTCATEGORYLIST[i]);
-			}
-		}
-		stringlist.add("");
-		
-		stringlist.add("==Loot Sources Registered in Forge==");
-		
-		//Reflection to obtain the chestInfo in ChestGenHooks
-		try {
-			Field info = Class.forName("net.minecraftforge.common.ChestGenHooks").getDeclaredField("chestInfo");
-			info.setAccessible(true);
-			HashMap chestinfo = (HashMap)info.get(null);
-			
-			for(int i = 0; i < chestinfo.keySet().size(); i++)
-			{
-				String category = chestinfo.keySet().toArray()[i].toString();
-				int count = ChestGenHooks.getInfo(category).getItems(random).length;
-				stringlist.add(category + " contains " + count + " items.");
-			}
-			
-		} catch(Exception e) {
-			e.printStackTrace();
+			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Did not recognize command sender as a player."));
+			return;
 		}
 		
-		//pull the full enchantment unlocalized names
-		stringlist.add("");
-		stringlist.add("==Enchantment Unlocalized Names==");
-		for(int i = 0; i < Enchantment.enchantmentsBookList.length; i++)
+		ItemStack stack = player.getCurrentEquippedItem();
+		if(stack==null)
 		{
-			if(Enchantment.enchantmentsBookList[i] != null)
-			{
-				stringlist.add(StatCollector.translateToLocal(Enchantment.enchantmentsBookList[i].getName()) + ": " + Enchantment.enchantmentsBookList[i].getName());
+			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Player has no held item."));
+			return;
+		}
+		byte[] barray = new byte[0];
+		if(stack.hasTagCompound())
+		{
+			try {
+				ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+				CompressedStreamTools.writeCompressed(stack.getTagCompound(), ostream);
+				barray = ostream.toByteArray();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+		}
+		else
+		{
+			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
+			return;
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsSourcesDump.txt");
+			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsNBTDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
@@ -106,11 +99,16 @@ public class LootSourceCommand implements ICommand{
 			
 			PrintWriter write = new PrintWriter(file);
 			
-			for(String s:stringlist)
+			String s = "";
+			UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
+			s = id.modId + ":" + id.name + ":" + stack.getItemDamage() + ":1:" + stack.getMaxStackSize() +":20:"; 
+			for(byte b:barray)
 			{
-				write.println(s);
+				s += b+"|";
 			}
-			icommand.addChatMessage(new ChatComponentText("LootBags Loot Source Dump Written - Look in your dumps folder"));
+			s=s.substring(0, s.length()-1);
+			write.print(s);
+			icommand.addChatMessage(new ChatComponentText("LootBags NBT Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
@@ -126,7 +124,6 @@ public class LootSourceCommand implements ICommand{
 
 	@Override
 	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -153,7 +150,6 @@ public class LootSourceCommand implements ICommand{
 		// TODO Auto-generated method stub
 		return null;
 	}*/
-
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

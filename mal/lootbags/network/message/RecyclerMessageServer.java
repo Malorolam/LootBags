@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+//import net.minecraft.util.BlockPos;
 import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -17,12 +18,14 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class RecyclerMessageServer implements IMessage, IMessageHandler<RecyclerMessageServer, IMessage>{
 
+	//public BlockPos pos;
 	public int xpos, ypos, zpos;
 	public int lootbagCount, totalValue;
 	
 	public RecyclerMessageServer(){}
 	public RecyclerMessageServer(TileEntityRecycler te, int count, int value)
 	{
+		//pos = te.getPos();
 		xpos = te.xCoord;
 		ypos = te.yCoord;
 		zpos = te.zCoord;
@@ -44,21 +47,22 @@ public class RecyclerMessageServer implements IMessage, IMessageHandler<Recycler
 		xpos = buf.readInt();
 		ypos = buf.readInt();
 		zpos = buf.readInt();
+		//pos = new BlockPos(xpos,ypos,zpos);
 		lootbagCount = buf.readInt();
 		totalValue = buf.readInt();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		buf.writeInt(xpos);
-		buf.writeInt(ypos);
-		buf.writeInt(zpos);
+		buf.writeInt(xpos);//pos.getX());
+		buf.writeInt(ypos);//pos.getY());
+		buf.writeInt(zpos);//pos.getZ());
 		buf.writeInt(lootbagCount);
 		buf.writeInt(totalValue);
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

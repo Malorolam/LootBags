@@ -10,7 +10,6 @@ public class FixedSlot extends Slot{
 	public FixedSlot(IInventory p_i1824_1_, int p_i1824_2_, int p_i1824_3_,
 			int p_i1824_4_) {
 		super(p_i1824_1_, p_i1824_2_, p_i1824_3_, p_i1824_4_);
-		// TODO Auto-generated constructor stub
 	}
 	
     /**
@@ -29,7 +28,7 @@ public class FixedSlot extends Slot{
     }
 }
 /*******************************************************************************
- * Copyright (c) 2015 Malorolam.
+ * Copyright (c) 2016 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.
