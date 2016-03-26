@@ -34,7 +34,7 @@ public class LootRecipe extends ShapelessOreRecipe{
     	{
     		for(int i = 0; i < var1.getSizeInventory(); i++)
     		{
-    			if(var1.getStackInSlot(i).getItem() instanceof LootbagItem && var1.getStackInSlot(i).hasTagCompound() && var1.getStackInSlot(i).getTagCompound().getBoolean("generated"))
+    			if(var1.getStackInSlot(i) != null && var1.getStackInSlot(i).getItem() instanceof LootbagItem && var1.getStackInSlot(i).hasTagCompound() && var1.getStackInSlot(i).getTagCompound().getBoolean("generated"))
     			{
     				opened = false;
     			}
