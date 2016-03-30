@@ -26,6 +26,16 @@ public class FixedSlot extends Slot{
     {
         return false;
     }
+	
+	@Override
+	public void putStack(ItemStack is)
+	{	}
+	
+/*	@Override
+    public ItemStack decrStackSize(int p_75209_1_)
+    {
+		return null;
+    }*/
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

@@ -56,7 +56,7 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.1";
+	public static final String VERSION = "2.0.2";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
