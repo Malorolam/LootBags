@@ -165,16 +165,23 @@ public class LootMap {
 		//whitelist
 		for(LootItem item: generalWhitelist)
 		{
-			String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
-			if(item.getContentItem().theItemId.getItem() instanceof ItemEnchantedBook && item.getContentItem().theItemId.hasTagCompound())//a specific enchanted book
-				key += item.getContentItem().theItemId.getTagCompound().toString();
-			if(generalMap.containsKey(key))
-				generalMap.remove(key);//remove the existing entry to overwrite it with the whitelisted version
-			
-			generalMap.put(key, item);
-			
-			if(!totalList.containsKey(key))
-				totalList.put(key, item);
+			if(item.getContentItem()==null)
+				item.reinitializeLootItem();
+			if(item.getContentItem()==null)
+				LootbagsUtil.LogError("Loot Item with information: " + item.getItemModID() + ":" + item.getItemName() + " does not exist, even after reinitilizing it. This typically means the whitelist entry is wrong. This item will be skipped.");
+			else
+			{
+				String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
+				if(item.getContentItem().theItemId.getItem() instanceof ItemEnchantedBook && item.getContentItem().theItemId.hasTagCompound())//a specific enchanted book
+					key += item.getContentItem().theItemId.getTagCompound().toString();
+				if(generalMap.containsKey(key))
+					generalMap.remove(key);//remove the existing entry to overwrite it with the whitelisted version
+				
+				generalMap.put(key, item);
+				
+				if(!totalList.containsKey(key))
+					totalList.put(key, item);
+			}
 		}
 	}
 	

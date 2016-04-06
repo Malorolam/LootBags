@@ -190,6 +190,10 @@ public class LootItem implements Comparable{
 			
 			item = new WeightedRandomChestContent(stack, minstack, stack.stackSize, weight);
 		}
+		else
+		{
+			LootbagsUtil.LogInfo("Loot Item with name: " + modid + ":" + name + " did not find an item with that name and mod ID. Ensure that the information is correct.");
+		}
 	}
 			
 	public WeightedRandomChestContent getContentItem()
