@@ -3,6 +3,9 @@ package mal.lootbags;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+import net.minecraft.command.ICommandSender;
+import net.minecraft.util.ChatComponentText;
+
 import org.apache.logging.log4j.Level;
 
 import cpw.mods.fml.common.FMLLog;
@@ -17,6 +20,13 @@ public class LootbagsUtil {
 	public static void LogError(String message)
 	{
 		FMLLog.log(Level.ERROR, message);
+	}
+	
+	public static void LogError(String message, ICommandSender icommand)
+	{
+		LogError(message);
+		if(icommand != null)
+			icommand.addChatMessage(new ChatComponentText(message));
 	}
 	
 	public static void LogInfo(String message)

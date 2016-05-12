@@ -115,15 +115,13 @@ public class Bag {
 		ArrayList<WeightedRandomChestContent> content = BagHandler.generateContent(map.values());
 		
 		if(content.size() > 0 && bagMapWeight > 0)
-		{
-			int randWeight = LootBags.getRandom().nextInt(bagMapWeight)+1;
-			
-			WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, randWeight);
+		{	
+			WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
 			int r = 0;
 			while (item == null && r < LootBags.MAXREROLLCOUNT)
 			{
 				LootbagsUtil.LogInfo("Rerolling null item: Reroll count " + r + ".");
-				item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, randWeight);
+				item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
 				r++;
 			}
 			if(item == null)

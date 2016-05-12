@@ -55,7 +55,7 @@ public class ConfigReloadCommand implements ICommand {
 		icommand.addChatMessage(new ChatComponentText("Reloaded the general config."));
 		
 		//reload the bag config
-		LootBags.bagconfig.reloadBagConfig();
+		LootBags.bagconfig.reloadBagConfig(icommand);
 		icommand.addChatMessage(new ChatComponentText("Reloaded the bag config."));
 		
 		//repopulate the general map
