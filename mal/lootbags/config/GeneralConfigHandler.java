@@ -16,6 +16,8 @@ public class GeneralConfigHandler {
 
 	private static ArrayList<String> blacklistConfigData = new ArrayList<String>();
 	private static ArrayList<String> whitelistConfigData = new ArrayList<String>();
+	private static ArrayList<String> recyclerBlacklistConfigData = new ArrayList<String>();
+	private static ArrayList<String> recyclerWhitelistConfigData = new ArrayList<String>();
 	private static File configfile;
 	
 	public static void loadConfig(FMLPreInitializationEvent event)
@@ -58,6 +60,19 @@ public class GeneralConfigHandler {
 		blep = prop.getStringList();
 		for(int i = 0; i < blep.length; i++)
 			whitelistConfigData.add(blep[i]);
+		
+		prop = config.get("Recycler", "Item Blacklist", new String[]{});
+		prop.comment = "Blacklist an item from being recyclable.  The entry must be in the form <modid>:<itemname>:<damage> on a single line or it won't work right.";
+		blep = prop.getStringList();
+		for(int i = 0; i < blep.length; i++)
+			recyclerBlacklistConfigData.add(blep[i]);
+		
+		prop = config.get("Recycler", "Item Whitelist", new String[]{});
+		prop.comment = "Whitelist an item to be recyclable.  The entry must be in the form <modid>:<itemname>:<damage>:<weighting>:[<nbt data (seriously don't try to make this by hand)> (optional)]  " +
+				"The weight is as though the item was added to a bag, but the items whitelisted are not added to any loot bags.";
+		blep = prop.getStringList();
+		for(int i = 0; i < blep.length; i++)
+			recyclerWhitelistConfigData.add(blep[i]);
 		
 		prop = config.get("Loot Categories", "Loot Bags in worldgen chests", new String[]{ChestGenHooks.DUNGEON_CHEST, ChestGenHooks.MINESHAFT_CORRIDOR, 
 				ChestGenHooks.PYRAMID_DESERT_CHEST, ChestGenHooks.PYRAMID_JUNGLE_CHEST, ChestGenHooks.PYRAMID_JUNGLE_DISPENSER,
@@ -121,6 +136,14 @@ public class GeneralConfigHandler {
 	public static ArrayList<String> getWhitelistConfigData()
 	{
 		return whitelistConfigData;
+	}
+
+	public static ArrayList<String> getRecyclerBlacklistConfigData() {
+		return recyclerBlacklistConfigData;
+	}
+
+	public static ArrayList<String> getRecyclerWhitelistConfigData() {
+		return recyclerWhitelistConfigData;
 	}
 }
 /*******************************************************************************

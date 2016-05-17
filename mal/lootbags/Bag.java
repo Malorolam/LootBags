@@ -152,7 +152,7 @@ public class Bag {
 		{
 			LootItem item = new LootItem(modid, itemname, dam, minstack, maxstack, weight, false);
 			BagWhitelist.add(item);
-			System.out.println(item.toString());
+			//System.out.println(item.toString());
 		}
 	}
 	

@@ -248,7 +248,11 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			return false;
 		else if(slot < getSizeInventory())
 		{
-			return LootBags.isItemDroppable(stack);
+			if(LootBags.isItemRecyleBlacklisted(stack))
+				return false;
+			
+			if(LootBags.isItemDroppable(stack))
+				return true;
 		}
 		return false;
 	}

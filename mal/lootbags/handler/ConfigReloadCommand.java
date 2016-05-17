@@ -61,8 +61,11 @@ public class ConfigReloadCommand implements ICommand {
 		//repopulate the general map
 		LootBags.LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LootBags.LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
+		LootBags.LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
+		LootBags.LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LootBags.LOOTMAP.setLootSources(LootBags.LOOTCATEGORYLIST);
 		LootBags.LOOTMAP.populateGeneralMap();
+		LootBags.LOOTMAP.setTotalListWeight();
 		icommand.addChatMessage(new ChatComponentText("Repopulated the general map."));
 		
 		//repopulate the bags

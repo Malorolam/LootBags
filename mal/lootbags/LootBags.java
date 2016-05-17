@@ -56,7 +56,7 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.4";
+	public static final String VERSION = "2.0.5";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -174,8 +174,11 @@ public class LootBags {
 		
 		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
+		LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
+		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		LOOTMAP.populateGeneralMap();
+		LOOTMAP.setTotalListWeight();
 		
 		BagHandler.populateBagLists();
 		
@@ -214,7 +217,25 @@ public class LootBags {
 	 */
 	public static boolean isItemDroppable(ItemStack item)
 	{
+		for(LootItem loot: LOOTMAP.recyclerWhitelist)
+		{
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+				return true;
+		}
 		for(LootItem loot: LOOTMAP.totalList.values())
+		{
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check to see if an item is in the recycler blacklist
+	 */
+	public static boolean isItemRecyleBlacklisted(ItemStack item)
+	{
+		for(LootItem loot: LOOTMAP.recyclerBlacklist)
 		{
 			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
 				return true;
@@ -224,6 +245,16 @@ public class LootBags {
 	
 	public static int getItemValue(ItemStack item)
 	{
+		for(LootItem c : LOOTMAP.recyclerWhitelist)
+		{
+			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, false, false))
+			{
+				double value = Math.ceil(2*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(1):(8))));
+				if(value <= 0)
+					value = 1;
+				return (int)value;
+			}
+		}
 		for(LootItem c : LOOTMAP.totalList.values())
 		{
 			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, false, false))

@@ -19,7 +19,7 @@ public class LootbagsUtil {
 
 	public static void LogError(String message)
 	{
-		FMLLog.log(Level.ERROR, message);
+		FMLLog.log(Level.ERROR, "[LOOTBAGS]: " + message);
 	}
 	
 	public static void LogError(String message, ICommandSender icommand)
@@ -31,7 +31,7 @@ public class LootbagsUtil {
 	
 	public static void LogInfo(String message)
 	{
-		FMLLog.log(Level.INFO, message);
+		FMLLog.log(Level.INFO, "[LOOTBAGS]: " + message);
 	}
 	
 	public static ArrayList<Integer> constructDamageRange(String word)

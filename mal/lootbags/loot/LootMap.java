@@ -27,6 +27,8 @@ public class LootMap {
 	private ArrayList<LootItem> generalWhitelist;
 	
 	public HashMap<String, LootItem> totalList;
+	public ArrayList<LootItem> recyclerBlacklist;
+	public ArrayList<LootItem> recyclerWhitelist;
 	
 	private int generalTotalWeight;
 	
@@ -42,11 +44,109 @@ public class LootMap {
 		generalModBlacklist = new ArrayList<String>();
 		generalBlacklist = new ArrayList<LootItem>();
 		generalWhitelist = new ArrayList<LootItem>();
+		recyclerBlacklist = new ArrayList<LootItem>();
+		recyclerWhitelist = new ArrayList<LootItem>();
 		
 		totalList = new HashMap<String, LootItem>();
 		
 		generalTotalWeight = 0;
 	}
+	
+	/*
+	 * Populate the recycler blacklist
+	 */
+	public void populateRecyclerBlacklist(ArrayList<String> configRecyclerBlacklist)
+	{
+		for(String s:configRecyclerBlacklist)
+		{
+			String trim = s.trim();
+			if(!trim.isEmpty())
+			{
+				String[] tempwords = trim.split("(?<!$):");
+				if(tempwords.length==3)//correct length for a standard blacklist item
+				{
+					try {
+						String modid = tempwords[0];
+						String itemname = tempwords[1];
+						ArrayList<Integer> itemdamage = LootbagsUtil.constructDamageRange(tempwords[2]);
+						
+						for(Integer dam: itemdamage)
+						{
+							LootItem item = new LootItem(modid, itemname, dam, 1, 1, 1, false);
+							recyclerBlacklist.add(item);
+							LootbagsUtil.LogInfo("Added General Recycler Blacklist Item: " + item.toString());
+						}
+					} catch(Exception e) {
+						LootbagsUtil.LogError("General Recycler Blacklist Error: Line: " + s + " Improperly formed Blacklisted item causing exception.");
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					LootbagsUtil.LogError("General Recycler Blacklist Error: Line: " + s + " Improperly formed Blacklisted item.");
+				}
+			}
+		}
+	}
+	
+	/*
+	 * Populate the recycler whitelist from the general config
+	 */
+	public void populateRecyclerWhitelist(ArrayList<String> configRecyclerWhitelist)
+	{
+		for(String s:configRecyclerWhitelist)
+		{
+			String trim = s.trim();
+			if(!trim.isEmpty())
+			{
+				String[] tempwords = trim.split("(?<!$):");
+				if(tempwords.length==4)//correct length for a standard whitelist item
+				{
+					try {
+					String modid = tempwords[0];
+					String itemname = tempwords[1];
+					ArrayList<Integer> itemdamage = LootbagsUtil.constructDamageRange(tempwords[2]);
+					int weight = Integer.parseInt(tempwords[3]);
+					
+						for(Integer dam: itemdamage)
+						{
+							LootItem item = new LootItem(modid, itemname, dam, 1, 1, weight, false);
+							recyclerWhitelist.add(item);
+							LootbagsUtil.LogInfo("Added General Recycler Whitelist Item: " + item.toString());
+						}
+					} catch(Exception e) {
+						LootbagsUtil.LogError("General Recycler Whitelist Error: Line: " + s + " Improperly formed Whitelisted item causing exception.");
+						e.printStackTrace();
+					}
+				}
+				else if(tempwords.length==5)//length including NBT data
+				{
+					try {
+					String modid = tempwords[0];
+					String itemname = tempwords[1];
+					ArrayList<Integer> itemdamage = LootbagsUtil.constructDamageRange(tempwords[2]);
+					int weight = Integer.parseInt(tempwords[3]);
+					byte[] nbt = LootbagsUtil.parseNBTArray(tempwords[4]);
+					
+					for(Integer dam: itemdamage)
+					{
+						LootItem item = new LootItem(modid, itemname, dam, 1, 1, weight, nbt, false);
+						generalWhitelist.add(item);
+						LootbagsUtil.LogInfo("Added General Recycler Whitelist Item with NBT: " + item.toString());
+					}
+					} catch(Exception e) {
+						LootbagsUtil.LogError("General Recycler Whitelist Error: Line: " + s + " Improperly formed NBT Whitelisted item causing exception.");
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					LootbagsUtil.LogError("General Recycler Whitelist Error: Line: " + s + " Improperly formed Whitelisted item.");
+				}
+			}
+		}
+	}
+	
 	/*
 	 * Populates the general black list from the general config
 	 */
@@ -234,7 +334,6 @@ public class LootMap {
 					if(!generalMap.containsKey(key))
 					{
 						generalMap.put(key, item);
-						generalTotalWeight += item.getContentItem().itemWeight;
 						//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
 						if(!totalList.containsKey(key))
 							totalList.put(key, item);
@@ -243,11 +342,9 @@ public class LootMap {
 					{
 						LootItem it = generalMap.get(key);
 						int weight = it.getContentItem().itemWeight;
-						generalTotalWeight -= weight;
 						weight = (weight+c.itemWeight)/2;
 						it.getContentItem().itemWeight = weight;
 						generalMap.put(key, it);
-						generalTotalWeight += weight;
 						//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
 						if(!totalList.containsKey(key))
 							totalList.put(key, it);
@@ -284,17 +381,18 @@ public class LootMap {
 		return generalMap;
 	}
 	
-	public int getTotalWeight()
+	public void setTotalListWeight()
 	{
-		return generalTotalWeight;
+		generalTotalWeight = 0;
+		for(LootItem item: totalList.values())
+			generalTotalWeight += item.getItemWeight();
+		for(LootItem item: recyclerWhitelist)
+			generalTotalWeight += item.getItemWeight();
 	}
 	
 	public int getTotalListWeight()
 	{
-		int sum = 0;
-		for(LootItem item: totalList.values())
-			sum += item.getItemWeight();
-		return sum;
+		return generalTotalWeight;
 	}
 	
 	public void setLootSources(String[] sources)

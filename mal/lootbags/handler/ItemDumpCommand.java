@@ -57,7 +57,7 @@ public class ItemDumpCommand implements ICommand{
 			UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
 			if(u != null && c.theItemId != null)
 			{
-				float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
+				float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalListWeight();
 				stringlist.add(u.modId + ":" + u.name + ":" + c.theItemId.getItemDamage() + ":" + String.format("%.3f", percent) + ":" + c.itemWeight);
 			}
 			else if(c.theItemId != null)
@@ -80,7 +80,7 @@ public class ItemDumpCommand implements ICommand{
 				UniqueIdentifier u = GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem());
 				if(u != null && c.theItemId != null)
 				{
-					float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalWeight();
+					float percent = (100.0f*c.itemWeight)/LootBags.LOOTMAP.getTotalListWeight();
 					stringlist.add(u.modId + ":" + u.name + ":" + c.theItemId.getItemDamage() + ":" + String.format("%.3f", percent) + ":" + c.itemWeight);
 				}
 				else if(c.theItemId != null)
