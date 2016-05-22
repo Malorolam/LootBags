@@ -266,10 +266,18 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 
 	@Override
-	public boolean canInsertItem(int slot, ItemStack p_102007_2_,
+	public boolean canInsertItem(int slot, ItemStack stack,
 			int p_102007_3_) {
-		if(slot != 0)
-			return true;
+		if(slot == 0)
+			return false;
+		else if(slot < getSizeInventory())
+		{
+			if(LootBags.isItemRecyleBlacklisted(stack))
+				return false;
+			
+			if(LootBags.isItemDroppable(stack))
+				return true;
+		}
 		return false;
 	}
 
