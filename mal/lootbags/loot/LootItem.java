@@ -223,7 +223,7 @@ public class LootItem implements Comparable{
 	
 	public String toString()
 	{
-		return item.theItemId.toString();
+		return item.theItemId.toString() + ":" + minstack + ":" + maxstack + ":" + weight;
 	}
 	
 	public LootItem copy()

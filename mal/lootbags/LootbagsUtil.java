@@ -9,6 +9,7 @@ import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.Level;
 
 import cpw.mods.fml.common.FMLLog;
+import mal.lootbags.loot.LootItem;
 
 /**
  * General utility class for random stuff needed multiple places
@@ -168,6 +169,17 @@ public class LootbagsUtil {
 			ret.add(pretext+list[i]);
 		
 		return ret;
+	}
+	
+	public static boolean listContainsItem(ArrayList<LootItem> list, LootItem item)
+	{
+		for(LootItem loot:list)
+		{
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item.getContentItem().theItemId, true, false))
+				return true;
+		}
+		
+		return false;
 	}
 }
 /*******************************************************************************
