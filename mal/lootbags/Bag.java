@@ -64,6 +64,7 @@ public class Bag {
 			list = new ArrayList<LootItem>();
 		
 		//refresh the blacklist to cover for null items
+		ArrayList<LootItem> nullClear = new ArrayList<LootItem>();
 		for(LootItem item: BagBlacklist)
 		{
 			if(item.getContentItem()==null)
@@ -71,9 +72,10 @@ public class Bag {
 			if(item.getContentItem()==null)//if it's still null, it's not my fault now
 			{
 				LootbagsUtil.LogError("Blacklisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probablyt caused by the item not being initilized and added to the Forge registry before the PostInit event when this code runs.");
-				BagBlacklist.remove(item);
+				nullClear.add(item);
 			}
 		}
+		BagBlacklist.removeAll(nullClear);
 		
 		//get rid of the blacklisted items and mods and add to the proper map
 		for(LootItem item:list)
