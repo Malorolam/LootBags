@@ -16,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 //import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.WeightedRandomChestContent;
@@ -95,7 +96,8 @@ public class ItemDumpCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsItemDump.txt");
+			File file = new File(/*MinecraftServer.getServer().getFolderName(), */"./dumps/LootBagsItemDump.txt");
+			//System.out.println(file.getAbsolutePath());
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())

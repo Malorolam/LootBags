@@ -98,7 +98,7 @@ public class LootSourceCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsSourcesDump.txt");
+			File file = new File("./dumps/LootBagsSourcesDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
