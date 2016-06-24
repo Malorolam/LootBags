@@ -56,7 +56,7 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.9";
+	public static final String VERSION = "2.0.10";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -178,9 +178,8 @@ public class LootBags {
 		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		LOOTMAP.populateGeneralMap();
-		LOOTMAP.setTotalListWeight();
-		
 		BagHandler.populateBagLists();
+		LOOTMAP.setTotalListWeight();
 		
 		if(!DISABLERECYCLER)
 			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.chest), 'I', "ingotIron"}));
@@ -247,9 +246,10 @@ public class LootBags {
 	{
 		for(LootItem c : LOOTMAP.recyclerWhitelist)
 		{
-			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, false, false))
+			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
 			{
 				double value = Math.ceil(2*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(1):(8))));
+				//LootbagsUtil.LogInfo("Value: " + value);
 				if(value <= 0)
 					value = 1;
 				return (int)value;
@@ -257,9 +257,10 @@ public class LootBags {
 		}
 		for(LootItem c : LOOTMAP.totalList.values())
 		{
-			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, false, false))
+			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
 			{
 				double value = Math.ceil(2*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(1):(8))));
+				//LootbagsUtil.LogInfo("Value: " + value);
 				if(value <= 0)
 					value = 1;
 				return (int)value;

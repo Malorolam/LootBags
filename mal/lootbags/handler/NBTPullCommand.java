@@ -15,6 +15,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -112,7 +113,7 @@ public class NBTPullCommand implements ICommand{
 			
 			write.close();
 		} catch (Exception exception) {
-			System.err.println("Error in dumping sources... oh dear not again...");
+			LootbagsUtil.LogError("Error in dumping sources... oh dear not again...");
 			exception.printStackTrace();
 		}
 	}

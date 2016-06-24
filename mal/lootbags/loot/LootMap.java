@@ -385,13 +385,17 @@ public class LootMap {
 	{
 		generalTotalWeight = 0;
 		for(LootItem item: totalList.values())
+		{
+			//LootbagsUtil.LogInfo(item.toString());
 			generalTotalWeight += item.getItemWeight();
+		}
 		for(LootItem item: recyclerWhitelist)
 			generalTotalWeight += item.getItemWeight();
 	}
 	
 	public int getTotalListWeight()
 	{
+		//LootbagsUtil.LogInfo("weight: " + generalTotalWeight);
 		return generalTotalWeight;
 	}
 	

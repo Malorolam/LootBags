@@ -71,7 +71,7 @@ public class Bag {
 				item.reinitializeLootItem();
 			if(item.getContentItem()==null)//if it's still null, it's not my fault now
 			{
-				LootbagsUtil.LogError("Blacklisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probablyt caused by the item not being initilized and added to the Forge registry before the PostInit event when this code runs.");
+				LootbagsUtil.LogError("Blacklisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probably caused by the item not being initilized and added to the Forge registry before the PostInit event when this code runs.");
 				nullClear.add(item);
 			}
 		}
@@ -107,9 +107,14 @@ public class Bag {
 				map.put(key, item);
 				bagMapWeight += item.getItemWeight();
 				
+				//key += this.bagName;
 				if(!LootBags.LOOTMAP.totalList.containsKey(key))
+				{
+					//LootbagsUtil.LogInfo("Listing: " + key + ":" + item.getItemWeight());
 					LootBags.LOOTMAP.totalList.put(key,  item);
 				}
+
+			}
 			else
 			{
 				LootbagsUtil.LogError("Whitelisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probably caused by the item not being initilized and added to the Forge registry before the PostInit event when this code runs.");

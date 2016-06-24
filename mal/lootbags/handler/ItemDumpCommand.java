@@ -11,6 +11,7 @@ import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.loot.LootItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommand;
@@ -113,7 +114,7 @@ public class ItemDumpCommand implements ICommand{
 			
 			write.close();
 		} catch (Exception exception) {
-			System.err.println("Error in dumping items... oh dear not again...");
+			LootbagsUtil.LogError("Error in dumping items... oh dear not again...");
 			exception.printStackTrace();
 		}
 	}
