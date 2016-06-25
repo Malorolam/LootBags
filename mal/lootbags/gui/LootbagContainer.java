@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.entity.player.EntityPlayer;
@@ -99,7 +100,7 @@ public class LootbagContainer extends Container{
 			}
 			else
 			{
-				player.dropPlayerItemWithRandomChoice(((Slot)this.inventorySlots.get(0)).getStack(), false);
+				//player.dropPlayerItemWithRandomChoice(((Slot)this.inventorySlots.get(0)).getStack(), false);
 			}
 		}
 		super.onContainerClosed(player);
@@ -155,12 +156,19 @@ public class LootbagContainer extends Container{
     }
     
     @Override
-    public ItemStack slotClick(int p_75144_1_, int p_75144_2_, int p_75144_3_, EntityPlayer p_75144_4_)
+    public ItemStack slotClick(int p_75144_1_, int p_75144_2_, int p_75144_3_, EntityPlayer eplayer)
     {
         ItemStack itemstack = null;
-        InventoryPlayer inventoryplayer = p_75144_4_.inventory;
+        InventoryPlayer inventoryplayer = eplayer.inventory;
         int i1;
         ItemStack itemstack3;
+        
+        if(!LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+        {
+        	eplayer.closeScreen();
+        	//LootbagsUtil.LogInfo("Missing Lootbag");
+        	return null;
+        }
 
         if (p_75144_3_ == 5)
         {
@@ -270,13 +278,13 @@ public class LootbagContainer extends Container{
                     {
                         if (p_75144_2_ == 0)
                         {
-                            p_75144_4_.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack(), true);
+                            eplayer.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack(), true);
                             inventoryplayer.setItemStack((ItemStack)null);
                         }
 
                         if (p_75144_2_ == 1)
                         {
-                            p_75144_4_.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack().splitStack(1), true);
+                            eplayer.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack().splitStack(1), true);
 
                             if (inventoryplayer.getItemStack().stackSize == 0)
                             {
@@ -297,9 +305,9 @@ public class LootbagContainer extends Container{
                     else
                     	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
 
-                    if (slot2 != null && slot2.canTakeStack(p_75144_4_))
+                    if (slot2 != null && slot2.canTakeStack(eplayer))
                     {
-                        itemstack3 = this.transferStackInSlot(p_75144_4_, p_75144_1_);
+                        itemstack3 = this.transferStackInSlot(eplayer, p_75144_1_);
 
                         if (itemstack3 != null)
                         {
@@ -308,7 +316,7 @@ public class LootbagContainer extends Container{
 
                             if (slot2.getStack() != null && slot2.getStack().getItem() == item)
                             {
-                                this.retrySlotClick(p_75144_1_, p_75144_2_, true, p_75144_4_);
+                                this.retrySlotClick(p_75144_1_, p_75144_2_, true, eplayer);
                             }
                         }
                     }
@@ -357,7 +365,7 @@ public class LootbagContainer extends Container{
                                 }
                             }
                         }
-                        else if (slot2.canTakeStack(p_75144_4_))
+                        else if (slot2.canTakeStack(eplayer))
                         {
                             if (itemstack4 == null)
                             {
@@ -370,7 +378,7 @@ public class LootbagContainer extends Container{
                                     slot2.putStack((ItemStack)null);
                                 }
 
-                                slot2.onPickupFromSlot(p_75144_4_, inventoryplayer.getItemStack());
+                                slot2.onPickupFromSlot(eplayer, inventoryplayer.getItemStack());
                             }
                             else if (slot2.isItemValid(itemstack4))
                             {
@@ -417,7 +425,7 @@ public class LootbagContainer extends Container{
                                         slot2.putStack((ItemStack)null);
                                     }
 
-                                    slot2.onPickupFromSlot(p_75144_4_, inventoryplayer.getItemStack());
+                                    slot2.onPickupFromSlot(eplayer, inventoryplayer.getItemStack());
                                 }
                             }
                         }
@@ -440,7 +448,7 @@ public class LootbagContainer extends Container{
                 	st = (Slot)this.inventorySlots.get(p_75144_2_);
 
                 itemstack3 = inventoryplayer.getStackInSlot(p_75144_2_);
-                if (slot2.canTakeStack(p_75144_4_) && ((itemstack3 != null)?(!(itemstack3.getItem() instanceof LootbagItem)):(true)))
+                if (slot2.canTakeStack(eplayer) && ((itemstack3 != null)?(!(itemstack3.getItem() instanceof LootbagItem)):(true)))
                 {
                     boolean flag = itemstack3 == null || slot2.inventory == inventoryplayer && slot2.isItemValid(itemstack3);
                     l1 = -1;
@@ -463,14 +471,14 @@ public class LootbagContainer extends Container{
                                 inventoryplayer.addItemStackToInventory(itemstack3);
                                 slot2.decrStackSize(itemstack5.stackSize);
                                 slot2.putStack((ItemStack)null);
-                                slot2.onPickupFromSlot(p_75144_4_, itemstack5);
+                                slot2.onPickupFromSlot(eplayer, itemstack5);
                             }
                         }
                         else
                         {
                             slot2.decrStackSize(itemstack5.stackSize);
                             slot2.putStack(itemstack3);
-                            slot2.onPickupFromSlot(p_75144_4_, itemstack5);
+                            slot2.onPickupFromSlot(eplayer, itemstack5);
                         }
                     }
                     else if (!slot2.getHasStack() && itemstack3 != null && slot2.isItemValid(itemstack3))
@@ -480,7 +488,7 @@ public class LootbagContainer extends Container{
                     }
                 }
             }
-            else if (p_75144_3_ == 3 && p_75144_4_.capabilities.isCreativeMode && inventoryplayer.getItemStack() == null && p_75144_1_ >= 0)
+            else if (p_75144_3_ == 3 && eplayer.capabilities.isCreativeMode && inventoryplayer.getItemStack() == null && p_75144_1_ >= 0)
             {
             	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
                 	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
@@ -501,11 +509,11 @@ public class LootbagContainer extends Container{
                 else
                 	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
 
-                if (slot2 != null && slot2.getHasStack() && slot2.canTakeStack(p_75144_4_))
+                if (slot2 != null && slot2.getHasStack() && slot2.canTakeStack(eplayer))
                 {
                     itemstack3 = slot2.decrStackSize(p_75144_2_ == 0 ? 1 : slot2.getStack().stackSize);
-                    slot2.onPickupFromSlot(p_75144_4_, itemstack3);
-                    p_75144_4_.dropPlayerItemWithRandomChoice(itemstack3, true);
+                    slot2.onPickupFromSlot(eplayer, itemstack3);
+                    eplayer.dropPlayerItemWithRandomChoice(itemstack3, true);
                 }
             }
             else if (p_75144_3_ == 6 && p_75144_1_ >= 0)
@@ -516,7 +524,7 @@ public class LootbagContainer extends Container{
                 	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
                 itemstack3 = inventoryplayer.getItemStack();
 
-                if (itemstack3 != null && (slot2 == null || !slot2.getHasStack() || !slot2.canTakeStack(p_75144_4_)))
+                if (itemstack3 != null && (slot2 == null || !slot2.getHasStack() || !slot2.canTakeStack(eplayer)))
                 {
                     i1 = p_75144_2_ == 0 ? 0 : this.inventorySlots.size() - 1;
                     l1 = p_75144_2_ == 0 ? 1 : -1;
@@ -531,7 +539,7 @@ public class LootbagContainer extends Container{
                             else
                             	slot3 = (Slot)this.inventorySlots.get(j2);
 
-                            if (slot3.getHasStack() && func_94527_a(slot3, itemstack3, true) && slot3.canTakeStack(p_75144_4_) && this.func_94530_a(itemstack3, slot3) && (i2 != 0 || slot3.getStack().stackSize != slot3.getStack().getMaxStackSize()))
+                            if (slot3.getHasStack() && func_94527_a(slot3, itemstack3, true) && slot3.canTakeStack(eplayer) && this.func_94530_a(itemstack3, slot3) && (i2 != 0 || slot3.getStack().stackSize != slot3.getStack().getMaxStackSize()))
                             {
                                 int k1 = Math.min(itemstack3.getMaxStackSize() - itemstack3.stackSize, slot3.getStack().stackSize);
                                 ItemStack itemstack2 = slot3.decrStackSize(k1);
@@ -542,7 +550,7 @@ public class LootbagContainer extends Container{
                                     slot3.putStack((ItemStack)null);
                                 }
 
-                                slot3.onPickupFromSlot(p_75144_4_, itemstack2);
+                                slot3.onPickupFromSlot(eplayer, itemstack2);
                             }
                         }
                     }
@@ -552,6 +560,20 @@ public class LootbagContainer extends Container{
             }
         }
 
+		if(!eplayer.worldObj.isRemote)
+		{
+			if(LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+			{
+				if(LootbagItem.checkInventory(wrapper.getStack()))
+				{
+					eplayer.inventory.mainInventory[islot] = null;
+				}
+				else
+				{
+					eplayer.inventory.mainInventory[islot] = wrapper.getStack();
+				}
+			}
+		}
         return itemstack;
     }
     
