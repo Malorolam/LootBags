@@ -125,6 +125,18 @@ public class GeneralConfigHandler {
 		prop.comment = "If set to true, prevents bag crafting from working if any of the bags have been opened.";
 		LootBags.PREVENTMERGEDBAGS = prop.getBoolean();
 		
+		prop = config.get("Recycler", "Value Formula Multiplier", 2.0);
+		prop.comment = "Multiplies the recycler value of an item in the Recycler, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the a variable.";
+		LootBags.RECYCLERVALUENUMERATOR = prop.getDouble();
+		
+		prop = config.get("Recycler", "Stackable Formula Divider", 8.0);
+		prop.comment = "Divides the recycler value of an item in the Recycler by this if the item stacks past one item, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the b variable.";
+		LootBags.RECYCLERVALUESTACK = prop.getDouble();
+		
+		prop = config.get("Recycler", "Non-Stackable Formula Divider", 1.0);
+		prop.comment = "Divides the recycler value of an item in the Recycler by this if the item does not stack past one item, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the c variable.";
+		LootBags.RECYCLERVALUENONSTACK = prop.getDouble();
+		
 		config.save();
 	}
 	

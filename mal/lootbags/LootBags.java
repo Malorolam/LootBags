@@ -56,7 +56,7 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.11";
+	public static final String VERSION = "2.0.12";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -86,6 +86,10 @@ public class LootBags {
 	public static int MAXREROLLCOUNT = 50;
 	public static double TOTALVALUEMULTIPLIER = 1.0;//multiplier for the total value to fabricate the bag
 	public static int RECYCLEDID = 0;//bag id of the bag the recycler creates
+	
+	public static double RECYCLERVALUENUMERATOR = 2.0;
+	public static double RECYCLERVALUENONSTACK = 1.0;
+	public static double RECYCLERVALUESTACK = 8.0;
 	
 	public static boolean PREVENTMERGEDBAGS = false;
 	
@@ -153,6 +157,24 @@ public class LootBags {
 			RECYCLEDID = BagHandler.getLowestUsedID();
 		}
 		
+		if(RECYCLERVALUESTACK <= 0.0)
+		{
+			LootbagsUtil.LogInfo("Dividing by zero or having a negative loot item value is not good.  Setting it to 1.0.");
+			RECYCLERVALUESTACK = 1.0;
+		}
+		
+		if(RECYCLERVALUENONSTACK <= 0.0)
+		{
+			LootbagsUtil.LogInfo("Dividing by zero or having a negative loot item value is not good.  Setting it to 1.0.");
+			RECYCLERVALUENONSTACK = 1.0;
+		}
+		
+		if(RECYCLERVALUENUMERATOR <= 0.0)
+		{
+			LootbagsUtil.LogInfo("Free or negative loot item value is not good.  Setting it to 1.0.");
+			RECYCLERVALUENUMERATOR = 1.0;
+		}
+		
 		this.prox.registerRenderers();
 	}
 
@@ -177,6 +199,7 @@ public class LootBags {
 		LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
 		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
+		
 		LOOTMAP.populateGeneralMap();
 		BagHandler.populateBagLists();
 		LOOTMAP.setTotalListWeight();
@@ -248,7 +271,7 @@ public class LootBags {
 		{
 			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
 			{
-				double value = Math.ceil(2*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(1):(8))));
+				double value = Math.ceil(RECYCLERVALUENUMERATOR*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(RECYCLERVALUENONSTACK):(RECYCLERVALUESTACK))));
 				//LootbagsUtil.LogInfo("Value: " + value);
 				if(value <= 0)
 					value = 1;
@@ -259,7 +282,7 @@ public class LootBags {
 		{
 			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
 			{
-				double value = Math.ceil(2*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(1):(8))));
+				double value = Math.ceil(RECYCLERVALUENUMERATOR*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(RECYCLERVALUENONSTACK):(RECYCLERVALUESTACK))));
 				//LootbagsUtil.LogInfo("Value: " + value);
 				if(value <= 0)
 					value = 1;
