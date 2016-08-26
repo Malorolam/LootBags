@@ -163,7 +163,7 @@ public class LootbagContainer extends Container{
         int i1;
         ItemStack itemstack3;
         
-        if(!LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+        if(!eplayer.worldObj.isRemote && !LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
         {
         	eplayer.closeScreen();
         	//LootbagsUtil.LogInfo("Missing Lootbag");
