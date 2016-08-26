@@ -142,7 +142,7 @@ public class LootbagWrapper implements IInventory {
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return true;
+		return !LootbagItem.checkInventory(stack);
 	}
 
 	@Override

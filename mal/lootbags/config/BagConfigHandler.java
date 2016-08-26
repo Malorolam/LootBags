@@ -1474,7 +1474,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$DARK_GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_GREEN:A hero with no praise or glory.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$GREEN:Paging Doctor Bat, paging Doctor Bat! Is there a Doctor Bat in the room?");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$GREEN:Where oh where has my little Bat gone? Oh where, oh where can he be? His cowl, his scowl, his temper so foul. I do hope he's coming for me.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_GRAY:Stop touching me! I am the night! I am the night!");
 		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");

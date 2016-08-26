@@ -62,7 +62,9 @@ public class LootbagContainer extends Container{
 	
 	@Override
 	public boolean canInteractWith(EntityPlayer p_75145_1_) {
-		return true;
+		if(player.getItemStack()!=null)
+			return true;//LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
+		return wrapper.isUseableByPlayer(p_75145_1_) && LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
 	}
 
 	public void detectAndSendChanges()
@@ -163,12 +165,12 @@ public class LootbagContainer extends Container{
         int i1;
         ItemStack itemstack3;
         
-        if(!eplayer.worldObj.isRemote && !LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+/*        if(!eplayer.worldObj.isRemote && !LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
         {
         	eplayer.closeScreen();
         	//LootbagsUtil.LogInfo("Missing Lootbag");
         	return null;
-        }
+        }*/
 
         if (p_75144_3_ == 5)
         {
@@ -560,7 +562,7 @@ public class LootbagContainer extends Container{
             }
         }
 
-		if(!eplayer.worldObj.isRemote)
+/*		if(!eplayer.worldObj.isRemote)
 		{
 			if(LootBags.areItemStacksEqualItem(eplayer.inventory.mainInventory[islot], wrapper.getStack(), true, false))
 			{
@@ -573,7 +575,7 @@ public class LootbagContainer extends Container{
 					eplayer.inventory.mainInventory[islot] = wrapper.getStack();
 				}
 			}
-		}
+		}*/
         return itemstack;
     }
     
