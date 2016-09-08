@@ -56,7 +56,7 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.15";
+	public static final String VERSION = "2.0.16";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -241,12 +241,12 @@ public class LootBags {
 	{
 		for(LootItem loot: LOOTMAP.recyclerWhitelist)
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, true, false))
 				return true;
 		}
 		for(LootItem loot: LOOTMAP.totalList.values())
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, true, false))
 				return true;
 		}
 		return false;
