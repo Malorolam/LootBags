@@ -11,6 +11,7 @@ import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootEntry;
@@ -309,9 +310,21 @@ public class LootMap {
 		LootbagsUtil.LogInfo("Starting adding items from loot table: " + categoryName + ".");
 		
 		//reflect the lists in the table and pool so that I can actually access them
-		Field poolListField = LootTable.class.getDeclaredField("pools");
+		String poolname;
+		String entryname;
+		if((boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+		{
+			poolname="pools";
+			entryname="lootEntries";
+		}
+		else
+		{
+			poolname="field_186466_c";
+			entryname="field_186453_a";
+		}
+		Field poolListField = LootTable.class.getDeclaredField(poolname);
 		poolListField.setAccessible(true);
-		Field lootListField = LootPool.class.getDeclaredField("lootEntries");
+		Field lootListField = LootPool.class.getDeclaredField(entryname);
 		lootListField.setAccessible(true);
 		
 		LootTable table = world.getLootTableManager().getLootTableFromLocation(categoryName);
