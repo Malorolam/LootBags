@@ -11,8 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.WeightedRandom;
-import net.minecraft.util.WeightedRandomChestContent;
-import net.minecraftforge.common.ChestGenHooks;
 
 /*
  * A single bag, contains ALL the information about it
@@ -82,7 +80,7 @@ public class Bag {
 		{
 			if(!LootbagsUtil.listContainsItem(BagBlacklist, item) && !BagModBlacklist.contains(item.getItemModID()))
 			{
-				String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
+				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
 				map.put(key, item);
 				bagMapWeight += item.getItemWeight();
 			}
@@ -95,9 +93,9 @@ public class Bag {
 				item.reinitializeLootItem();
 			if(item.getContentItem()!=null)//if it's still null, something is really wrong with the item
 			{
-				String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
-				if(item.getContentItem().theItemId.getItem() instanceof ItemEnchantedBook && item.getContentItem().theItemId.hasTagCompound())//a specific enchanted book
-					key += item.getContentItem().theItemId.getTagCompound().toString();
+				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
+				if(item.getContentItem().getItem() instanceof ItemEnchantedBook && item.getContentItem().hasTagCompound())//a specific enchanted book
+					key += item.getContentItem().getTagCompound().toString();
 				if(map.containsKey(key))
 				{
 					bagMapWeight -= map.get(key).getItemWeight();
@@ -131,22 +129,22 @@ public class Bag {
 	
 	public ItemStack getRandomItem()
 	{
-		ArrayList<WeightedRandomChestContent> content = BagHandler.generateContent(map.values());
+		ArrayList<LootItem> content = BagHandler.generateContent(map.values());
 		
 		if(content.size() > 0 && bagMapWeight > 0)
 		{	
-			WeightedRandomChestContent item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
+			LootItem item = WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
 			int r = 0;
 			while (item == null && r < LootBags.MAXREROLLCOUNT)
 			{
 				LootbagsUtil.LogInfo("Rerolling null item: Reroll count " + r + ".");
-				item = (WeightedRandomChestContent) WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
+				item = WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
 				r++;
 			}
 			if(item == null)
 				return null;
 			
-			ItemStack[] stacks = ChestGenHooks.generateStacks(LootBags.getRandom(), item.theItemId, item.theMinimumChanceToGenerateItem, item.theMaximumChanceToGenerateItem);
+			ItemStack[] stacks = LootbagsUtil.generateStacks(LootBags.getRandom(), item.getContentItem(), item.getMinStack(), item.getMaxStack());
 			return (stacks.length > 0 ? stacks[0] : null);
 		}
 		LootbagsUtil.LogError("Failed to get random item: Bag loot table or total weight <= 0.  This probably means this bag's config information is messed up somehow.");
@@ -156,7 +154,7 @@ public class Bag {
 	public ItemStack getSpecificItem(int index)
 	{
 		if(index < map.values().size())
-			return ((LootItem)map.values().toArray()[index]).getContentItem().theItemId;
+			return ((LootItem)map.values().toArray()[index]).getContentItem();
 		return null;
 	}
 	
@@ -417,7 +415,7 @@ public class Bag {
 	
 	private boolean addItemToMap(LootItem content)
 	{
-		String key = content.getItemModID()+content.getItemName()+content.getContentItem().theItemId.getItemDamage();
+		String key = content.getItemModID()+content.getItemName()+content.getContentItem().getItemDamage();
 		
 		if(!map.containsKey(key))
 		{

@@ -6,18 +6,16 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public class LootbagWrapper implements IInventory {
 
 	private final ItemStack stack;
 	private ItemStack[] inventory = new ItemStack[5];
-	public int Invslot;
 	
-	public LootbagWrapper(ItemStack is, int slot)
+	public LootbagWrapper(ItemStack is)
 	{
 		stack = is;
-		Invslot = slot;
 		
 		if (!this.stack.hasTagCompound()) 
 		{
@@ -151,31 +149,6 @@ public class LootbagWrapper implements IInventory {
 	}
 
 	@Override
-	public ItemStack getStackInSlotOnClosing(int p_70304_1_) {
-		return null;
-	}
-
-	@Override
-	public String getInventoryName() {
-		return "lootbagstack";
-	}
-
-	@Override
-	public boolean hasCustomInventoryName() {
-		return false;
-	}
-
-	@Override
-	public void openInventory() {
-	}
-
-	@Override
-	public void closeInventory() {
-	}
-
-	
-	//TODO: 1.8.9 code
-/*	@Override
 	public String getName() {
 		return "lootbagstack";
 	}
@@ -186,7 +159,7 @@ public class LootbagWrapper implements IInventory {
 	}
 
 	@Override
-	public IChatComponent getDisplayName() {
+	public ITextComponent getDisplayName() {
 		return null;
 	}
 
@@ -212,7 +185,6 @@ public class LootbagWrapper implements IInventory {
 
 	@Override
 	public void setField(int id, int value) {
-
 		
 	}
 
@@ -224,8 +196,7 @@ public class LootbagWrapper implements IInventory {
 	@Override
 	public void clear() {
 		
-	}*/
-
+	}
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

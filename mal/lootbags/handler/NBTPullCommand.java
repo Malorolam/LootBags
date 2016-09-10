@@ -10,23 +10,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
-
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
-//import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.ChestGenHooks;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 /**
  * Hopefully a way to pull nbt data and use it for configs
@@ -58,20 +57,30 @@ public class NBTPullCommand implements ICommand{
 	}
 
 	@Override
-	public void processCommand(ICommandSender icommand, String[] p_71515_2_) {
+	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
+		return false;
+	}
+
+	@Override
+	public int compareTo(ICommand arg0) {
+		return 0;
+	}
+
+	@Override
+	public void execute(MinecraftServer server, ICommandSender icommand, String[] args) throws CommandException {
 		EntityPlayer player = null;
 		if(icommand instanceof EntityPlayer)
 			player = (EntityPlayer)icommand;
 		else
 		{
-			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Did not recognize command sender as a player."));
+			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Did not recognize command sender as a player."));
 			return;
 		}
 		
-		ItemStack stack = player.getCurrentEquippedItem();
+		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(stack==null)
 		{
-			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Player has no held item."));
+			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Player has no held item."));
 			return;
 		}
 		byte[] barray = new byte[0];
@@ -87,7 +96,7 @@ public class NBTPullCommand implements ICommand{
 		}
 		else
 		{
-			icommand.addChatMessage(new ChatComponentText("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
+			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
 			return;
 		}
 		
@@ -101,56 +110,33 @@ public class NBTPullCommand implements ICommand{
 			PrintWriter write = new PrintWriter(file);
 			
 			String s = "";
-			UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
-			s = id.modId + ":" + id.name + ":" + stack.getItemDamage() + ":1:" + stack.getMaxStackSize() +":20:"; 
+			ResourceLocation id = stack.getItem().getRegistryName();
+			s = id.getResourceDomain() + ":" + id.getResourcePath() + ":" + stack.getItemDamage() + ":1:" + stack.getMaxStackSize() +":20:"; 
 			for(byte b:barray)
 			{
 				s += b+"|";
 			}
 			s=s.substring(0, s.length()-1);
 			write.print(s);
-			icommand.addChatMessage(new ChatComponentText("LootBags NBT Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
+			icommand.addChatMessage(new TextComponentString("LootBags NBT Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
 			LootbagsUtil.LogError("Error in dumping sources... oh dear not again...");
 			exception.printStackTrace();
-		}
+		}	
 	}
 
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		return true;
 	}
 
 	@Override
-	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
-		return false;
-	}
-
-	@Override
-	public int compareTo(Object arg0) {
-		return 0;
-	}
-
-	@Override
-	public List addTabCompletionOptions(ICommandSender p_71516_1_,
-			String[] p_71516_2_) {
+	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+			BlockPos pos) {
 		return null;
 	}
-
-/*	@Override
-	public int compareTo(ICommand arg0) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public List<String> addTabCompletionOptions(ICommandSender sender,
-			String[] args, BlockPos pos) {
-		// TODO Auto-generated method stub
-		return null;
-	}*/
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

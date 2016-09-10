@@ -32,17 +32,14 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.relauncher.FMLInjectionData;
 import net.minecraftforge.common.config.Configuration.UnicodeInputStreamReader;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.FMLInjectionData;
 
 /*
  * Handles the bag config file, loading and parsing it 
@@ -1142,76 +1139,76 @@ public class BagConfigHandler {
 			switch(trim)
 			{
 				case "WHITE":
-					code = EnumChatFormatting.WHITE.toString();
+					code = TextFormatting.WHITE.toString();
 					break;
 				case "BLACK":
-					code = EnumChatFormatting.BLACK.toString();
+					code = TextFormatting.BLACK.toString();
 					break;
 				case "DARK_BLUE":
-					code = EnumChatFormatting.DARK_BLUE.toString();
+					code = TextFormatting.DARK_BLUE.toString();
 					break;
 				case "DARK_GREEN":
-					code = EnumChatFormatting.DARK_GREEN.toString();
+					code = TextFormatting.DARK_GREEN.toString();
 					break;
 				case "DARK_AQUA":
-					code = EnumChatFormatting.DARK_AQUA.toString();
+					code = TextFormatting.DARK_AQUA.toString();
 					break;
 				case "DARK_RED":
-					code = EnumChatFormatting.DARK_RED.toString();
+					code = TextFormatting.DARK_RED.toString();
 					break;
 				case "DARK_PURPLE":
-					code = EnumChatFormatting.DARK_PURPLE.toString();
+					code = TextFormatting.DARK_PURPLE.toString();
 					break;
 				case "GOLD":
-					code = EnumChatFormatting.GOLD.toString();
+					code = TextFormatting.GOLD.toString();
 					break;
 				case "GRAY":
-					code = EnumChatFormatting.GRAY.toString();
+					code = TextFormatting.GRAY.toString();
 					break;
 				case "DARK_GRAY":
-					code = EnumChatFormatting.DARK_GRAY.toString();
+					code = TextFormatting.DARK_GRAY.toString();
 					break;
 				case "BLUE":
-					code = EnumChatFormatting.BLUE.toString();
+					code = TextFormatting.BLUE.toString();
 					break;
 				case "GREEN":
-					code = EnumChatFormatting.GREEN.toString();
+					code = TextFormatting.GREEN.toString();
 					break;
 				case "AQUA":
-					code = EnumChatFormatting.AQUA.toString();
+					code = TextFormatting.AQUA.toString();
 					break;
 				case "RED":
-					code = EnumChatFormatting.RED.toString();
+					code = TextFormatting.RED.toString();
 					break;
 				case "LIGHT_PURPLE":
-					code = EnumChatFormatting.LIGHT_PURPLE.toString();
+					code = TextFormatting.LIGHT_PURPLE.toString();
 					break;
 				case "YELLOW":
-					code = EnumChatFormatting.YELLOW.toString();
+					code = TextFormatting.YELLOW.toString();
 					break;
 				case "OBFUSCATED":
-					code = EnumChatFormatting.OBFUSCATED.toString();
+					code = TextFormatting.OBFUSCATED.toString();
 					break;
 				case "BOLD":
-					code = EnumChatFormatting.BOLD.toString();
+					code = TextFormatting.BOLD.toString();
 					break;
 				case "STRIKETHROUGH":
-					code = EnumChatFormatting.STRIKETHROUGH.toString();
+					code = TextFormatting.STRIKETHROUGH.toString();
 					break;
 				case "UNDERLINE":
-					code = EnumChatFormatting.UNDERLINE.toString();
+					code = TextFormatting.UNDERLINE.toString();
 					break;
 				case "ITALIC":
-					code = EnumChatFormatting.ITALIC.toString();
+					code = TextFormatting.ITALIC.toString();
 					break;
 				default:
 					code = null;
 			}
 			if(code!=null)
-				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Parsed text to EnumChatFormatting option: " + code +".");
+				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Parsed text to TextFormatting option: " + code +".");
 			else
 			{
-				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Could not parse text command as EnumChatFormatting.");
+				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Could not parse text command as TextFormatting.");
 				code="";
 			}
 			return code;
@@ -1391,11 +1388,11 @@ public class BagConfigHandler {
 		
 		//Worn Out Bag
 		list.add("$STARTBAG:lootbagWornOut:6");
-//		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:204|0|204:51|255|51");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:204|0|204:51|255|51");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:I told you my bags don't drop beds!");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:The Fluffiest of Truth.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:My bags are not configured to drop beds in this pack. I am 100% certain about this.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_PURPLE:~Malorolam");
 		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
@@ -1410,7 +1407,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:item");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cake:0:1:1:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:bed:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|96|102|-32|10|74|45|72|-52|44|114|-50|47|46|97|0|2|46|6|-10|-108|-52|-30|-126|-100|-60|74|14|6|22|-65|-60|-36|84|6|78|-65|-4|18|5|71|5|-89|-44|20|6|6|0|122|-45|0|-36|50|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbagWornOut");
 		
@@ -1464,7 +1461,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Wyld");
 		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:93:1:1:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|-32|98|-32|116|-51|43|-55|44|-87|12|73|76|-25|96|96|-54|76|97|96|119|-50|-56|76|-50|78|-51|99|96|0|0|104|-97|-118|-19|31|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbagWyld");
 		
@@ -1491,9 +1488,35 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$INTERNALNAME:Bat");
 		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:65:1:1:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|-32|98|-32|116|-51|43|-55|44|-87|12|73|76|-25|96|96|-54|76|97|96|118|74|44|97|96|0|0|110|124|-90|-64|27|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbagBat");
+		
+		//Darkosto Bag
+		list.add("$STARTBAG:lootbagDarkosto:10");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_RED:The most fitting of loot.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$YELLOW:Happy Birthday Darkosto ~ Wyld");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_RED:Everyday is Appreciation Day.");
+		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:false");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:3");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:true");
+		list.add(ConfigText.TAB.getText()+"$STARTENTITYLIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Darkosto");
+		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cake:0:1:1:20");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbagDarkosto");
 		
 		return list;
 	}

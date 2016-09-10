@@ -11,10 +11,12 @@ import mal.lootbags.config.BagConfigHandler;
 import mal.lootbags.config.GeneralConfigHandler;
 import mal.lootbags.handler.BagHandler;
 import mal.lootbags.handler.ConfigReloadCommand;
+import mal.lootbags.handler.GUIHandler;
 import mal.lootbags.handler.ItemDumpCommand;
 import mal.lootbags.handler.LootSourceCommand;
 import mal.lootbags.handler.MobDropHandler;
 import mal.lootbags.handler.NBTPullCommand;
+import mal.lootbags.item.LootbagColor;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootMap;
@@ -23,40 +25,39 @@ import mal.lootbags.network.LootbagsPacketHandler;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.RenderItem;
-//import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.util.WeightedRandom;
-import net.minecraft.util.WeightedRandomChestContent;
-import net.minecraftforge.common.ChestGenHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
-import cpw.mods.fml.relauncher.Side;
 
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.0.15";
+	public static final String VERSION = "2.1a";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -73,6 +74,7 @@ public class LootBags {
 	public static boolean REVERSEQUALITY = true;//reverses the quality to determine what can be dropped from a bag
 	
 	public static boolean SHOWSECRETBAGS = true;//shows the secret bags in NEI/creative inventory
+	private static boolean HASLOADED = false;//if the table has been loaded or not yet
 	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;
@@ -101,7 +103,7 @@ public class LootBags {
 	
 	public static boolean DISABLERECYCLER = false;
 	
-	public static LootMap LOOTMAP = new LootMap();
+	public static LootMap LOOTMAP;
 	
 	public static BagConfigHandler bagconfig;
 	
@@ -120,7 +122,7 @@ public class LootBags {
 	public void preInit(FMLPreInitializationEvent event) {
 		MobDropHandler handler = new MobDropHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
-		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, prox);
+		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, new GUIHandler());
 		
 		FMLLog.log(Level.INFO, "Your current LootBags version is: " + this.VERSION);
 		
@@ -181,12 +183,15 @@ public class LootBags {
 	@EventHandler
 	public void Init(FMLInitializationEvent event) {
 		
-		/*if(event.getSide() == Side.CLIENT)
+		if(event.getSide() == Side.CLIENT)
 		{
 			RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
 			
 			renderItem.getItemModelMesher().register(Item.getItemFromBlock(recyclerBlock), 0, new ModelResourceLocation(LootBags.MODID + ":" + recyclerBlock.getName(), "inventory"));
-		}*/
+		}
+		
+		ItemColors color = Minecraft.getMinecraft().getItemColors();
+		color.registerItemColorHandler(new LootbagColor(), lootbagItem);
 	}
 	
 	@EventHandler
@@ -194,22 +199,19 @@ public class LootBags {
 		
 		GameRegistry.registerTileEntity(TileEntityRecycler.class, "tileentityrecycler");
 		
+		LOOTMAP = new LootMap();
 		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 		LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
 		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		
-		LOOTMAP.populateGeneralMap();
-		BagHandler.populateBagLists();
-		LOOTMAP.setTotalListWeight();
-		
 		if(!DISABLERECYCLER)
-			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.chest), 'I', "ingotIron"}));
+			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
 		
 		BagHandler.generateBagRecipes(CraftingManager.getInstance().getRecipeList());
 		
-		//TODO: fix
+/*		//TODO: fix
 		if(LOOTBAGINDUNGEONLOOT.length>0)
 		{
 			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbagItem, 1, 0), 1, 1, CHESTQUALITYWEIGHT);
@@ -217,12 +219,26 @@ public class LootBags {
 			{
 				ChestGenHooks.addItem(s, con);
 			}
-		}
+		}*/
 	}
+	
+/*	@EventHandler
+	public void lootLoad(LootTableLoadEvent event)
+	{
+		
+	}*/
 	
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
-	{
+	{		
+		if(!HASLOADED)
+		{
+			LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
+			BagHandler.populateBagLists();
+			LOOTMAP.setTotalListWeight();
+			HASLOADED = true;
+		}
+		
 		event.registerServerCommand(new ItemDumpCommand());
 		event.registerServerCommand(new LootSourceCommand());
 		event.registerServerCommand(new NBTPullCommand());
@@ -241,12 +257,12 @@ public class LootBags {
 	{
 		for(LootItem loot: LOOTMAP.recyclerWhitelist)
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item, true, false))
 				return true;
 		}
 		for(LootItem loot: LOOTMAP.totalList.values())
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, false, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item, true, false))
 				return true;
 		}
 		return false;
@@ -259,7 +275,7 @@ public class LootBags {
 	{
 		for(LootItem loot: LOOTMAP.recyclerBlacklist)
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item, true, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item, true, false))
 				return true;
 		}
 		return false;
@@ -269,7 +285,7 @@ public class LootBags {
 	{
 		for(LootItem c : LOOTMAP.recyclerWhitelist)
 		{
-			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
+			if(areItemStacksEqualItem(c.getContentItem(), item, true, false))
 			{
 				double value = Math.ceil(RECYCLERVALUENUMERATOR*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(RECYCLERVALUENONSTACK):(RECYCLERVALUESTACK))));
 				//LootbagsUtil.LogInfo("Value: " + value);
@@ -280,7 +296,7 @@ public class LootBags {
 		}
 		for(LootItem c : LOOTMAP.totalList.values())
 		{
-			if(areItemStacksEqualItem(c.getContentItem().theItemId, item, true, false))
+			if(areItemStacksEqualItem(c.getContentItem(), item, true, false))
 			{
 				double value = Math.ceil(RECYCLERVALUENUMERATOR*LOOTMAP.getTotalListWeight()/(c.getItemWeight()*((item.getMaxStackSize()==1)?(RECYCLERVALUENONSTACK):(RECYCLERVALUESTACK))));
 				//LootbagsUtil.LogInfo("Value: " + value);

@@ -6,12 +6,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.collect.Sets;
+
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
@@ -23,9 +26,9 @@ public class LootbagContainer extends Container{
 	public InventoryPlayer player;
 	private int islot;
 	
-    private int field_94535_f = -1;
-    private int field_94536_g;
-    private final Set<Slot> field_94537_h = new HashSet<Slot>();
+    private int dragMode = -1;
+    private int dragEvent;
+    private final Set<Slot> dragSlots = Sets.<Slot>newHashSet();
 	
 	public LootbagContainer(InventoryPlayer player, LootbagWrapper wrap)
 	{
@@ -64,7 +67,7 @@ public class LootbagContainer extends Container{
 	public boolean canInteractWith(EntityPlayer p_75145_1_) {
 		if(player.getItemStack()!=null)
 			return true;//LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
-		return wrapper.isUseableByPlayer(p_75145_1_) && LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
+		return wrapper.isUseableByPlayer(p_75145_1_); //&& LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
 	}
 
 	public void detectAndSendChanges()
@@ -158,7 +161,7 @@ public class LootbagContainer extends Container{
     }
     
     @Override
-    public ItemStack slotClick(int p_75144_1_, int p_75144_2_, int p_75144_3_, EntityPlayer eplayer)
+    public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer eplayer)
     {
         ItemStack itemstack = null;
         InventoryPlayer inventoryplayer = eplayer.inventory;
@@ -172,63 +175,63 @@ public class LootbagContainer extends Container{
         	return null;
         }*/
 
-        if (p_75144_3_ == 5)
+        if (clickTypeIn == ClickType.QUICK_CRAFT)
         {
-            int l = this.field_94536_g;
-            this.field_94536_g = func_94532_c(p_75144_2_);
+            int l = this.dragEvent;
+            this.dragEvent = getDragEvent(dragType);
 
-            if ((l != 1 || this.field_94536_g != 2) && l != this.field_94536_g)
+            if ((l != 1 || this.dragEvent != 2) && l != this.dragEvent)
             {
-                this.func_94533_d();
+                this.resetDrag();
             }
             else if (inventoryplayer.getItemStack() == null)
             {
-                this.func_94533_d();
+                this.resetDrag();
             }
-            else if (this.field_94536_g == 0)
+            else if (this.dragEvent == 0)
             {
-                this.field_94535_f = func_94529_b(p_75144_2_);
+                this.dragMode = extractDragMode(dragType);
 
-                if (func_94528_d(this.field_94535_f))
+                if (isValidDragMode(this.dragMode, eplayer))
                 {
-                    this.field_94536_g = 1;
-                    this.field_94537_h.clear();
+                    this.dragEvent = 1;
+                    this.dragSlots.clear();
                 }
                 else
                 {
-                    this.func_94533_d();
+                    this.resetDrag();
                 }
             }
-            else if (this.field_94536_g == 1)
+            else if (this.dragEvent == 1)
             {
                 Slot slot = null;
-                if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	slot = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+                if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	slot = (FixedSlot)this.inventorySlots.get(slotId);
                 else
-                	slot = (Slot)this.inventorySlots.get(p_75144_1_);
+                	slot = (Slot)this.inventorySlots.get(slotId);
 
-                if (slot != null && func_94527_a(slot, inventoryplayer.getItemStack(), true) && slot.isItemValid(inventoryplayer.getItemStack()) && inventoryplayer.getItemStack().stackSize > this.field_94537_h.size() && this.canDragIntoSlot(slot))
+                if (slot != null && canAddItemToSlot(slot, inventoryplayer.getItemStack(), true) && slot.isItemValid(inventoryplayer.getItemStack()) && inventoryplayer.getItemStack().stackSize > this.dragSlots.size() && this.canDragIntoSlot(slot))
                 {
-                    this.field_94537_h.add(slot);
+                    this.dragSlots.add(slot);
                 }
             }
-            else if (this.field_94536_g == 2)
+            else if (this.dragEvent == 2)
             {
-                if (!this.field_94537_h.isEmpty())
+                if (!this.dragSlots.isEmpty())
                 {
                     itemstack3 = inventoryplayer.getItemStack().copy();
                     i1 = inventoryplayer.getItemStack().stackSize;
-                    Iterator<Slot> iterator = this.field_94537_h.iterator();
+                    Iterator<Slot> iterator = this.dragSlots.iterator();
 
                     while (iterator.hasNext())
                     {
                         Slot slot1 = iterator.next();
 
-                        if (slot1 != null && func_94527_a(slot1, inventoryplayer.getItemStack(), true) && slot1.isItemValid(inventoryplayer.getItemStack()) && inventoryplayer.getItemStack().stackSize >= this.field_94537_h.size() && this.canDragIntoSlot(slot1))
+                        if (slot1 != null && canAddItemToSlot(slot1, inventoryplayer.getItemStack(), true) && slot1.isItemValid(inventoryplayer.getItemStack()) && inventoryplayer.getItemStack().stackSize >= this.dragSlots.size() && this.canDragIntoSlot(slot1))
                         {
                             ItemStack itemstack1 = itemstack3.copy();
                             int j1 = slot1.getHasStack() ? slot1.getStack().stackSize : 0;
-                            func_94525_a(this.field_94537_h, this.field_94535_f, itemstack1, j1);
+                            computeStackSize(this.dragSlots, this.dragMode, itemstack1, j1);
 
                             if (itemstack1.stackSize > itemstack1.getMaxStackSize())
                             {
@@ -255,16 +258,16 @@ public class LootbagContainer extends Container{
                     inventoryplayer.setItemStack(itemstack3);
                 }
 
-                this.func_94533_d();
+                this.resetDrag();
             }
             else
             {
-                this.func_94533_d();
+                this.resetDrag();
             }
         }
-        else if (this.field_94536_g != 0)
+        else if (this.dragEvent != 0)
         {
-            this.func_94533_d();
+            this.resetDrag();
         }
         else
         {
@@ -272,21 +275,21 @@ public class LootbagContainer extends Container{
             int l1;
             ItemStack itemstack5;
 
-            if ((p_75144_3_ == 0 || p_75144_3_ == 1) && (p_75144_2_ == 0 || p_75144_2_ == 1))
+            if ((clickTypeIn == ClickType.PICKUP || clickTypeIn == ClickType.QUICK_MOVE) && (dragType == 0 || dragType == 1))
             {
-                if (p_75144_1_ == -999)
+                if (slotId == -999)
                 {
-                    if (inventoryplayer.getItemStack() != null && p_75144_1_ == -999)
+                    if (inventoryplayer.getItemStack() != null && slotId == -999)
                     {
-                        if (p_75144_2_ == 0)
+                        if (dragType == 0)
                         {
-                            eplayer.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack(), true);
+                            eplayer.dropItem(inventoryplayer.getItemStack(), true);
                             inventoryplayer.setItemStack((ItemStack)null);
                         }
 
-                        if (p_75144_2_ == 1)
+                        if (dragType == 1)
                         {
-                            eplayer.dropPlayerItemWithRandomChoice(inventoryplayer.getItemStack().splitStack(1), true);
+                            eplayer.dropItem(inventoryplayer.getItemStack().splitStack(1), true);
 
                             if (inventoryplayer.getItemStack().stackSize == 0)
                             {
@@ -295,21 +298,21 @@ public class LootbagContainer extends Container{
                         }
                     }
                 }
-                else if (p_75144_3_ == 1)
+                else if (clickTypeIn == ClickType.QUICK_MOVE)
                 {
-                    if (p_75144_1_ < 0)
+                    if (slotId < 0)
                     {
                         return null;
                     }
 
-                    if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                    	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+                    if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                    	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                     else
-                    	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                    	slot2 = (Slot)this.inventorySlots.get(slotId);
 
                     if (slot2 != null && slot2.canTakeStack(eplayer))
                     {
-                        itemstack3 = this.transferStackInSlot(eplayer, p_75144_1_);
+                        itemstack3 = this.transferStackInSlot(eplayer, slotId);
 
                         if (itemstack3 != null)
                         {
@@ -318,22 +321,22 @@ public class LootbagContainer extends Container{
 
                             if (slot2.getStack() != null && slot2.getStack().getItem() == item)
                             {
-                                this.retrySlotClick(p_75144_1_, p_75144_2_, true, eplayer);
+                                this.retrySlotClick(slotId, dragType, true, eplayer);
                             }
                         }
                     }
                 }
                 else
                 {
-                    if (p_75144_1_ < 0)
+                    if (slotId < 0)
                     {
                         return null;
                     }
 
-                    if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                    	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+                    if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                    	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                     else
-                    	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                    	slot2 = (Slot)this.inventorySlots.get(slotId);
                     
                     if (slot2 != null)
                     {
@@ -349,7 +352,7 @@ public class LootbagContainer extends Container{
                         {
                             if (itemstack4 != null && slot2.isItemValid(itemstack4))
                             {
-                                l1 = p_75144_2_ == 0 ? itemstack4.stackSize : 1;
+                                l1 = dragType == 0 ? itemstack4.stackSize : 1;
 
                                 if (l1 > slot2.getSlotStackLimit())
                                 {
@@ -371,7 +374,7 @@ public class LootbagContainer extends Container{
                         {
                             if (itemstack4 == null)
                             {
-                                l1 = p_75144_2_ == 0 ? itemstack3.stackSize : (itemstack3.stackSize + 1) / 2;
+                                l1 = dragType == 0 ? itemstack3.stackSize : (itemstack3.stackSize + 1) / 2;
                                 itemstack5 = slot2.decrStackSize(l1);
                                 inventoryplayer.setItemStack(itemstack5);
 
@@ -386,7 +389,7 @@ public class LootbagContainer extends Container{
                             {
                                 if (itemstack3.getItem() == itemstack4.getItem() && itemstack3.getItemDamage() == itemstack4.getItemDamage() && ItemStack.areItemStackTagsEqual(itemstack3, itemstack4))
                                 {
-                                    l1 = p_75144_2_ == 0 ? itemstack4.stackSize : 1;
+                                    l1 = dragType == 0 ? itemstack4.stackSize : 1;
 
                                     if (l1 > slot2.getSlotStackLimit() - itemstack3.stackSize)
                                     {
@@ -436,20 +439,20 @@ public class LootbagContainer extends Container{
                     }
                 }
             }
-            else if (p_75144_3_ == 2 && p_75144_2_ >= 0 && p_75144_2_ < 9)
+            else if (clickTypeIn == ClickType.SWAP && dragType >= 0 && dragType < 9)
             {
-            	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+            	if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                 else
-                	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                	slot2 = (Slot)this.inventorySlots.get(slotId);
             	
             	Slot st = null;
-            	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	st = (FixedSlot)this.inventorySlots.get(p_75144_2_);
+            	if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	st = (FixedSlot)this.inventorySlots.get(dragType);
                 else
-                	st = (Slot)this.inventorySlots.get(p_75144_2_);
+                	st = (Slot)this.inventorySlots.get(dragType);
 
-                itemstack3 = inventoryplayer.getStackInSlot(p_75144_2_);
+                itemstack3 = inventoryplayer.getStackInSlot(dragType);
                 if (slot2.canTakeStack(eplayer) && ((itemstack3 != null)?(!(itemstack3.getItem() instanceof LootbagItem)):(true)))
                 {
                     boolean flag = itemstack3 == null || slot2.inventory == inventoryplayer && slot2.isItemValid(itemstack3);
@@ -464,7 +467,7 @@ public class LootbagContainer extends Container{
                     if (slot2.getHasStack() && flag)
                     {
                         itemstack5 = slot2.getStack();
-                        inventoryplayer.setInventorySlotContents(p_75144_2_, itemstack5.copy());
+                        inventoryplayer.setInventorySlotContents(dragType, itemstack5.copy());
 
                         if ((slot2.inventory != inventoryplayer || !slot2.isItemValid(itemstack3)) && itemstack3 != null)
                         {
@@ -485,17 +488,17 @@ public class LootbagContainer extends Container{
                     }
                     else if (!slot2.getHasStack() && itemstack3 != null && slot2.isItemValid(itemstack3))
                     {
-                        inventoryplayer.setInventorySlotContents(p_75144_2_, (ItemStack)null);
+                        inventoryplayer.setInventorySlotContents(dragType, (ItemStack)null);
                         slot2.putStack(itemstack3);
                     }
                 }
             }
-            else if (p_75144_3_ == 3 && eplayer.capabilities.isCreativeMode && inventoryplayer.getItemStack() == null && p_75144_1_ >= 0)
+            else if (clickTypeIn == ClickType.CLONE && eplayer.capabilities.isCreativeMode && inventoryplayer.getItemStack() == null && slotId >= 0)
             {
-            	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+            	if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                 else
-                	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                	slot2 = (Slot)this.inventorySlots.get(slotId);
 
                 if (slot2 != null && slot2.getHasStack())
                 {
@@ -504,32 +507,32 @@ public class LootbagContainer extends Container{
                     inventoryplayer.setItemStack(itemstack3);
                 }
             }
-            else if (p_75144_3_ == 4 && inventoryplayer.getItemStack() == null && p_75144_1_ >= 0)
+            else if (clickTypeIn == ClickType.THROW && inventoryplayer.getItemStack() == null && slotId >= 0)
             {
-            	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+            	if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                 else
-                	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                	slot2 = (Slot)this.inventorySlots.get(slotId);
 
                 if (slot2 != null && slot2.getHasStack() && slot2.canTakeStack(eplayer))
                 {
-                    itemstack3 = slot2.decrStackSize(p_75144_2_ == 0 ? 1 : slot2.getStack().stackSize);
+                    itemstack3 = slot2.decrStackSize(dragType == 0 ? 1 : slot2.getStack().stackSize);
                     slot2.onPickupFromSlot(eplayer, itemstack3);
-                    eplayer.dropPlayerItemWithRandomChoice(itemstack3, true);
+                    eplayer.dropItem(itemstack3, true);
                 }
             }
-            else if (p_75144_3_ == 6 && p_75144_1_ >= 0)
+            else if (clickTypeIn == ClickType.PICKUP_ALL && slotId >= 0)
             {
-            	if(this.inventorySlots.get(p_75144_1_) instanceof FixedSlot)
-                	slot2 = (FixedSlot)this.inventorySlots.get(p_75144_1_);
+            	if(this.inventorySlots.get(slotId) instanceof FixedSlot)
+                	slot2 = (FixedSlot)this.inventorySlots.get(slotId);
                 else
-                	slot2 = (Slot)this.inventorySlots.get(p_75144_1_);
+                	slot2 = (Slot)this.inventorySlots.get(slotId);
                 itemstack3 = inventoryplayer.getItemStack();
 
                 if (itemstack3 != null && (slot2 == null || !slot2.getHasStack() || !slot2.canTakeStack(eplayer)))
                 {
-                    i1 = p_75144_2_ == 0 ? 0 : this.inventorySlots.size() - 1;
-                    l1 = p_75144_2_ == 0 ? 1 : -1;
+                    i1 = dragType == 0 ? 0 : this.inventorySlots.size() - 1;
+                    l1 = dragType == 0 ? 1 : -1;
 
                     for (int i2 = 0; i2 < 2; ++i2)
                     {
@@ -541,7 +544,7 @@ public class LootbagContainer extends Container{
                             else
                             	slot3 = (Slot)this.inventorySlots.get(j2);
 
-                            if (slot3.getHasStack() && func_94527_a(slot3, itemstack3, true) && slot3.canTakeStack(eplayer) && this.func_94530_a(itemstack3, slot3) && (i2 != 0 || slot3.getStack().stackSize != slot3.getStack().getMaxStackSize()))
+                            if (slot3.getHasStack() && canAddItemToSlot(slot3, itemstack3, true) && slot3.canTakeStack(eplayer) && this.canMergeSlot(itemstack3, slot3) && (i2 != 0 || slot3.getStack().stackSize != slot3.getStack().getMaxStackSize()))
                             {
                                 int k1 = Math.min(itemstack3.getMaxStackSize() - itemstack3.stackSize, slot3.getStack().stackSize);
                                 ItemStack itemstack2 = slot3.decrStackSize(k1);
@@ -577,13 +580,6 @@ public class LootbagContainer extends Container{
 			}
 		}*/
         return itemstack;
-    }
-    
-    @Override
-    protected void func_94533_d()
-    {
-        this.field_94536_g = 0;
-        this.field_94537_h.clear();
     }
 }
 /*******************************************************************************

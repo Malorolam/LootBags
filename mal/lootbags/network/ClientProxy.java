@@ -1,15 +1,20 @@
 package mal.lootbags.network;
 
+import java.util.ArrayList;
+
 import mal.lootbags.LootBags;
+import mal.lootbags.gui.LootbagContainer;
 import mal.lootbags.gui.LootbagGui;
+import mal.lootbags.gui.RecyclerContainer;
 import mal.lootbags.gui.RecyclerGui;
-//import mal.lootbags.rendering.ItemRenderingRegister;
+import mal.lootbags.rendering.ItemRenderingRegister;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-//import net.minecraft.util.BlockPos;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import cpw.mods.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 public class ClientProxy extends CommonProxy{
 
@@ -22,19 +27,7 @@ public class ClientProxy extends CommonProxy{
 	@Override
 	public void registerRenderers()
 	{
-		//ItemRenderingRegister.registerItemRender();
-	}
-	
-	@Override
-	public Object getClientGuiElement(int ID, EntityPlayer player, World world,
-			int x, int y, int z) {
-		if(ID==0 && player.getCurrentEquippedItem() != null && Item.getIdFromItem(player.getCurrentEquippedItem().getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
-		{
-			return new LootbagGui(player.inventory, new LootbagWrapper(player.getCurrentEquippedItem(), player.inventory.currentItem));
-		}
-		if(ID==1)
-			return new RecyclerGui(player.inventory, (TileEntityRecycler) world.getTileEntity(x, y, z));
-		return null;
+		ItemRenderingRegister.registerItemRender();
 	}
 }
 /*******************************************************************************

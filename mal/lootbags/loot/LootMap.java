@@ -1,5 +1,6 @@
 package mal.lootbags.loot;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,18 +11,23 @@ import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.WeightedRandomChestContent;
-import net.minecraftforge.common.ChestGenHooks;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.common.registry.GameRegistry;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootEntry;
+import net.minecraft.world.storage.loot.LootEntryItem;
+import net.minecraft.world.storage.loot.LootEntryItemAccess;
+import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTable;
+import net.minecraft.world.storage.loot.RandomValueRange;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import org.apache.logging.log4j.Level;
 
 public class LootMap {
 
 	private HashMap<String, LootItem> generalMap;
-	private ArrayList<String> generalLootSources;
+	private ArrayList<ResourceLocation> generalLootSources;
 	private ArrayList<String> generalModBlacklist;
 	private ArrayList<LootItem> generalBlacklist;
 	private ArrayList<LootItem> generalWhitelist;
@@ -40,7 +46,7 @@ public class LootMap {
 	public void clearMapData()
 	{
 		generalMap = new HashMap<String, LootItem>();
-		generalLootSources = new ArrayList<String>();
+		generalLootSources = new ArrayList<ResourceLocation>();
 		generalModBlacklist = new ArrayList<String>();
 		generalBlacklist = new ArrayList<LootItem>();
 		generalWhitelist = new ArrayList<LootItem>();
@@ -254,12 +260,17 @@ public class LootMap {
 	/*
 	 * Populates the general map from the global loot sources, whitelist, and blacklist
 	 */
-	public void populateGeneralMap()
+	public void populateGeneralMap(World world)
 	{
 		//loot sources
-		for(String source: generalLootSources)
+		for(ResourceLocation source: generalLootSources)
 		{
-			addLootCategory(source);
+			try {
+				addLootCategory(source, world);
+			} catch (NoSuchFieldException | SecurityException
+					| IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		//whitelist
@@ -271,9 +282,9 @@ public class LootMap {
 				LootbagsUtil.LogError("Loot Item with information: " + item.getItemModID() + ":" + item.getItemName() + " does not exist, even after reinitilizing it. This typically means the whitelist entry is wrong. This item will be skipped.");
 			else
 			{
-				String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
-				if(item.getContentItem().theItemId.getItem() instanceof ItemEnchantedBook && item.getContentItem().theItemId.hasTagCompound())//a specific enchanted book
-					key += item.getContentItem().theItemId.getTagCompound().toString();
+				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
+				if(item.getContentItem().getItem() instanceof ItemEnchantedBook && item.getContentItem().hasTagCompound())//a specific enchanted book
+					key += item.getContentItem().getTagCompound().toString();
 				if(generalMap.containsKey(key))
 					generalMap.remove(key);//remove the existing entry to overwrite it with the whitelisted version
 				
@@ -288,68 +299,102 @@ public class LootMap {
 	/**
 	 * Add every item in a category to the map calculating the drop chance
 	 * @param categoryName
+	 * @throws SecurityException 
+	 * @throws NoSuchFieldException 
+	 * @throws IllegalAccessException 
+	 * @throws IllegalArgumentException 
 	 */
-	public void addLootCategory(String categoryName)
+	public void addLootCategory(ResourceLocation categoryName, World world) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
-		LootbagsUtil.LogInfo("Starting adding items from loot category: " + categoryName + ".");
-		WeightedRandomChestContent[] h = ChestGenHooks.getItems(categoryName, LootBags.getRandom());
-		for(int i = 0; i < h.length; i++)
+		LootbagsUtil.LogInfo("Starting adding items from loot table: " + categoryName + ".");
+		
+		//reflect the lists in the table and pool so that I can actually access them
+		Field poolListField = LootTable.class.getDeclaredField("pools");
+		poolListField.setAccessible(true);
+		Field lootListField = LootPool.class.getDeclaredField("lootEntries");
+		lootListField.setAccessible(true);
+		
+		LootTable table = world.getLootTableManager().getLootTableFromLocation(categoryName);
+		List<LootPool> poolList = (List<LootPool>)poolListField.get(table);
+		for(LootPool pool:poolList)
 		{
-			WeightedRandomChestContent c = h[i];
-			
-			LootItem item = new LootItem(c, true);
-			boolean skip = false;
-			//Do some fixing to prevent <1 errors in the bags
-			if(item.getContentItem().itemWeight < 1)
+			List<LootEntry> lootList = (List<LootEntry>)lootListField.get(pool);
+			for(LootEntry loot:lootList)
 			{
-				LootbagsUtil.LogError("Item " + item.getContentItem().theItemId.toString() + " has a weighting of " + item.getContentItem().itemWeight + ".  This is not a Lootbags error but an error in a different mod!  "
-						+ "This item will be excluded from the Lootbags loot table.");
-//				ChestGenHooks.removeItem(categoryName, c.theItemId);
-			}
-			else
-			{
-			
-				for(String modid:generalModBlacklist)
+				if(loot instanceof LootEntryItem)
 				{
-					if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourceDomain().equalsIgnoreCase(modid))
+					LootEntryItem lloot = (LootEntryItem) loot;
+					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
+					int weight = LootEntryItemAccess.getLootEntryItemWeight(lloot);
+					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
+					int minstack;
+					int maxstack;
+					if(range != null)
 					{
-						skip = true;
-						LootbagsUtil.LogInfo("Found item to skip from Blacklisted mod: " + item.toString());
-					}
-				}
-				for(LootItem entry:generalBlacklist)
-				{
-					String name = entry.getItemName();
-					if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).name.equalsIgnoreCase(name))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourcePath().equalsIgnoreCase(name))
-					{
-						skip = true;
-						LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
-					}
-				}
-				if(!skip)
-				{
-					
-					String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
-					
-					if(!generalMap.containsKey(key))
-					{
-						generalMap.put(key, item);
-						//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
-						if(!totalList.containsKey(key))
-							totalList.put(key, item);
+						minstack = (int) range.getMin();
+						maxstack = (int) range.getMax();
 					}
 					else
 					{
-						LootItem it = generalMap.get(key);
-						int weight = it.getContentItem().itemWeight;
-						weight = (weight+c.itemWeight)/2;
-						it.getContentItem().itemWeight = weight;
-						generalMap.put(key, it);
-						//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
-						if(!totalList.containsKey(key))
-							totalList.put(key, it);
+						minstack = 1;
+						maxstack = stack.getMaxStackSize();
 					}
+					
+					LootItem item = new LootItem(stack, minstack, maxstack, weight, true);
+					boolean skip = false;
+					//Do some fixing to prevent <1 errors in the bags
+					if(item.getItemWeight() < 1)
+					{
+						LootbagsUtil.LogError("Item " + item.getContentItem().toString() + " has a weighting of " + item.getItemWeight() + ".  This is not a Lootbags error but an error in a different mod!  "
+								+ "This item will be excluded from the Lootbags loot table.");
+//						ChestGenHooks.removeItem(categoryName, c.theItemId);
+					}
+					else
+					{
+					
+						for(String modid:generalModBlacklist)
+						{
+							if(ForgeRegistries.ITEMS.getKey(item.getContentItem().getItem()).getResourceDomain().equalsIgnoreCase(modid))
+							{
+								skip = true;
+								LootbagsUtil.LogInfo("Found item to skip from Blacklisted mod: " + item.toString());
+							}
+						}
+						for(LootItem entry:generalBlacklist)
+						{
+							String name = entry.getItemName();
+							if(ForgeRegistries.ITEMS.getKey(item.getContentItem().getItem()).getResourcePath().equalsIgnoreCase(name))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourcePath().equalsIgnoreCase(name))
+							{
+								skip = true;
+								LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
+							}
+						}
+						if(!skip)
+						{
+							
+							String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
+							
+							if(!generalMap.containsKey(key))
+							{
+								generalMap.put(key, item);
+								//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
+								if(!totalList.containsKey(key))
+									totalList.put(key, item);
+							}
+							else
+							{
+								LootItem it = generalMap.get(key);
+								int wweight = it.getItemWeight();
+								wweight = (wweight+item.itemWeight)/2;
+								it.setItemWeight(wweight);
+								generalMap.put(key, it);
+								//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
+								if(!totalList.containsKey(key))
+									totalList.put(key, it);
+							}
+						}
 				}
+			}
 			}
 		}
 	}
@@ -402,7 +447,7 @@ public class LootMap {
 	public void setLootSources(String[] sources)
 	{
 		for(int i = 0; i < sources.length; i++)
-			generalLootSources.add(sources[i]);
+			generalLootSources.add(new ResourceLocation(sources[i]));
 	}
 }
 /*******************************************************************************

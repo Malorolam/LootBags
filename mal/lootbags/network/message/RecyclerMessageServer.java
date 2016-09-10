@@ -9,37 +9,25 @@ import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-//import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
-import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
-import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
 public class RecyclerMessageServer implements IMessage, IMessageHandler<RecyclerMessageServer, IMessage>{
 
-	//public BlockPos pos;
+	public BlockPos pos;
 	public int xpos, ypos, zpos;
 	public int lootbagCount, totalValue;
 	
 	public RecyclerMessageServer(){}
 	public RecyclerMessageServer(TileEntityRecycler te, int count, int value)
 	{
-		//pos = te.getPos();
-		xpos = te.xCoord;
-		ypos = te.yCoord;
-		zpos = te.zCoord;
+		pos = te.getPos();
 		lootbagCount = count;
 		totalValue = value;
-	}
-	@Override
-	public IMessage onMessage(RecyclerMessageServer message, MessageContext ctx) {
-		TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.xpos, message.ypos, message.zpos);
-		if(te instanceof TileEntityRecycler)
-		{
-			((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
-		}
-		return null;
 	}
 
 	@Override
@@ -47,18 +35,27 @@ public class RecyclerMessageServer implements IMessage, IMessageHandler<Recycler
 		xpos = buf.readInt();
 		ypos = buf.readInt();
 		zpos = buf.readInt();
-		//pos = new BlockPos(xpos,ypos,zpos);
+		pos = new BlockPos(xpos,ypos,zpos);
 		lootbagCount = buf.readInt();
 		totalValue = buf.readInt();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		buf.writeInt(xpos);//pos.getX());
-		buf.writeInt(ypos);//pos.getY());
-		buf.writeInt(zpos);//pos.getZ());
+		buf.writeInt(pos.getX());
+		buf.writeInt(pos.getY());
+		buf.writeInt(pos.getZ());
 		buf.writeInt(lootbagCount);
 		buf.writeInt(totalValue);
+	}
+	@Override
+	public IMessage onMessage(RecyclerMessageServer message, MessageContext ctx) {
+		TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
+		if(te instanceof TileEntityRecycler)
+		{
+			((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
+		}
+		return null;
 	}
 }
 /*******************************************************************************

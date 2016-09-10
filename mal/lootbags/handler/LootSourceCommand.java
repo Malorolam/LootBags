@@ -11,13 +11,17 @@ import java.util.Random;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.enchantment.Enchantment;
-//import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.StatCollector;
-import net.minecraftforge.common.ChestGenHooks;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.storage.loot.LootTableList;
 
 public class LootSourceCommand implements ICommand{
 
@@ -45,7 +49,7 @@ public class LootSourceCommand implements ICommand{
 	}
 
 	@Override
-	public void processCommand(ICommandSender icommand, String[] p_71515_2_) {
+	public void execute(MinecraftServer server, ICommandSender icommand, String[] args) throws CommandException {
 		ArrayList<String> stringlist = new ArrayList<String>();
 		
 		if(LootBags.LOOTBAGINDUNGEONLOOT != null)
@@ -70,7 +74,11 @@ public class LootSourceCommand implements ICommand{
 		
 		stringlist.add("==Loot Sources Registered in Forge==");
 		
-		//Reflection to obtain the chestInfo in ChestGenHooks
+		for(ResourceLocation loc: LootTableList.getAll())
+		{
+			stringlist.add(loc.toString());
+		}
+/*		//Reflection to obtain the chestInfo in ChestGenHooks
 		try {
 			Field info = Class.forName("net.minecraftforge.common.ChestGenHooks").getDeclaredField("chestInfo");
 			info.setAccessible(true);
@@ -85,16 +93,16 @@ public class LootSourceCommand implements ICommand{
 			
 		} catch(Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 		
 		//pull the full enchantment unlocalized names
 		stringlist.add("");
 		stringlist.add("==Enchantment Unlocalized Names==");
-		for(int i = 0; i < Enchantment.enchantmentsBookList.length; i++)
+		for(int i = 0; i < Enchantment.REGISTRY.getKeys().size(); i++)
 		{
-			if(Enchantment.enchantmentsBookList[i] != null)
+			if(Enchantment.REGISTRY.getObjectById(i) != null)
 			{
-				stringlist.add(StatCollector.translateToLocal(Enchantment.enchantmentsBookList[i].getName()) + ": " + Enchantment.enchantmentsBookList[i].getName());
+				stringlist.add(new TextComponentTranslation(Enchantment.REGISTRY.getObjectById(i).getName()).getFormattedText() + ": " + Enchantment.REGISTRY.getObjectById(i).getName());
 			}
 		}
 		
@@ -111,7 +119,7 @@ public class LootSourceCommand implements ICommand{
 			{
 				write.println(s);
 			}
-			icommand.addChatMessage(new ChatComponentText("LootBags Loot Source Dump Written - Look in your dumps folder"));
+			icommand.addChatMessage(new TextComponentString("LootBags Loot Source Dump Written - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
@@ -121,40 +129,25 @@ public class LootSourceCommand implements ICommand{
 	}
 
 	@Override
-	public boolean canCommandSenderUseCommand(ICommandSender p_71519_1_) {
-		return true;
-	}
-
-	@Override
 	public boolean isUsernameIndex(String[] p_82358_1_, int p_82358_2_) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public int compareTo(Object arg0) {
+	public int compareTo(ICommand o) {
 		return 0;
 	}
 
 	@Override
-	public List addTabCompletionOptions(ICommandSender p_71516_1_,
-			String[] p_71516_2_) {
-		return null;
-	}
-
-/*	@Override
-	public int compareTo(ICommand arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
+		return true;
 	}
 
 	@Override
-	public List<String> addTabCompletionOptions(ICommandSender sender,
-			String[] args, BlockPos pos) {
-		// TODO Auto-generated method stub
+	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+			BlockPos pos) {
 		return null;
-	}*/
-
+	}
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

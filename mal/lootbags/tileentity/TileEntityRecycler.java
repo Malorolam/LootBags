@@ -13,13 +13,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-//import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
-//import net.minecraft.util.ITickable;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 
-public class TileEntityRecycler extends TileEntity implements IInventory, ISidedInventory/*, ITickable*/{
+public class TileEntityRecycler extends TileEntity implements IInventory, ISidedInventory, ITickable{
 
 	private ItemStack lootbagSlot;
 	private int lootbagCount = 0;
@@ -33,7 +33,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 	
 	@Override
-	public void updateEntity()
+	public void update()
 	{
 		if(worldObj != null && !this.worldObj.isRemote)
 		{
@@ -115,7 +115,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 	
 	@Override
-	public void writeToNBT(NBTTagCompound nbt)
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt)
 	{
 		super.writeToNBT(nbt);
 		
@@ -144,6 +144,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			}
 		}
 		nbt.setTag("inputItems", input);
+		return nbt;
 	}
 	
 	@Override
@@ -239,7 +240,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 
 	@Override
 	public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer) {
-		return this.worldObj.getTileEntity(this.xCoord, this.yCoord, this.zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double)this.xCoord + 0.5D, (double)this.yCoord + 0.5D, (double)this.zCoord + 0.5D) <= 64.0D;
+		return this.worldObj.getTileEntity(this.pos) != this ? false : par1EntityPlayer.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 
 	@Override
@@ -257,87 +258,11 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		return false;
 	}
 
-	@Override
-	public int[] getAccessibleSlotsFromSide(int side) {
-		int[] i = new int[getSizeInventory()];
-		for(int ii = 0; ii<i.length; ii++)
-			i[ii]=ii;
-		return i;
-	}
-
-	@Override
-	public boolean canInsertItem(int slot, ItemStack stack,
-			int p_102007_3_) {
-		if(slot == 0)
-			return false;
-		else if(slot < getSizeInventory())
-		{
-			if(LootBags.isItemRecyleBlacklisted(stack))
-				return false;
-			
-			if(LootBags.isItemDroppable(stack))
-				return true;
-		}
-		return false;
-	}
-
-	@Override
-	public boolean canExtractItem(int slot, ItemStack p_102008_2_,
-			int p_102008_3_) {
-		if(slot == 0)
-			return true;
-		return false;
-	}
-
-	@Override
-	public ItemStack getStackInSlotOnClosing(int slot) {
-		if(slot==0)
-		{
-			if(lootbagSlot != null)
-			{
-				ItemStack var2 = lootbagSlot;
-				lootbagSlot = null;
-				return var2;
-			}
-			return null;
-		}
-		else if(slot>= 0 && slot < this.getSizeInventory())
-		{
-			if(inventory[slot-1] != null)
-			{
-				ItemStack var2 = inventory[slot-1];
-				inventory[slot-1] = null;
-				return var2;	
-			}
-			return null;
-		}
-		return null;
-	}
-
-	@Override
-	public String getInventoryName() {
-		return "recycler";
-	}
-
-	@Override
-	public boolean hasCustomInventoryName() {
-		return false;
-	}
-
-	@Override
-	public void openInventory() {
-	}
-
-	@Override
-	public void closeInventory() {
-	}
-
 	public void activate(World world, int x, int y, int z, EntityPlayer player)
 	{
 		player.openGui(LootBags.LootBagsInstance, 1, world, x, y, z);
 	}
-	//TODO: 1.8.9 overrides
-	/*public void activate(World world, BlockPos pos, EntityPlayer player) {
+	public void activate(World world, BlockPos pos, EntityPlayer player) {
 		
 		player.openGui(LootBags.LootBagsInstance, 1, world, pos.getX(), pos.getY(), pos.getZ());
 	}
@@ -353,7 +278,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 
 	@Override
-	public IChatComponent getDisplayName() {
+	public ITextComponent getDisplayName() {
 		return null;
 	}
 
@@ -410,7 +335,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 
 	@Override
 	public void clear() {
-	}*/
+	}
 
 }
 /*******************************************************************************

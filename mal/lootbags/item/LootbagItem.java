@@ -9,9 +9,8 @@ import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
-import net.minecraft.client.renderer.texture.IIconRegister;
-//import mal.lootbags.rendering.IItemVarientDetails;
-//import mal.lootbags.rendering.ItemRenderingRegister;
+import mal.lootbags.rendering.IItemVarientDetails;
+import mal.lootbags.rendering.ItemRenderingRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -20,32 +19,33 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /*
  * New Lootbag Item class, to use the updated config and bag creation
  */
-public class LootbagItem extends Item {//implements IItemVarientDetails{
+public class LootbagItem extends Item implements IItemVarientDetails{
 	
-	private final String name = "lootbag";
-	
-	private IIcon[] iconlist;
+	private final String name = "itemlootbag";
 	
 	public LootbagItem()
 	{
-		GameRegistry.registerItem(this, name);
+		GameRegistry.register(this.setRegistryName(name));
 		this.setUnlocalizedName(LootBags.MODID + "_" + name);
-		setCreativeTab(CreativeTabs.tabMisc);
+		setCreativeTab(CreativeTabs.MISC);
 		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
-		iconlist = new IIcon[BagHandler.getHighestUsedID()+1];
 	}
 	
 	public String getName()
@@ -55,7 +55,7 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 	
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String s = ("" + StatCollector.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
+        String s = ("" + I18n.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
         Bag b = BagHandler.getBag(stack.getItemDamage());
         if(b!= null)
         	return b.getBagNameColor()+s;
@@ -70,8 +70,8 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
     	
     	if(b.isBagEmpty())
     	{
-    		list.add(EnumChatFormatting.RED + "Bag Disabled - Loot Table is empty.");
-    		list.add(EnumChatFormatting.RED + "This is not good.");
+    		list.add(TextFormatting.RED + "Bag Disabled - Loot Table is empty.");
+    		list.add(TextFormatting.RED + "This is not good.");
     		return;
     	}
     	
@@ -110,7 +110,7 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 		{
 			case "DROPCHANCES":
 			{
-				sret = StatCollector.translateToLocal("name."+LootBags.MODID+"_"+currentBag.getBagName()+".name") + " drop chances: Monster: " + currentBag.getMonsterDropChance()
+				sret = I18n.translateToLocal("name."+LootBags.MODID+"_"+currentBag.getBagName()+".name") + " drop chances: Monster: " + currentBag.getMonsterDropChance()
 						+ " Passive: " + currentBag.getPassiveDropChance() + " Player: " + currentBag.getPlayerDropChance() + " Boss: " + currentBag.getBossDropChance();
 				break;
 			}
@@ -121,24 +121,6 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 		}
 		
 		return LootbagsUtil.addLineBreaks(sret, color);
-	}
-	
-	@Override
-	public void registerIcons(IIconRegister ir) {
-		for(Bag b:BagHandler.getBagList().values())
-		{
-			iconlist[b.getBagIndex()] = ir.registerIcon(LootBags.MODID+":"+b.getBagName()+"ItemTexture");
-		}
-	}
-	
-	public IIcon getIconFromDamage(int value)
-	{
-        if (value < 0 || value >= this.iconlist.length)
-        {
-            value = 0;
-        }
-        
-		return iconlist[value];
 	}
 	
 	public static void setTagCompound(ItemStack is, ItemStack[] inventory) {
@@ -265,28 +247,27 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 		return false;
 	}
 	
-	public ItemStack onItemRightClick(ItemStack is, World world,
-			EntityPlayer player) {
+	public ActionResult<ItemStack> onItemRightClick(ItemStack is, World world, EntityPlayer player, EnumHand hand) {
 		if (!world.isRemote && !player.isSneaking()) {
 			if(BagHandler.isBagEmpty(is.getItemDamage()))
-				return is;
+				return new ActionResult(EnumActionResult.PASS, is);
 			LootbagItem.generateInventory(is);
 			player.openGui(LootBags.LootBagsInstance, 0, world, 0, 0, 0);
 		}
 
-		return is;
+		return new ActionResult(EnumActionResult.PASS, is);
 	}
-	
+
 	@Override
-	public boolean onItemUse(ItemStack is, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack is, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		if(!world.isRemote)
 		{
 			if(BagHandler.isBagEmpty(is.getItemDamage()))
-				return false;
+				return EnumActionResult.FAIL;
 			if(!player.isSneaking())
-				return false;
-			TileEntity te = world.getTileEntity(x, y, z);
+				return EnumActionResult.FAIL;
+			TileEntity te = world.getTileEntity(pos);
 			if(te instanceof IInventory)
 			{
 				LootbagItem.generateInventory(is);
@@ -332,11 +313,14 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 				}
 				LootbagItem.setTagCompound(is, iss);
 				if(LootbagItem.checkInventory(is))
-					player.inventory.mainInventory[player.inventory.currentItem] = null;
-				return true;
+				{
+					player.setHeldItem(hand, null);
+					ForgeEventFactory.onPlayerDestroyItem(player, is, hand);
+				}
+				return EnumActionResult.PASS;
 			}
 		}
-		return false;
+		return EnumActionResult.PASS;
 	}
 	
 	/**
@@ -372,19 +356,6 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 		return base+"_"+bag.getBagName();
 	}
 	
-	@SideOnly(Side.CLIENT)
-    public int getColorFromItemStack(ItemStack stack, int renderPass)
-    {
-		Bag bag = BagHandler.getBag(stack.getItemDamage());
-		if(bag==null)
-			return 16777215;
-		int[] colors = bag.getBagTextureColor();
-		if(renderPass==0)
-			return colors[0];
-		else
-			return colors[1];
-    }
-	
 	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
     {
 		for(Bag b:BagHandler.getBagList().values())
@@ -394,7 +365,7 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 		}
     }
 
-/*	@Override
+	@Override
 	public void registerItemVariants(ItemRenderingRegister register) {
 		for(Bag b: BagHandler.getBagList().values())
 		{
@@ -403,7 +374,7 @@ public class LootbagItem extends Item {//implements IItemVarientDetails{
 			else
 				register.reg(this, b.getBagIndex(), b.getDefaultName());
 		}
-	}*/
+	}
 	
 	private static int getNumItems(ItemStack is)
 	{

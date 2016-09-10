@@ -2,9 +2,9 @@ package mal.lootbags.network;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.network.message.RecyclerMessageServer;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class LootbagsPacketHandler {
 	public static final SimpleNetworkWrapper instance = NetworkRegistry.INSTANCE.newSimpleChannel(LootBags.MODID.toLowerCase());

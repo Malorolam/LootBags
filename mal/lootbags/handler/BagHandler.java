@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.WeightedRandomChestContent;
 
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
@@ -94,17 +94,19 @@ public class BagHandler {
 		return ID;
 	}
 	
-	public static ArrayList<WeightedRandomChestContent> generateContent(Collection<LootItem> collection)
+	public static ArrayList<LootItem> generateContent(Collection<LootItem> collection)
 	{
-		ArrayList<WeightedRandomChestContent> list = new ArrayList<WeightedRandomChestContent>();
+		ArrayList<LootItem> list = new ArrayList<LootItem>();
 		for(LootItem c : collection)
 		{
-			if(c.getContentItem().theItemId.getItem() instanceof ItemEnchantedBook && c.getGeneral())
+			if(c.getContentItem().getItem() instanceof ItemEnchantedBook && c.getGeneral())
 			{
-				WeightedRandomChestContent original = c.getContentItem();
-				c = new LootItem(((ItemEnchantedBook)c.getContentItem().theItemId.getItem()).func_92112_a(LootBags.getRandom(), original.theMinimumChanceToGenerateItem, original.theMaximumChanceToGenerateItem, original.itemWeight), c.getGeneral());
+				LootItem original = c.copy();
+				ItemStack s = c.getContentItem();
+				EnchantmentHelper.addRandomEnchantment(LootBags.getRandom(), s, 30, true);
+				c = new LootItem(s, original.getItemModID(), original.getItemName(), original.getMinStack(), original.getMaxStack(), original.getItemWeight(), original.getGeneral());
 			}
-			list.add(c.getContentItem());
+			list.add(c);
 		}
 		return list;
 	}

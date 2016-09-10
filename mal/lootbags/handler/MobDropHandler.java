@@ -14,15 +14,12 @@ import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.boss.IBossDisplayData;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.common.util.FakePlayer;
-
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Adds the loot bag to mob drops, configurable through config
@@ -38,12 +35,12 @@ public class MobDropHandler {
 	public void onEntityDrop(LivingDropsEvent event) {
 		if(LootBags.BAGFROMPLAYERKILL == 1)
 		{
-			if(event.source.getEntity() == null || !(event.source.getEntity() instanceof EntityPlayer))
+			if(event.getSource().getEntity() == null || !(event.getSource().getEntity() instanceof EntityPlayer))
 				return;
 		}
 		else if(LootBags.BAGFROMPLAYERKILL == 2)
 		{
-			if(event.source.getEntity() == null ||  event.source.getEntity() instanceof FakePlayer || !(event.source.getEntity() instanceof EntityPlayer))
+			if(event.getSource().getEntity() == null ||  event.getSource().getEntity() instanceof FakePlayer || !(event.getSource().getEntity() instanceof EntityPlayer))
 				return;
 		}
 		
@@ -54,17 +51,17 @@ public class MobDropHandler {
 			
 			//Get the weight 
 			int weight;
-			if(event.entityLiving instanceof IBossDisplayData)
+			if(!event.getEntityLiving().isNonBoss())
 				weight = b.getBossDropWeight();
-			else if (event.entityLiving instanceof EntityMob || event.entityLiving instanceof IMob)
+			else if (event.getEntityLiving() instanceof EntityMob || event.getEntityLiving() instanceof IMob)
 				weight = b.getMonsterDropWeight();
-			else if(event.entityLiving instanceof EntityPlayer)
+			else if(event.getEntityLiving() instanceof EntityPlayer)
 				weight = b.getPlayerDropWeight();
-			else if (event.entityLiving instanceof EntityAnimal || event.entityLiving instanceof IAnimals)
+			else if (event.getEntityLiving() instanceof EntityAnimal || event.getEntityLiving() instanceof IAnimals)
 				weight = b.getPassiveDropWeight();
 			else
 			{
-				LootbagsUtil.LogInfo("Found entity of class: " + event.entityLiving.toString() + "; This is probably an error somewhere so going to assume this is a monster.");
+				LootbagsUtil.LogInfo("Found entity of class: " + event.getEntityLiving().toString() + "; This is probably an error somewhere so going to assume this is a monster.");
 				weight = b.getMonsterDropWeight();
 			}
 			
@@ -77,9 +74,9 @@ public class MobDropHandler {
 					state = false;
 					for(BagEntitySource bs: b.getEntityList())
 					{
-						if(bs.getIsVisibleName() && bs.getName().equalsIgnoreCase(event.entityLiving.getCommandSenderName()))
+						if(bs.getIsVisibleName() && bs.getName().equalsIgnoreCase(event.getEntityLiving().getCommandSenderEntity().getName()))
 							state = true;
-						else if(bs.getName().equalsIgnoreCase(EntityList.getEntityString(event.entityLiving)))
+						else if(bs.getName().equalsIgnoreCase(EntityList.getEntityString(event.getEntityLiving())))
 							state = true;
 					}
 				}
@@ -87,9 +84,9 @@ public class MobDropHandler {
 				{
 					for(BagEntitySource bs: b.getEntityList())
 					{
-						if(bs.getIsVisibleName() && bs.getName().equalsIgnoreCase(event.entityLiving.getCommandSenderName()))
+						if(bs.getIsVisibleName() && bs.getName().equalsIgnoreCase(event.getEntityLiving().getCommandSenderEntity().getName()))
 							state = false;
-						else if(bs.getName().equalsIgnoreCase(EntityList.getEntityString(event.entityLiving)))
+						else if(bs.getName().equalsIgnoreCase(EntityList.getEntityString(event.getEntityLiving())))
 							state = false;
 					}
 				}
@@ -99,7 +96,7 @@ public class MobDropHandler {
 			
 			if(chance <= weight && state && weight > 0)
 			{
-				event.entityLiving.entityDropItem(b.getBagItem(), random.nextInt(2)+1);
+				event.getEntityLiving().entityDropItem(b.getBagItem(), random.nextInt(2)+1);
 				if(LootBags.LIMITONEBAGPERDROP)
 					return;
 			}

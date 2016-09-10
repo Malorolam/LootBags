@@ -7,10 +7,6 @@ import java.util.ArrayList;
 
 import org.apache.logging.log4j.Level;
 
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.registry.GameData;
-import cpw.mods.fml.common.registry.GameRegistry;
-
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
@@ -21,17 +17,20 @@ import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.WeightedRandomChestContent;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.WeightedRandom;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class LootItem implements Comparable{
+public class LootItem extends WeightedRandom.Item implements Comparable{
 
-	private WeightedRandomChestContent item;
+	private ItemStack item;
 	private String modid;
 	private String name;
 	private int damage;
 	private int minstack;
 	private int maxstack;
-	private int weight;
+	//private int weight;
 	private byte[] nbt;
 	private boolean generalItem=false;
 	
@@ -39,19 +38,37 @@ public class LootItem implements Comparable{
 	 * The new LootItem, moved to the correct package, there is now no fixed loot sources, so this is just in whichever list is needed
 	 * now it's more of a wrapper to be able to construct weightedrandomchestcontent objects cleanly
 	 */
-	public LootItem(WeightedRandomChestContent item, boolean isgeneral)
+	public LootItem(ItemStack item, String modid, String itemname, int minstack, int maxstack, int weight, boolean isgeneral)
 	{
+		super(weight);
 		this.item = item;
-		this.modid = GameRegistry.findUniqueIdentifierFor(item.theItemId.getItem()).modId;
-		this.name = GameRegistry.findUniqueIdentifierFor(item.theItemId.getItem()).name;
-		this.damage = item.theItemId.getItemDamage();
-		this.minstack = item.theMinimumChanceToGenerateItem;
-		this.maxstack = item.theMaximumChanceToGenerateItem;
-		this.weight = item.itemWeight;
+		this.modid = modid;
+		this.name = itemname;
+		this.damage = item.getItemDamage();
+		this.minstack = minstack;
+		this.maxstack = maxstack;
 		this.generalItem = isgeneral;
 		try {
-			if(item.theItemId.getTagCompound() != null)
-				this.nbt=CompressedStreamTools.compress(item.theItemId.getTagCompound());
+			if(item.getTagCompound() != null)
+				this.nbt=LootbagsUtil.compress(item.getTagCompound());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public LootItem(ItemStack item, int minstack, int maxstack, int weight, boolean isgeneral)
+	{
+		super(weight);
+		this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
+		this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
+		this.item = item;
+		this.damage = item.getItemDamage();
+		this.minstack = minstack;
+		this.maxstack = maxstack;
+		this.generalItem = isgeneral;
+		try {
+			if(item.getTagCompound() != null)
+				this.nbt=LootbagsUtil.compress(item.getTagCompound());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -62,13 +79,13 @@ public class LootItem implements Comparable{
 	 */
 	public LootItem(String modid, String itemname, int damage, int minstack, int maxstack, int weight, boolean isgeneral)
 	{
-		ItemStack stack = new ItemStack(GameRegistry.findItem(modid, itemname), 1);
+		super(weight);
+		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, itemname)), 1);
 		this.modid = modid;
 		this.name = itemname;
 		this.damage = damage;
 		this.minstack = minstack;
 		this.maxstack = maxstack;
-		this.weight = weight;
 		this.nbt = null;
 		this.generalItem = isgeneral;
 		
@@ -88,7 +105,7 @@ public class LootItem implements Comparable{
 			if(minstack > maxstack)
 				minstack=maxstack;
 			
-			item = new WeightedRandomChestContent(stack, minstack, stack.stackSize, weight);
+			item = stack;
 		}
 	}
 	
@@ -97,21 +114,22 @@ public class LootItem implements Comparable{
 	*/
 	public LootItem(String modid, String itemname, int damage, int minstack, int maxstack, int weight, byte[] nbt, boolean isgeneral)
 	{
-		ItemStack stack = new ItemStack(GameRegistry.findItem(modid, itemname), 1);
+		super(weight);
+		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, itemname)), 1);
 		this.modid = modid;
 		this.name = itemname;
 		this.damage = damage;
 		this.minstack = minstack;
 		this.maxstack = maxstack;
-		this.weight = weight;
+		//this.weight = weight;
 		this.nbt = nbt;
 		this.generalItem = isgeneral;
 		
 		if(stack.getItem() == null)
 		{
 		//one of these should be not null
-		Block block = GameRegistry.findBlock(modid, itemname);
-		Item item = GameRegistry.findItem(modid, itemname);
+		Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modid, itemname));
+		Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, itemname));
 		if(item != null)
 			stack = new ItemStack(item,maxstack,damage);
 		else if(block != null)
@@ -142,18 +160,18 @@ public class LootItem implements Comparable{
 			if(minstack > maxstack)
 				minstack=maxstack;
 			
-			item = new WeightedRandomChestContent(stack, minstack, stack.stackSize, weight);
+			item = stack;
 		}
 	}
 	
 	public void reinitializeLootItem()
 	{
-		ItemStack stack = new ItemStack(GameRegistry.findItem(modid, name), 1);
+		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, name)), 1);
 		if(stack.getItem() == null)
 		{
 		//one of these should be not null
-		Block block = GameRegistry.findBlock(modid, name);
-		Item item = GameRegistry.findItem(modid, name);
+		Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modid, name));
+		Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, name));
 		if(item != null)
 			stack = new ItemStack(item,maxstack,damage);
 		else if(block != null)
@@ -188,7 +206,7 @@ public class LootItem implements Comparable{
 			if(minstack > maxstack)
 				minstack=maxstack;
 			
-			item = new WeightedRandomChestContent(stack, minstack, stack.stackSize, weight);
+			item = stack;
 		}
 		else
 		{
@@ -196,7 +214,7 @@ public class LootItem implements Comparable{
 		}
 	}
 			
-	public WeightedRandomChestContent getContentItem()
+	public ItemStack getContentItem()
 	{
 		return item;
 	}
@@ -213,7 +231,12 @@ public class LootItem implements Comparable{
 	
 	public int getItemWeight()
 	{
-		return item.itemWeight;
+		return itemWeight;
+	}
+	
+	public void setItemWeight(int weight)
+	{
+		itemWeight = weight;
 	}
 	
 	public boolean getGeneral()
@@ -221,14 +244,24 @@ public class LootItem implements Comparable{
 		return generalItem;
 	}
 	
+	public int getMinStack()
+	{
+		return minstack;
+	}
+	
+	public int getMaxStack()
+	{
+		return maxstack;
+	}
+	
 	public String toString()
 	{
-		return item.theItemId.toString() + ":" + minstack + ":" + maxstack + ":" + weight;
+		return item.toString() + ":" + minstack + ":" + maxstack + ":" + itemWeight;
 	}
 	
 	public LootItem copy()
 	{
-		return new LootItem(this.item, this.generalItem);
+		return new LootItem(this.item, this.modid, this.name, this.minstack, this.maxstack, this.itemWeight, this.generalItem);
 	}
 
 	@Override
@@ -236,9 +269,9 @@ public class LootItem implements Comparable{
 		if(!(loot instanceof LootItem))
 			return 0;
 		
-		if(item.itemWeight > ((LootItem)loot).getItemWeight())
+		if(itemWeight > ((LootItem)loot).getItemWeight())
 			return 1;
-		else if(item.itemWeight < ((LootItem)loot).getItemWeight())
+		else if(itemWeight < ((LootItem)loot).getItemWeight())
 			return -1;
 		else
 			return 0;

@@ -1,14 +1,22 @@
 package mal.lootbags;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.zip.GZIPOutputStream;
 
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.logging.log4j.Level;
 
-import cpw.mods.fml.common.FMLLog;
 import mal.lootbags.loot.LootItem;
 
 /**
@@ -27,7 +35,7 @@ public class LootbagsUtil {
 	{
 		LogError(message);
 		if(icommand != null)
-			icommand.addChatMessage(new ChatComponentText(message));
+			icommand.addChatMessage(new TextComponentString(message));
 	}
 	
 	public static void LogInfo(String message)
@@ -175,12 +183,56 @@ public class LootbagsUtil {
 	{
 		for(LootItem loot:list)
 		{
-			if(LootBags.areItemStacksEqualItem(loot.getContentItem().theItemId, item.getContentItem().theItemId, true, false))
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item.getContentItem(), true, false))
 				return true;
 		}
 		
 		return false;
 	}
+	
+    public static byte[] compress(NBTTagCompound p_74798_0_) throws IOException
+    {
+        ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+        DataOutputStream dataoutputstream = new DataOutputStream(new GZIPOutputStream(bytearrayoutputstream));
+
+        try
+        {
+            CompressedStreamTools.write(p_74798_0_, dataoutputstream);
+        }
+        finally
+        {
+            dataoutputstream.close();
+        }
+
+        return bytearrayoutputstream.toByteArray();
+    }
+    
+    public static ItemStack[] generateStacks(Random rand, ItemStack source, int min, int max)
+    {
+        int count = min + (rand.nextInt(max - min + 1));
+
+        ItemStack[] ret;
+        if (source.getItem() == null)
+        {
+            ret = new ItemStack[0];
+        }
+        else if (count > source.getMaxStackSize())
+        {
+            ret = new ItemStack[count];
+            for (int x = 0; x < count; x++)
+            {
+                ret[x] = source.copy();
+                ret[x].stackSize = 1;
+            }
+        }
+        else
+        {
+            ret = new ItemStack[1];
+            ret[0] = source.copy();
+            ret[0].stackSize = count;
+        }
+        return ret;
+    }
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.
