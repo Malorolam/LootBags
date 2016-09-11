@@ -5,9 +5,12 @@ import java.util.ArrayList;
 import mal.lootbags.LootBags;
 import mal.lootbags.gui.LootbagContainer;
 import mal.lootbags.gui.LootbagGui;
+import mal.lootbags.gui.OpenerContainer;
+import mal.lootbags.gui.OpenerGui;
 import mal.lootbags.gui.RecyclerContainer;
 import mal.lootbags.gui.RecyclerGui;
 import mal.lootbags.network.LootbagWrapper;
+import mal.lootbags.tileentity.TileEntityOpener;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -32,6 +35,8 @@ public class GUIHandler implements IGuiHandler{
 		}
 		if(ID==1)
 			return new RecyclerContainer(player.inventory, (TileEntityRecycler) world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID==2)
+			return new OpenerContainer(player.inventory, (TileEntityOpener)world.getTileEntity(new BlockPos(x,y,z)));
 		return null;
 	}
 
@@ -49,6 +54,8 @@ public class GUIHandler implements IGuiHandler{
 		}
 		if(ID==1)
 			return new RecyclerGui(player.inventory, (TileEntityRecycler) world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID==2)
+			return new OpenerGui(player.inventory, (TileEntityOpener)world.getTileEntity(new BlockPos(x,y,z)));
 		return null;
 	}
 

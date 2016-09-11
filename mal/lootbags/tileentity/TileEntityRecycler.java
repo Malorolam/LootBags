@@ -139,6 +139,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			if (this.inventory[i] != null)
 			{
 				NBTTagCompound var4 = new NBTTagCompound();
+				var4.setByte("Slot", (byte) i);
 				this.inventory[i].writeToNBT(var4);
 				input.appendTag(var4);
 			}

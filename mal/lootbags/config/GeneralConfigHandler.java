@@ -86,6 +86,10 @@ public class GeneralConfigHandler {
 				" reroll before it just skips the slot.  Extremely high or low numbers may result in undesired performance of the mod.");
 		LootBags.MAXREROLLCOUNT = prop.getInt();
 		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Bag Opener Cooldown", 100);
+		prop.setComment("The cooldown in ticks that the bag opener needs before it'll process again.");
+		LootBags.OPENERMAXCOOLDOWN = prop.getInt();
+		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Show Secret Bags", false);
 		prop.setComment("This if true will show all the secret bags in creative inventory or item list mods.  Kind of ruins the fun if you ask me.");
 		LootBags.SHOWSECRETBAGS = prop.getBoolean();
@@ -97,6 +101,10 @@ public class GeneralConfigHandler {
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Recycler Recipe", false);
 		prop.setComment("Disables the loot recycler from being crafted.");
 		LootBags.DISABLERECYCLER = prop.getBoolean();
+		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Opener Recipe", false);
+		prop.setComment("Disables the bag opener from being crafted.");
+		LootBags.DISABLEOPENER = prop.getBoolean();
 		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Valid Kill Methods", "All");
 		prop.setComment("Sources of entity death that are counted to determine if a bag can drop.  Allowable names: All, Player, Real.  All is any source of death, Player is any player entity including mod fake players, Real is only real players.");

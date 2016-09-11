@@ -20,7 +20,8 @@ public class CommonProxy {
         return null;
     }
 
-	public void registerRenderers() {}
+	public void registerRenderersPreInit() {}
+	public void registerRenderersInit() {}
 }
 /*******************************************************************************
  * Copyright (c) 2016 Malorolam.

@@ -12,6 +12,7 @@ import mal.lootbags.handler.BagHandler;
 import mal.lootbags.rendering.IItemVarientDetails;
 import mal.lootbags.rendering.ItemRenderingRegister;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -164,7 +165,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return inventory;
 	}
 	
-	private static void generateInventory(ItemStack is) {
+	public static void generateInventory(ItemStack is) {
 			
 			boolean gen = false;
 			if(is.getTagCompound()!=null)
@@ -267,6 +268,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 				return EnumActionResult.FAIL;
 			if(!player.isSneaking())
 				return EnumActionResult.FAIL;
+
 			TileEntity te = world.getTileEntity(pos);
 			if(te instanceof IInventory)
 			{
@@ -312,17 +314,37 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 					}
 				}
 				LootbagItem.setTagCompound(is, iss);
-				if(LootbagItem.checkInventory(is))
-				{
-					player.setHeldItem(hand, null);
-					ForgeEventFactory.onPlayerDestroyItem(player, is, hand);
-				}
-				return EnumActionResult.PASS;
+				//return EnumActionResult.PASS;
 			}
 		}
-		return EnumActionResult.PASS;
+		return EnumActionResult.SUCCESS;
 	}
 	
+    public void onUpdate(ItemStack is, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    {
+		if(entityIn instanceof EntityPlayer && LootbagItem.checkInventory(is))
+		{
+			EntityPlayer player = (EntityPlayer)entityIn;
+			if(LootBags.areItemStacksEqualItem(is, player.getHeldItemOffhand(), true, true))
+				player.inventory.offHandInventory[0]=null;
+			else
+				player.inventory.removeStackFromSlot(itemSlot);
+		}
+    }
+    
+    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
+    {
+    	if(!world.isRemote && !player.isSneaking())
+    	{
+			if(BagHandler.isBagEmpty(stack.getItemDamage()))
+				return EnumActionResult.PASS;
+			LootbagItem.generateInventory(stack);
+			player.openGui(LootBags.LootBagsInstance, 0, world, 0, 0, 0);
+    		return EnumActionResult.FAIL;
+    	}
+        return EnumActionResult.PASS;
+    }
+    
 	/**
 	 * Returns true if the stack should be removed
 	 * @param is
@@ -330,6 +352,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	 */
 	public static boolean checkInventory(ItemStack is)
 	{
+		if(is.getTagCompound()==null)
+			return false;
 		boolean gen = is.getTagCompound().getBoolean("generated");
 		if(gen)
 		{

@@ -1,11 +1,11 @@
 package mal.lootbags;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.logging.log4j.Level;
 
+import mal.lootbags.blocks.BlockOpener;
 import mal.lootbags.blocks.BlockRecycler;
 import mal.lootbags.config.BagConfigHandler;
 import mal.lootbags.config.GeneralConfigHandler;
@@ -16,27 +16,19 @@ import mal.lootbags.handler.ItemDumpCommand;
 import mal.lootbags.handler.LootSourceCommand;
 import mal.lootbags.handler.MobDropHandler;
 import mal.lootbags.handler.NBTPullCommand;
-import mal.lootbags.item.LootbagColor;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootMap;
+import mal.lootbags.loot.LootRecipe;
 import mal.lootbags.network.CommonProxy;
 import mal.lootbags.network.LootbagsPacketHandler;
+import mal.lootbags.tileentity.TileEntityOpener;
 import mal.lootbags.tileentity.TileEntityRecycler;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
-import net.minecraft.util.WeightedRandom;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
@@ -49,15 +41,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.1a";
+	public static final String VERSION = "2.1.0";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -93,6 +83,8 @@ public class LootBags {
 	public static double RECYCLERVALUENONSTACK = 1.0;
 	public static double RECYCLERVALUESTACK = 8.0;
 	
+	public static int OPENERMAXCOOLDOWN = 100;
+	
 	public static boolean PREVENTMERGEDBAGS = false;
 	
 	public static String[] LOOTCATEGORYLIST = null;
@@ -102,6 +94,7 @@ public class LootBags {
 	private HashMap<String,Integer> totalvaluemap = new HashMap<String,Integer>();
 	
 	public static boolean DISABLERECYCLER = false;
+	public static boolean DISABLEOPENER = false;
 	
 	public static LootMap LOOTMAP;
 	
@@ -114,6 +107,7 @@ public class LootBags {
 
 	public static LootbagItem lootbagItem;
 	public static BlockRecycler recyclerBlock;
+	public static BlockOpener openerBlock;
 
 	@Instance(value = LootBags.MODID)
 	public static LootBags LootBagsInstance;
@@ -124,7 +118,7 @@ public class LootBags {
 		MinecraftForge.EVENT_BUS.register(handler);
 		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, new GUIHandler());
 		
-		FMLLog.log(Level.INFO, "Your current LootBags version is: " + this.VERSION);
+		FMLLog.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION);
 		
 		GeneralConfigHandler.loadConfig(event);
 		bagconfig = new BagConfigHandler(event);
@@ -134,6 +128,7 @@ public class LootBags {
 		
 		lootbagItem = new LootbagItem();
 		recyclerBlock = new BlockRecycler();
+		openerBlock = new BlockOpener();
 		
 		if(CHESTQUALITYWEIGHT <= 0)
 		{
@@ -145,6 +140,12 @@ public class LootBags {
 		{
 			LootbagsUtil.LogInfo("Reroll count has to be at least 1 (fancy error prevention stuff)");
 			MAXREROLLCOUNT=1;
+		}
+		
+		if(OPENERMAXCOOLDOWN<0)
+		{
+			LootbagsUtil.LogInfo("Negative cooldown is not possible, setting it to 0.");
+			OPENERMAXCOOLDOWN=0;
 		}
 		
 		if(TOTALVALUEMULTIPLIER<=0.0)
@@ -177,27 +178,22 @@ public class LootBags {
 			RECYCLERVALUENUMERATOR = 1.0;
 		}
 		
-		this.prox.registerRenderers();
+		LootBags.prox.registerRenderersPreInit();
 	}
 
 	@EventHandler
 	public void Init(FMLInitializationEvent event) {
 		
-		if(event.getSide() == Side.CLIENT)
-		{
-			RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();
-			
-			renderItem.getItemModelMesher().register(Item.getItemFromBlock(recyclerBlock), 0, new ModelResourceLocation(LootBags.MODID + ":" + recyclerBlock.getName(), "inventory"));
-		}
-		
-		ItemColors color = Minecraft.getMinecraft().getItemColors();
-		color.registerItemColorHandler(new LootbagColor(), lootbagItem);
+		LootBags.prox.registerRenderersInit();
 	}
 	
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		
-		GameRegistry.registerTileEntity(TileEntityRecycler.class, "tileentityrecycler");
+		GameRegistry.registerTileEntity(TileEntityRecycler.class, "lootbags_tileentityrecycler");
+		GameRegistry.registerTileEntity(TileEntityOpener.class, "lootbags_tileentityopener");
+		
+		RecipeSorter.register("lootbags:lootrecipe", LootRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
 		
 		LOOTMAP = new LootMap();
 		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
@@ -209,24 +205,12 @@ public class LootBags {
 		if(!DISABLERECYCLER)
 			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
 		
+		if(!DISABLEOPENER)
+			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(openerBlock), new Object[]{"SIS", "SCS", "SSS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
+		
 		BagHandler.generateBagRecipes(CraftingManager.getInstance().getRecipeList());
 		
-/*		//TODO: fix
-		if(LOOTBAGINDUNGEONLOOT.length>0)
-		{
-			WeightedRandomChestContent con = new WeightedRandomChestContent(new ItemStack(lootbagItem, 1, 0), 1, 1, CHESTQUALITYWEIGHT);
-			for(String s:LOOTBAGINDUNGEONLOOT)
-			{
-				ChestGenHooks.addItem(s, con);
-			}
-		}*/
 	}
-	
-/*	@EventHandler
-	public void lootLoad(LootTableLoadEvent event)
-	{
-		
-	}*/
 	
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
@@ -236,6 +220,7 @@ public class LootBags {
 			LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 			BagHandler.populateBagLists();
 			LOOTMAP.setTotalListWeight();
+			LootbagsUtil.LogInfo("Completed on-load tasks.");
 			HASLOADED = true;
 		}
 		
@@ -244,11 +229,6 @@ public class LootBags {
 		event.registerServerCommand(new NBTPullCommand());
 		event.registerServerCommand(new ConfigReloadCommand());
 	}
-	
-/*	public static ArrayList<ItemStack> getLootbagDropList()
-	{
-		return LOOTMAP.getMapAsList();
-	}*/
 	
 	/**
 	 * Checks to see if an item can be dropped by a lootbag

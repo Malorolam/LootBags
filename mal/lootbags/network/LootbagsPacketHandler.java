@@ -1,6 +1,7 @@
 package mal.lootbags.network;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.network.message.OpenerMessageServer;
 import mal.lootbags.network.message.RecyclerMessageServer;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -12,6 +13,7 @@ public class LootbagsPacketHandler {
 	public static void init()
 	{
 		instance.registerMessage(RecyclerMessageServer.class, RecyclerMessageServer.class, 0, Side.CLIENT);
+		instance.registerMessage(OpenerMessageServer.class, OpenerMessageServer.class, 1, Side.CLIENT);
 	}
 }
 /*******************************************************************************

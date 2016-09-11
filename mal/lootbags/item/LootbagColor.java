@@ -4,7 +4,10 @@ import mal.lootbags.Bag;
 import mal.lootbags.handler.BagHandler;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class LootbagColor implements IItemColor {
 
 	@Override
