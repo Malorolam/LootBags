@@ -339,10 +339,7 @@ public class LootMap {
 					LootEntryItem lloot = (LootEntryItem) loot;
 					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
 					int weight = LootEntryItemAccess.getLootEntryItemWeight(lloot);
-					RandomValueRange range = null;
-					try {
-						range = LootEntryItemAccess.getStackSizes(lloot);
-					} catch(Exception e) {	}
+					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
 					int minstack;
 					int maxstack;
 					if(range != null)

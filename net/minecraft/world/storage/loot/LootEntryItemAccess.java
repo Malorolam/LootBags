@@ -53,7 +53,7 @@ public class LootEntryItemAccess {
 					RandomValueRange range = (RandomValueRange)countRangeField.get(lootfunction);
 					return range;
 				} catch (Exception e) {
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}
 		}
