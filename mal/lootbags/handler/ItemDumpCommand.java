@@ -117,7 +117,7 @@ public class ItemDumpCommand implements ICommand{
 
 	@Override
 	public int compareTo(ICommand o) {
-		return 0;
+		return this.getCommandName().compareTo(o.getCommandName());
 	}
 
 	@Override

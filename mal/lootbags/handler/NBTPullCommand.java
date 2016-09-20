@@ -62,8 +62,8 @@ public class NBTPullCommand implements ICommand{
 	}
 
 	@Override
-	public int compareTo(ICommand arg0) {
-		return 0;
+	public int compareTo(ICommand o) {
+		return this.getCommandName().compareTo(o.getCommandName());
 	}
 
 	@Override
