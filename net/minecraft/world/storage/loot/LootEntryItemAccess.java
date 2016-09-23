@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 
 import mal.lootbags.LootBags;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraft.world.storage.loot.functions.SetCount;
 import net.minecraft.world.storage.loot.functions.SetDamage;
@@ -20,20 +21,12 @@ public class LootEntryItemAccess {
 		return item.weight;
 	}
 	
-	public static ItemStack getLootEntryItemStack(LootEntryItem item)
+	public static ItemStack getLootEntryItemStack(LootEntryItem item, LootContext context)
 	{
 		ItemStack itemstack = new ItemStack(item.item);
 		int i = 0;
 
-        for (int j = item.functions.length; i < j; ++i)
-        {
-            LootFunction lootfunction = item.functions[i];
-
-            if(lootfunction instanceof SetDamage || lootfunction instanceof SetMetadata || lootfunction instanceof SetNBT)
-            {
-            	lootfunction.apply(itemstack, LootBags.getRandom(), null);
-            }
-        }
+        //applyFunctions(item, itemstack, context);
 
         return itemstack;
 	}
@@ -58,6 +51,17 @@ public class LootEntryItemAccess {
 			}
 		}
 		return null;
+	}
+	
+	public static void applyFunctions(LootEntryItem item, ItemStack stack, LootContext context)
+	{
+		for (LootFunction lootfunction : item.functions)
+        {
+            if (LootConditionManager.testAllConditions(lootfunction.getConditions(), LootBags.getRandom(), context))
+            {
+                stack = lootfunction.apply(stack, LootBags.getRandom(), context);
+            }
+        }
 	}
 }
 /*******************************************************************************

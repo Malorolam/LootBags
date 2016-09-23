@@ -106,6 +106,10 @@ public class GeneralConfigHandler {
 		prop.setComment("Disables the bag opener from being crafted.");
 		LootBags.DISABLEOPENER = prop.getBoolean();
 		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Verbose Mode", true);
+		prop.setComment("Setting this to false will disable many of the info messages, only showing errors in the log.");
+		LootBags.VERBOSEMODE = prop.getBoolean();
+		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Valid Kill Methods", "All");
 		prop.setComment("Sources of entity death that are counted to determine if a bag can drop.  Allowable names: All, Player, Real.  All is any source of death, Player is any player entity including mod fake players, Real is only real players.");
 		String method = prop.getString();

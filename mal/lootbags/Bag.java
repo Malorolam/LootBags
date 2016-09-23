@@ -69,7 +69,7 @@ public class Bag {
 				item.reinitializeLootItem();
 			if(item.getContentItem()==null)//if it's still null, it's not my fault now
 			{
-				LootbagsUtil.LogError("Blacklisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probably caused by the item not being initilized and added to the Forge registry before the PostInit event when this code runs.");
+				LootbagsUtil.LogError("Blacklisted Content Item " + item.getItemModID() + ":" + item.getItemName() + " is NULL.  This is a major problem, probably caused by the item not being initilized and added to the Forge registry before the ServerStarted event when this code runs.");
 				nullClear.add(item);
 			}
 		}
@@ -82,7 +82,7 @@ public class Bag {
 			{
 				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
 				map.put(key, item);
-				bagMapWeight += item.getItemWeight();
+				//bagMapWeight += item.getItemWeight();
 			}
 		}
 		
@@ -98,12 +98,12 @@ public class Bag {
 					key += item.getContentItem().getTagCompound().toString();
 				if(map.containsKey(key))
 				{
-					bagMapWeight -= map.get(key).getItemWeight();
+					//bagMapWeight -= map.get(key).getItemWeight();
 					map.remove(key);//remove the existing entry to overwrite it with the whitelisted version
 				}
 				
 				map.put(key, item);
-				bagMapWeight += item.getItemWeight();
+				//bagMapWeight += item.getItemWeight();
 				
 				//key += this.bagName;
 				if(!LootBags.LOOTMAP.totalList.containsKey(key))
@@ -119,12 +119,27 @@ public class Bag {
 			}
 		}
 		
-/*		System.out.println("Bag ID: " + bagIndex);
-		System.out.println(bagMapWeight);
+		int average = 0;
+		int count = 0;
 		for(LootItem item: map.values())
 		{
-			System.out.println(item.toString());
-		}*/
+			if(item.getItemWeight() > average*10 && average > 0)
+				item.setItemWeight(average*10);
+			
+			bagMapWeight += item.getItemWeight();
+			count++;
+			average = bagMapWeight/count;
+		}
+		
+		if(bagMapWeight <= 0)
+			bagIsEmpty = true;
+		
+		LootbagsUtil.LogInfo("Bag ID: " + bagIndex);
+		LootbagsUtil.LogInfo("Bag Weight: " + bagMapWeight);
+		for(LootItem item: map.values())
+		{
+			LootbagsUtil.LogInfo(item.toString());
+		}
 	}
 	
 	public ItemStack getRandomItem()
@@ -144,7 +159,7 @@ public class Bag {
 			if(item == null)
 				return null;
 			
-			ItemStack[] stacks = LootbagsUtil.generateStacks(LootBags.getRandom(), item.getContentItem(), item.getMinStack(), item.getMaxStack());
+			ItemStack[] stacks = LootbagsUtil.generateStacks(LootBags.getRandom(), item, item.getMinStack(), item.getMaxStack());
 			return (stacks.length > 0 ? stacks[0] : null);
 		}
 		LootbagsUtil.LogError("Failed to get random item: Bag loot table or total weight <= 0.  This probably means this bag's config information is messed up somehow.");
@@ -167,7 +182,7 @@ public class Bag {
 	{
 		for(Integer dam: damage)
 		{
-			LootItem item = new LootItem(modid, itemname, dam, minstack, maxstack, weight, false);
+			LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, false);
 			BagWhitelist.add(item);
 			//System.out.println(item.toString());
 		}
@@ -177,7 +192,7 @@ public class Bag {
 	{
 		for(Integer dam: damage)
 		{
-			LootItem item = new LootItem(modid, itemname, dam, minstack, maxstack, weight, nbt, false);
+			LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, nbt, false);
 			BagWhitelist.add(item);
 		}
 	}
@@ -191,7 +206,7 @@ public class Bag {
 	{
 		for(Integer dam: damage)
 		{
-			LootItem item = new LootItem(modid, itemname, dam, 1, 1, 1, false);
+			LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
 			BagBlacklist.add(item);
 		}
 	}

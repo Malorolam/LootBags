@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.storage.loot.LootEntryItemAccess;
 import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.logging.log4j.Level;
@@ -40,7 +41,8 @@ public class LootbagsUtil {
 	
 	public static void LogInfo(String message)
 	{
-		FMLLog.log(Level.INFO, "[LOOTBAGS]: " + message);
+		if(LootBags.VERBOSEMODE)
+			FMLLog.log(Level.INFO, "[LOOTBAGS]: " + message);
 	}
 	
 	public static ArrayList<Integer> constructDamageRange(String word)
@@ -207,9 +209,11 @@ public class LootbagsUtil {
         return bytearrayoutputstream.toByteArray();
     }
     
-    public static ItemStack[] generateStacks(Random rand, ItemStack source, int min, int max)
+    public static ItemStack[] generateStacks(Random rand, LootItem lootitem, int min, int max)
     {
         int count = min + (rand.nextInt(max - min + 1));
+        ItemStack source = lootitem.getContentItem().copy();
+        LootEntryItemAccess.applyFunctions(lootitem.getLootItem(), source, LootBags.LOOTMAP.getContext());
 
         ItemStack[] ret;
         if (source.getItem() == null)
@@ -228,7 +232,7 @@ public class LootbagsUtil {
         else
         {
             ret = new ItemStack[1];
-            ret[0] = source.copy();
+            ret[0] = source;
             ret[0].stackSize = count;
         }
         return ret;

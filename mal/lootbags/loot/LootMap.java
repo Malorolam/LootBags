@@ -14,6 +14,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
+import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootEntry;
 import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraft.world.storage.loot.LootEntryItemAccess;
@@ -36,6 +38,8 @@ public class LootMap {
 	public HashMap<String, LootItem> totalList;
 	public ArrayList<LootItem> recyclerBlacklist;
 	public ArrayList<LootItem> recyclerWhitelist;
+	
+	private LootContext context;
 	
 	private int generalTotalWeight;
 	
@@ -79,7 +83,7 @@ public class LootMap {
 						
 						for(Integer dam: itemdamage)
 						{
-							LootItem item = new LootItem(modid, itemname, dam, 1, 1, 1, false);
+							LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
 							recyclerBlacklist.add(item);
 							LootbagsUtil.LogInfo("Added General Recycler Blacklist Item: " + item.toString());
 						}
@@ -117,7 +121,7 @@ public class LootMap {
 					
 						for(Integer dam: itemdamage)
 						{
-							LootItem item = new LootItem(modid, itemname, dam, 1, 1, weight, false);
+							LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, weight, false);
 							recyclerWhitelist.add(item);
 							LootbagsUtil.LogInfo("Added General Recycler Whitelist Item: " + item.toString());
 						}
@@ -137,7 +141,7 @@ public class LootMap {
 					
 					for(Integer dam: itemdamage)
 					{
-						LootItem item = new LootItem(modid, itemname, dam, 1, 1, weight, nbt, false);
+						LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, weight, nbt, false);
 						generalWhitelist.add(item);
 						LootbagsUtil.LogInfo("Added General Recycler Whitelist Item with NBT: " + item.toString());
 					}
@@ -179,7 +183,7 @@ public class LootMap {
 						
 						for(Integer dam: itemdamage)
 						{
-							LootItem item = new LootItem(modid, itemname, dam, 1, 1, 1, false);
+							LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
 							generalBlacklist.add(item);
 							LootbagsUtil.LogInfo("Added General Blacklist Item: " + item.toString());
 						}
@@ -219,7 +223,7 @@ public class LootMap {
 					
 						for(Integer dam: itemdamage)
 						{
-							LootItem item = new LootItem(modid, itemname, dam, minstack, maxstack, weight, false);
+							LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, false);
 							generalWhitelist.add(item);
 							LootbagsUtil.LogInfo("Added General Whitelist Item: " + item.toString());
 						}
@@ -241,7 +245,7 @@ public class LootMap {
 					
 					for(Integer dam: itemdamage)
 					{
-						LootItem item = new LootItem(modid, itemname, dam, minstack, maxstack, weight, nbt, false);
+						LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, nbt, false);
 						generalWhitelist.add(item);
 						LootbagsUtil.LogInfo("Added General Whitelist Item with NBT: " + item.toString());
 					}
@@ -263,6 +267,7 @@ public class LootMap {
 	 */
 	public void populateGeneralMap(World world)
 	{
+		context = new LootContext(0, (WorldServer) world, world.getLootTableManager(), null, null, null);
 		//loot sources
 		for(ResourceLocation source: generalLootSources)
 		{
@@ -337,7 +342,7 @@ public class LootMap {
 				if(loot instanceof LootEntryItem)
 				{
 					LootEntryItem lloot = (LootEntryItem) loot;
-					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
+					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot, context);
 					int weight = LootEntryItemAccess.getLootEntryItemWeight(lloot);
 					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
 					int minstack;
@@ -353,16 +358,22 @@ public class LootMap {
 						maxstack = 1;
 					}
 					
-					LootItem item = new LootItem(stack, minstack, maxstack, weight, true);
+					LootItem item=null;
 					boolean skip = false;
+					if(stack==null)
+					{
+						skip = true;
+						LootbagsUtil.LogInfo("Found a null item in the loot table, skipping it.");
+					}
+					else
+						item = new LootItem(lloot, stack, minstack, maxstack, weight, true);
 					//Do some fixing to prevent <1 errors in the bags
-					if(item.getItemWeight() < 1)
+					if(item != null && item.getItemWeight() < 1)
 					{
 						LootbagsUtil.LogError("Item " + item.getContentItem().toString() + " has a weighting of " + item.getItemWeight() + ".  This is not a Lootbags error but an error in a different mod!  "
 								+ "This item will be excluded from the Lootbags loot table.");
-//						ChestGenHooks.removeItem(categoryName, c.theItemId);
 					}
-					else
+					else if(!skip)
 					{
 					
 						for(String modid:generalModBlacklist)
@@ -398,7 +409,7 @@ public class LootMap {
 							{
 								LootItem it = generalMap.get(key);
 								int wweight = it.getItemWeight();
-								wweight = (wweight+item.itemWeight)/2;
+								wweight = (wweight+item.getItemWeight())/2;
 								it.setItemWeight(wweight);
 								generalMap.put(key, it);
 								//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
@@ -461,6 +472,11 @@ public class LootMap {
 	{
 		for(int i = 0; i < sources.length; i++)
 			generalLootSources.add(new ResourceLocation(sources[i]));
+	}
+	
+	public LootContext getContext()
+	{
+		return context;
 	}
 }
 /*******************************************************************************

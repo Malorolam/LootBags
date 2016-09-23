@@ -38,6 +38,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -47,7 +48,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.1.1";
+	public static final String VERSION = "2.1.2";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -65,6 +66,7 @@ public class LootBags {
 	
 	public static boolean SHOWSECRETBAGS = true;//shows the secret bags in NEI/creative inventory
 	private static boolean HASLOADED = false;//if the table has been loaded or not yet
+	public static boolean VERBOSEMODE = true;//controls a lot of the non-critical log messages
 	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;
@@ -214,6 +216,15 @@ public class LootBags {
 	
 	@EventHandler
 	public void serverLoad(FMLServerStartingEvent event)
+	{
+		event.registerServerCommand(new ItemDumpCommand());
+		event.registerServerCommand(new LootSourceCommand());
+		event.registerServerCommand(new NBTPullCommand());
+		event.registerServerCommand(new ConfigReloadCommand());
+	}
+	
+	@EventHandler
+	public void serverLoaded(FMLServerStartedEvent event)
 	{		
 		if(!HASLOADED)
 		{
@@ -223,11 +234,6 @@ public class LootBags {
 			LootbagsUtil.LogInfo("Completed on-load tasks.");
 			HASLOADED = true;
 		}
-		
-		event.registerServerCommand(new ItemDumpCommand());
-		event.registerServerCommand(new LootSourceCommand());
-		event.registerServerCommand(new NBTPullCommand());
-		event.registerServerCommand(new ConfigReloadCommand());
 	}
 	
 	/**

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 import org.apache.logging.log4j.Level;
 
 import mal.lootbags.LootbagsUtil;
@@ -19,6 +21,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
+import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -27,6 +30,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	private ItemStack item;
 	private String modid;
 	private String name;
+	private LootEntryItem lootitem;
 	private int damage;
 	private int minstack;
 	private int maxstack;
@@ -36,11 +40,12 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	
 	/**
 	 * The new LootItem, moved to the correct package, there is now no fixed loot sources, so this is just in whichever list is needed
-	 * now it's more of a wrapper to be able to construct weightedrandomchestcontent objects cleanly
+	 * now it's more of a wrapper to be able to construct loot objects cleanly
 	 */
-	public LootItem(ItemStack item, String modid, String itemname, int minstack, int maxstack, int weight, boolean isgeneral)
+	public LootItem(@Nullable LootEntryItem lootitem, ItemStack item, String modid, String itemname, int minstack, int maxstack, int weight, boolean isgeneral)
 	{
 		super(weight);
+		this.lootitem = lootitem;
 		this.item = item;
 		this.modid = modid;
 		this.name = itemname;
@@ -52,13 +57,14 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 			if(item.getTagCompound() != null)
 				this.nbt=LootbagsUtil.compress(item.getTagCompound());
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	
-	public LootItem(ItemStack item, int minstack, int maxstack, int weight, boolean isgeneral)
+	public LootItem(@Nullable LootEntryItem lootitem, ItemStack item, int minstack, int maxstack, int weight, boolean isgeneral)
 	{
 		super(weight);
+		this.lootitem = lootitem;
 		this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
 		this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
 		this.item = item;
@@ -70,16 +76,17 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 			if(item.getTagCompound() != null)
 				this.nbt=LootbagsUtil.compress(item.getTagCompound());
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	
 	/**
 	 * General method with base values
 	 */
-	public LootItem(String modid, String itemname, int damage, int minstack, int maxstack, int weight, boolean isgeneral)
+	public LootItem(@Nullable LootEntryItem lootitem, String modid, String itemname, int damage, int minstack, int maxstack, int weight, boolean isgeneral)
 	{
 		super(weight);
+		this.lootitem = lootitem;
 		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, itemname)), 1);
 		this.modid = modid;
 		this.name = itemname;
@@ -112,9 +119,10 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	/**
 	 * General method using NBT
 	*/
-	public LootItem(String modid, String itemname, int damage, int minstack, int maxstack, int weight, byte[] nbt, boolean isgeneral)
+	public LootItem(@Nullable LootEntryItem lootitem, String modid, String itemname, int damage, int minstack, int maxstack, int weight, byte[] nbt, boolean isgeneral)
 	{
 		super(weight);
+		this.lootitem = lootitem;
 		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, itemname)), 1);
 		this.modid = modid;
 		this.name = itemname;
@@ -254,6 +262,11 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 		return maxstack;
 	}
 	
+	public LootEntryItem getLootItem()
+	{
+		return lootitem;
+	}
+	
 	public String toString()
 	{
 		return item.toString() + ":" + minstack + ":" + maxstack + ":" + itemWeight;
@@ -261,7 +274,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	
 	public LootItem copy()
 	{
-		return new LootItem(this.item, this.modid, this.name, this.minstack, this.maxstack, this.itemWeight, this.generalItem);
+		return new LootItem(this.lootitem, this.item, this.modid, this.name, this.minstack, this.maxstack, this.itemWeight, this.generalItem);
 	}
 
 	@Override

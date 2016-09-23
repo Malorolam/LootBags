@@ -99,13 +99,13 @@ public class BagHandler {
 		ArrayList<LootItem> list = new ArrayList<LootItem>();
 		for(LootItem c : collection)
 		{
-			if(c.getContentItem().getItem() instanceof ItemEnchantedBook && c.getGeneral())
+/*			if(c.getContentItem().getItem() instanceof ItemEnchantedBook && c.getGeneral())
 			{
 				LootItem original = c.copy();
 				ItemStack s = c.getContentItem();
-				EnchantmentHelper.addRandomEnchantment(LootBags.getRandom(), s, 30, true);
-				c = new LootItem(s, original.getItemModID(), original.getItemName(), original.getMinStack(), original.getMaxStack(), original.getItemWeight(), original.getGeneral());
-			}
+				ItemStack ss = EnchantmentHelper.addRandomEnchantment(LootBags.getRandom(), s, 30, true);
+				c = new LootItem(original.getLootItem(), ss, original.getItemModID(), original.getItemName(), original.getMinStack(), original.getMaxStack(), original.getItemWeight(), original.getGeneral());
+			}*/
 			list.add(c);
 		}
 		return list;
