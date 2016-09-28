@@ -48,7 +48,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.1.2";
+	public static final String VERSION = "2.1.3";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -67,6 +67,7 @@ public class LootBags {
 	public static boolean SHOWSECRETBAGS = true;//shows the secret bags in NEI/creative inventory
 	private static boolean HASLOADED = false;//if the table has been loaded or not yet
 	public static boolean VERBOSEMODE = true;//controls a lot of the non-critical log messages
+	public static boolean DEBUGMODE = false;//controls even more messages displaying in the log
 	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;

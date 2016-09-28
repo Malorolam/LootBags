@@ -55,6 +55,9 @@ public class LootEntryItemAccess {
 	
 	public static void applyFunctions(LootEntryItem item, ItemStack stack, LootContext context)
 	{
+		if(item == null)
+			return;
+		
 		for (LootFunction lootfunction : item.functions)
         {
             if (LootConditionManager.testAllConditions(lootfunction.getConditions(), LootBags.getRandom(), context))

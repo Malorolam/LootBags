@@ -134,11 +134,14 @@ public class Bag {
 		if(bagMapWeight <= 0)
 			bagIsEmpty = true;
 		
-		LootbagsUtil.LogInfo("Bag ID: " + bagIndex);
-		LootbagsUtil.LogInfo("Bag Weight: " + bagMapWeight);
-		for(LootItem item: map.values())
+		if(LootBags.DEBUGMODE)
 		{
-			LootbagsUtil.LogInfo(item.toString());
+			LootbagsUtil.LogDebug("Bag ID: " + bagIndex);
+			LootbagsUtil.LogDebug("Bag Weight: " + bagMapWeight);
+			for(LootItem item: map.values())
+			{
+				LootbagsUtil.LogDebug(item.toString());
+			}
 		}
 	}
 	

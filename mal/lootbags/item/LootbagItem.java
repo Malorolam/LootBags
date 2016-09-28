@@ -334,7 +334,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
     
     public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
-    	if(!world.isRemote && !player.isSneaking())
+    	if(!world.isRemote && !player.isSneaking() && world.getTileEntity(pos)==null)
     	{
 			if(BagHandler.isBagEmpty(stack.getItemDamage()))
 				return EnumActionResult.PASS;

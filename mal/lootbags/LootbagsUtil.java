@@ -45,6 +45,12 @@ public class LootbagsUtil {
 			FMLLog.log(Level.INFO, "[LOOTBAGS]: " + message);
 	}
 	
+	public static void LogDebug(String message)
+	{
+		if(LootBags.DEBUGMODE)
+			FMLLog.log(Level.DEBUG, "[LOOTBAGS]: " + message);
+	}
+	
 	public static ArrayList<Integer> constructDamageRange(String word)
 	{
 		//construct the damage values from the syntax, & between two numbers indicates inclusive and # indicates
