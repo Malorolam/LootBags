@@ -94,7 +94,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
     	}
     }
 
-	private ArrayList<String> parseTextCommand(String text, Bag currentBag)
+	public static ArrayList<String> parseTextCommand(String text, Bag currentBag)
 	{
 		String sret = "";
 		if(currentBag==null)

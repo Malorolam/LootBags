@@ -145,7 +145,11 @@ public class BagHandler {
 						c[j] = new ItemStack(LootBags.lootbagItem, 1, source.getBagIndex());
 					}
 					
-					recipeList.add(new LootRecipe(b.getBagItem(), c));
+					Object[] d = new Object[1];
+					d[0] = new ItemStack(LootBags.lootbagItem, 1, b.getBagIndex());
+					
+					recipeList.add(new LootRecipe(b.getBagItem(), c));//source to bag
+					recipeList.add(new LootRecipe(new ItemStack(LootBags.lootbagItem, bagsneeded, source.getBagIndex()), d));//bag to source
 				}
 			}
 		}

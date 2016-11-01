@@ -21,13 +21,9 @@ public class LootEntryItemAccess {
 		return item.weight;
 	}
 	
-	public static ItemStack getLootEntryItemStack(LootEntryItem item, LootContext context)
+	public static ItemStack getLootEntryItemStack(LootEntryItem item)
 	{
 		ItemStack itemstack = new ItemStack(item.item);
-		int i = 0;
-
-        //applyFunctions(item, itemstack, context);
-
         return itemstack;
 	}
 	

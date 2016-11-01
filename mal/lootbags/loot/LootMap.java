@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
+import mal.core.util.FakeWorld;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.item.ItemEnchantedBook;
@@ -267,7 +270,6 @@ public class LootMap {
 	 */
 	public void populateGeneralMap(World world)
 	{
-		context = new LootContext(0, (WorldServer) world, world.getLootTableManager(), null, null, null);
 		//loot sources
 		for(ResourceLocation source: generalLootSources)
 		{
@@ -332,7 +334,7 @@ public class LootMap {
 		Field lootListField = LootPool.class.getDeclaredField(entryname);
 		lootListField.setAccessible(true);
 		
-		LootTable table = world.getLootTableManager().getLootTableFromLocation(categoryName);
+		LootTable table = LootbagsUtil.getLootManager(world).getLootTableFromLocation(categoryName);
 		List<LootPool> poolList = (List<LootPool>)poolListField.get(table);
 		for(LootPool pool:poolList)
 		{
@@ -342,7 +344,7 @@ public class LootMap {
 				if(loot instanceof LootEntryItem)
 				{
 					LootEntryItem lloot = (LootEntryItem) loot;
-					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot, context);
+					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
 					int weight = LootEntryItemAccess.getLootEntryItemWeight(lloot);
 					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
 					int minstack;
@@ -477,6 +479,11 @@ public class LootMap {
 	public LootContext getContext()
 	{
 		return context;
+	}
+	
+	public void setContext(@Nullable WorldServer world)
+	{
+		context = new LootContext(0, world, LootbagsUtil.getLootManager(world), null, null, null);
 	}
 }
 /*******************************************************************************

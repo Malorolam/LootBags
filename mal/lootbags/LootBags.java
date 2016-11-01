@@ -17,6 +17,7 @@ import mal.lootbags.handler.LootSourceCommand;
 import mal.lootbags.handler.MobDropHandler;
 import mal.lootbags.handler.NBTPullCommand;
 import mal.lootbags.item.LootbagItem;
+import mal.lootbags.jei.LootRegistry;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootMap;
 import mal.lootbags.loot.LootRecipe;
@@ -205,6 +206,11 @@ public class LootBags {
 		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		
+		LOOTMAP.populateGeneralMap(null);//FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
+		BagHandler.populateBagLists();
+		LOOTMAP.setTotalListWeight();
+		LootbagsUtil.LogInfo("Completed on-load tasks.");
+		
 		if(!DISABLERECYCLER)
 			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
 		
@@ -212,6 +218,7 @@ public class LootBags {
 			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(openerBlock), new Object[]{"SIS", "SCS", "SSS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
 		
 		BagHandler.generateBagRecipes(CraftingManager.getInstance().getRecipeList());
+		LootRegistry.getInstance();
 		
 	}
 	
@@ -222,9 +229,10 @@ public class LootBags {
 		event.registerServerCommand(new LootSourceCommand());
 		event.registerServerCommand(new NBTPullCommand());
 		event.registerServerCommand(new ConfigReloadCommand());
+		this.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 	}
 	
-	@EventHandler
+/*	@EventHandler
 	public void serverLoaded(FMLServerStartedEvent event)
 	{		
 		if(!HASLOADED)
@@ -235,7 +243,7 @@ public class LootBags {
 			LootbagsUtil.LogInfo("Completed on-load tasks.");
 			HASLOADED = true;
 		}
-	}
+	}*/
 	
 	/**
 	 * Checks to see if an item can be dropped by a lootbag

@@ -2,22 +2,30 @@ package mal.lootbags;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPOutputStream;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.translation.I18n;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.loot.LootEntryItemAccess;
+import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.fml.common.FMLLog;
 
 import org.apache.logging.log4j.Level;
 
+import mal.core.util.FakeWorld;
 import mal.lootbags.loot.LootItem;
 
 /**
@@ -242,6 +250,26 @@ public class LootbagsUtil {
             ret[0].stackSize = count;
         }
         return ret;
+    }
+    
+    public static String translateToLocal(String text)
+    {
+    	return I18n.translateToLocal(text);
+    }
+    
+    private static LootTableManager manager;
+    public static LootTableManager getLootManager(@Nullable World world)
+    {
+    	if(world == null || world.getLootTableManager() == null)
+    	{
+    		if(manager == null)
+    		{
+    			ISaveHandler saveHandler = FakeWorld.saves;
+    			manager = new LootTableManager(new File(new File(saveHandler.getWorldDirectory(), "data"), "loot_tables"));
+    		}
+    		return manager;
+    	}
+    	return world.getLootTableManager();
     }
 }
 /*******************************************************************************
