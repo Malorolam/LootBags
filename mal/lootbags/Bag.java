@@ -36,7 +36,7 @@ public class Bag {
 	private boolean entityExclusionToggle=false;//false has the list act as a blacklist, true is as a whitelist
 	private boolean useGeneralLootTable=false;//use the general table or not
 	private boolean isSecret = false;//determines if the bag shows up in creative inventory or not
-	private int preventItemRepeats=0;//prevent an item from showing up multiple times, 1 to block the same damage, 2 to block same item class
+	private int preventItemRepeats=0;//prevent an item from showing up multiple times, 1 to block the same damage, 2 to block same item class, 3 to pick the first n items in the list with no shuffling
 	private int bagMapWeight = 0;//total weight of the items in the bag
 	private boolean bagIsEmpty = false;//should never be true
 	private String sourceBagName=null;//the unlocalized name of the bag that crafts into this one, the number is determined when the recipe is added
@@ -96,6 +96,8 @@ public class Bag {
 				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
 				if(item.getContentItem().getItem() instanceof ItemEnchantedBook && item.getContentItem().hasTagCompound())//a specific enchanted book
 					key += item.getContentItem().getTagCompound().toString();
+				if(this.getItemRepeats()==3)//fixed list
+					key += BagWhitelist.indexOf(item);
 				if(map.containsKey(key))
 				{
 					//bagMapWeight -= map.get(key).getItemWeight();

@@ -1,6 +1,7 @@
 package mal.lootbags.jei;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -20,7 +21,6 @@ import mezz.jei.api.recipe.IFocus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
-import scala.actors.threadpool.Arrays;
 
 public class LootWrapper extends BlankRecipeWrapper{
 
@@ -59,14 +59,23 @@ public class LootWrapper extends BlankRecipeWrapper{
 	 * 
 	 * @param slot starting slot
 	 * @param slots total number of visible slots, to double up the displayed items
+	 * @param pages number of pages the items need to show up
 	 * @return
 	 */
 	public List<ItemStack> getItems(int slot, int slots)
 	{
-		List<ItemStack> list = this.loot.getItemStacks().subList(slot, slot+1);
-		for(int i = 0; i< (amountOfItems()/slots)+1; i++)
+		List<ItemStack> list = new ArrayList<ItemStack>(this.loot.getItemStacks().subList(slot, slot+1));
+		for(int i = 0; i< ((int)Math.ceil((double)amountOfItems()/slots)); i++)
 			list.add(this.amountOfItems() <= slot+slots*i ? null : this.loot.getItemStacks().get(slot+slots*i));
-		list.removeIf(Objects::isNull);
+		//list.removeIf(Objects::isNull);
+		for(int i = 0; i < list.size()-1; i++)
+		{
+			if(list.get(i) == null && list.get(i+1)==null)
+			{
+				list.remove(i);
+				list.remove(i+1);
+			}
+		}
 		return list;
 	}
 	

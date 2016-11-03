@@ -925,6 +925,8 @@ public class BagConfigHandler {
 			currentBag.setItemRepeats(1);
 		else if(words[1].equalsIgnoreCase("item"))
 			currentBag.setItemRepeats(2);
+		else if(words[1].equalsIgnoreCase("fixed"))
+			currentBag.setItemRepeats(3);
 		else
 			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: text not recognized as 'none', 'damage', or 'item'.", command);
 	}
@@ -1388,7 +1390,7 @@ public class BagConfigHandler {
 		
 		//Worn Out Bag
 		list.add("$STARTBAG:lootbagWornOut:6");
-		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:204|0|204:51|255|51");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:97|28|161:16|145|14");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
@@ -1518,6 +1520,39 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbagDarkosto");
 		
+		
+		//Direwolf20 Bag
+		list.add("$STARTBAG:lootbagDirewolf:20");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:93|181|204:70|71|135");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Hello Everyone!");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$AQUA:Take it easy!");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:Enclosed is everything one needs to");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:make their very own Direwolf20 9x9!");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$AQUA:(Door and lighting sold separately)");
+		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:false");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:5");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:fixed");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$STARTENTITYLIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Direwolf20");
+		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:62:62:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:glass:0:36:36:20");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbagDirewolf");
 		return list;
 	}
 }

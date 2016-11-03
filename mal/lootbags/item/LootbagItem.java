@@ -208,7 +208,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		Bag b = BagHandler.getBag(damage);
 		
 		//special case for very small loot tables and item repeat prevention
-		if(b.getMap().size() <= b.getMaxItems() && LootBags.PREVENTDUPLICATELOOT!=0)
+		if(b.getItemRepeats()==3)
 		{
 			return b.getSpecificItem(slot);
 		}

@@ -39,7 +39,6 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -49,7 +48,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.1.3";
+	public static final String VERSION = "2.2.0";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -75,7 +74,6 @@ public class LootBags {
 	
 	public static boolean LIMITONEBAGPERDROP = false;
 	public static int BAGFROMPLAYERKILL = 2;//limit bag drops to only EntityPlayer kills, 0 is any source, 1 is EntityPlayer, 2 is forced real players
-	public static int PREVENTDUPLICATELOOT = 0;//prevents the same item from showing up twice in a bag, 0 is not at all, 1 is if item and damage are the same, 2 is if item is the same
 	public static int MINITEMSDROPPED = 1;//minimum number of items dropped by a bag
 	public static int MAXITEMSDROPPED = 5;//maximum number of items dropped by a bag
 	
@@ -229,7 +227,7 @@ public class LootBags {
 		event.registerServerCommand(new LootSourceCommand());
 		event.registerServerCommand(new NBTPullCommand());
 		event.registerServerCommand(new ConfigReloadCommand());
-		this.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
+		LootBags.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 	}
 	
 /*	@EventHandler

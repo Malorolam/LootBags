@@ -26,15 +26,13 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 	protected static final int ITEMSPERCOL = 5;
 	protected static final int SPACINGX=16;
 	protected static final int SPACINGY=16;
-	protected static int ITEMSPERPAGE;
+	protected static final int ITEMSPERPAGE = ITEMSPERROW*ITEMSPERCOL;
 	
 	@Nonnull
 	private final IDrawable background;
 	
 	public LootCategory(IGuiHelper guihelper)
-	{
-		ITEMSPERPAGE = ITEMSPERROW * ITEMSPERCOL;
-		
+	{	
 		ResourceLocation location = new ResourceLocation(LootBags.MODID, "textures/gui/JEILootbagGui.png");
 		background = guihelper.createDrawable(location, 0, 0, WIDTH, HEIGHT);
 	}
