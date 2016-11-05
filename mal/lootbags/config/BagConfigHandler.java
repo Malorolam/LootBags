@@ -306,6 +306,9 @@ public class BagConfigHandler {
 				case "$STARTBLACKLIST"://start the blacklist checking, closed in the method
 					linenum = addBlackList(words,linenum,currentBag);
 					break;
+				case "$BLACKLISTRECYCLER"://if the items are blacklisted in the recycler, expects two words
+					addRecyclerBlacklist(words, linenum+1, currentBag);
+					break;
 				case "$ENDBAG"://end the bag properly
 					endNewBag(words,linenum,currentBag);
 					currentBag=null;
@@ -970,7 +973,9 @@ public class BagConfigHandler {
 			//regex to separate the words
 			String[] tempwords = trim.split("(?<!$):");
 			
-			if(tempwords[0].equalsIgnoreCase("$ENDENTITYLIST"))
+			if(tempwords.length<2)
+				LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Unknown text found at line " + templine + ": skipping line.", command);
+			else if(tempwords[0].equalsIgnoreCase("$ENDENTITYLIST"))
 				exitflag = true;
 			else if(tempwords[0].equalsIgnoreCase("$VISIBLENAME"))
 				currentBag.addEntityToList(tempwords[1], true);
@@ -1112,6 +1117,32 @@ public class BagConfigHandler {
 		}
 		
 		return templine;//skip the lines read here
+	}
+	
+	private void addRecyclerBlacklist(String[] words, int linenum, Bag currentBag)
+	{
+		if(currentBag==null)
+		{
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
+			return;
+		}
+		if(words.length<2)//insufficient words error
+		{
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Recycler Blacklist command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.", command);
+			return;
+		}
+		if(words.length>2)//excessive words error
+		{
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Recycler Blacklist command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.", command);
+			return;
+		}
+		
+		if(words[1].equalsIgnoreCase("true") || words[1].equalsIgnoreCase("t") || words[1].equalsIgnoreCase("1"))
+			currentBag.setRecyclerBlacklist(true);
+		else if(words[1].equalsIgnoreCase("false") || words[1].equalsIgnoreCase("f") || words[1].equalsIgnoreCase("0"))
+			currentBag.setRecyclerBlacklist(false);
+		else
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag entity exclusion command at line " + linenum + " has error: boolean value not recognized as boolean.", command);
 	}
 	
 	private int parseBagColor(String text)
@@ -1357,6 +1388,59 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
 		list.add("$ENDBAG:lootbagLegendary");
 		
+		//artifact bag
+		list.add("$STARTBAG:lootbagArtifact:11");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$YELLOW");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:One of a kind?");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:No, not really.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$WHITE:Hopefully not a supernova on a stick.");
+		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:3");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:2");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:1");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbagArtifact");
+		
+		//Old Blue Bag
+		list.add("$STARTBAG:lootbagOldBlue:12");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:84|89|142:17|23|84");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:A mysterious blue bag that");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:seems to hold something inside.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$BLUE:I don't know what I expected.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$BLUE:You'll have to open it to find out.");
+		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:15");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:20");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbagOldBlue");
+		
 		/**
 		 * Secret Bags
 		 */
@@ -1399,15 +1483,18 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_PURPLE:~Malorolam");
 		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
-		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:false");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:1");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:item");
-		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:true");
+		list.add(ConfigText.TAB.getText()+"$STARTENTITYLIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Malorolam");
+		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:bed:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|96|102|-32|10|74|45|72|-52|44|114|-50|47|46|97|0|2|46|6|-10|-108|-52|-30|-126|-100|-60|74|14|6|22|-65|-60|-36|84|6|78|-65|-4|18|5|71|5|-89|-44|20|6|6|0|122|-45|0|-36|50|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
@@ -1500,7 +1587,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_RED:The most fitting of loot.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$YELLOW:Happy Birthday Darkosto ~ Wyld");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_RED:Everyday is Appreciation Day.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_RED:Only drops on a certain special day.");
 		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
@@ -1525,7 +1612,7 @@ public class BagConfigHandler {
 		list.add("$STARTBAG:lootbagDirewolf:20");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:93|181|204:70|71|135");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$AQUA");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Hello Everyone!");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$AQUA:Take it easy!");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:Enclosed is everything one needs to");
@@ -1541,7 +1628,8 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:fixed");
-		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:true");
+		list.add(ConfigText.TAB.getText()+"$BLACKLISTRECYCLER:true");
 		list.add(ConfigText.TAB.getText()+"$STARTENTITYLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Direwolf20");
 		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");

@@ -60,8 +60,6 @@ public class ConfigReloadCommand implements ICommand {
 		//repopulate the general map
 		LootBags.LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LootBags.LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
-		LootBags.LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
-		LootBags.LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LootBags.LOOTMAP.setLootSources(LootBags.LOOTCATEGORYLIST);
 		LootBags.LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 		icommand.addChatMessage(new TextComponentString("Repopulated the general map."));
@@ -69,6 +67,8 @@ public class ConfigReloadCommand implements ICommand {
 		//repopulate the bags
 		BagHandler.populateBagLists();
 		LootBags.LOOTMAP.setTotalListWeight();
+		LootBags.LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
+		LootBags.LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		icommand.addChatMessage(new TextComponentString("Repopulated the bags."));
 	}
 

@@ -10,8 +10,10 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import mal.core.util.FakeWorld;
+import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
+import mal.lootbags.handler.BagHandler;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
@@ -98,6 +100,18 @@ public class LootMap {
 				else
 				{
 					LootbagsUtil.LogError("General Recycler Blacklist Error: Line: " + s + " Improperly formed Blacklisted item.");
+				}
+			}
+		}
+		
+		for(Bag b: BagHandler.getBagList().values())
+		{
+			if(b.getRecyclerBlacklist())
+			{
+				for(LootItem item:b.getMap().values())
+				{
+					if(!recyclerBlacklist.contains(item))
+						recyclerBlacklist.add(item);
 				}
 			}
 		}

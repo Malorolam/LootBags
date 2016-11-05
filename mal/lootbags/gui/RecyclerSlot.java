@@ -18,7 +18,7 @@ public class RecyclerSlot extends Slot {
     {
 		if(stack == null)
 			return false;
-		return (LootBags.isItemDroppable(stack) && !LootBags.isItemRecyleBlacklisted(stack));
+		return (LootBags.isItemDroppable(stack) && (!LootBags.isItemRecyleBlacklisted(stack)) || LootBags.isItemRecycleWhitelisted(stack));
     }
 }
 /*******************************************************************************

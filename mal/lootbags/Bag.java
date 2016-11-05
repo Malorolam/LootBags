@@ -36,6 +36,7 @@ public class Bag {
 	private boolean entityExclusionToggle=false;//false has the list act as a blacklist, true is as a whitelist
 	private boolean useGeneralLootTable=false;//use the general table or not
 	private boolean isSecret = false;//determines if the bag shows up in creative inventory or not
+	private boolean recyclerBlacklist = false;//if true, will add all bag items to the recycler blacklist
 	private int preventItemRepeats=0;//prevent an item from showing up multiple times, 1 to block the same damage, 2 to block same item class, 3 to pick the first n items in the list with no shuffling
 	private int bagMapWeight = 0;//total weight of the items in the bag
 	private boolean bagIsEmpty = false;//should never be true
@@ -501,6 +502,16 @@ public class Bag {
 	public int getItemRepeats()
 	{
 		return preventItemRepeats;
+	}
+
+	public void setRecyclerBlacklist(boolean b) 
+	{
+		recyclerBlacklist = b;
+	}
+	
+	public boolean getRecyclerBlacklist()
+	{
+		return recyclerBlacklist;
 	}
 }
 /*******************************************************************************

@@ -48,7 +48,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.2.0";
+	public static final String VERSION = "2.2.1";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -200,13 +200,14 @@ public class LootBags {
 		LOOTMAP = new LootMap();
 		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
-		LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
-		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		
 		LOOTMAP.populateGeneralMap(null);//FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 		BagHandler.populateBagLists();
 		LOOTMAP.setTotalListWeight();
+		
+		LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
+		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LootbagsUtil.LogInfo("Completed on-load tasks.");
 		
 		if(!DISABLERECYCLER)
@@ -267,6 +268,19 @@ public class LootBags {
 	public static boolean isItemRecyleBlacklisted(ItemStack item)
 	{
 		for(LootItem loot: LOOTMAP.recyclerBlacklist)
+		{
+			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item, true, false))
+				return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Check to see if an item is in the recycler whitelist
+	 */
+	public static boolean isItemRecycleWhitelisted(ItemStack item)
+	{
+		for(LootItem loot: LOOTMAP.recyclerWhitelist)
 		{
 			if(LootBags.areItemStacksEqualItem(loot.getContentItem(), item, true, false))
 				return true;
