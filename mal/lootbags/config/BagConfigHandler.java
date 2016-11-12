@@ -973,10 +973,10 @@ public class BagConfigHandler {
 			//regex to separate the words
 			String[] tempwords = trim.split("(?<!$):");
 			
-			if(tempwords.length<2)
-				LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Unknown text found at line " + templine + ": skipping line.", command);
-			else if(tempwords[0].equalsIgnoreCase("$ENDENTITYLIST"))
+			if(tempwords[0].equalsIgnoreCase("$ENDENTITYLIST"))
 				exitflag = true;
+			else if(tempwords.length<2)
+				LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Unknown text found at line " + templine + ": skipping line.", command);
 			else if(tempwords[0].equalsIgnoreCase("$VISIBLENAME"))
 				currentBag.addEntityToList(tempwords[1], true);
 			else if(tempwords[0].equalsIgnoreCase("$INTERNALNAME"))
