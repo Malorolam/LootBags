@@ -23,11 +23,13 @@ public class OpenerMessageServer implements IMessage, IMessageHandler<OpenerMess
 	}
 	@Override
 	public IMessage onMessage(OpenerMessageServer message, MessageContext ctx) {
-		TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
-		if(te instanceof TileEntityOpener)
-		{
-			((TileEntityOpener)te).setData(message.cooldown);
-		}
+		try {
+			TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
+			if(te instanceof TileEntityOpener)
+			{
+				((TileEntityOpener)te).setData(message.cooldown);
+			}
+		} catch (Exception e) {}
 		return null;
 	}
 

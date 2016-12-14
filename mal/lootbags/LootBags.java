@@ -50,7 +50,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.2.2";
+	public static final String VERSION = "2.2.3";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	

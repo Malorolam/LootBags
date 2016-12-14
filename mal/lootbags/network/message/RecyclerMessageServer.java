@@ -50,11 +50,13 @@ public class RecyclerMessageServer implements IMessage, IMessageHandler<Recycler
 	}
 	@Override
 	public IMessage onMessage(RecyclerMessageServer message, MessageContext ctx) {
-		TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
-		if(te instanceof TileEntityRecycler)
-		{
-			((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
-		}
+		try {
+			TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
+			if(te instanceof TileEntityRecycler)
+			{
+				((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
+			}
+		} catch (Exception e) {}
 		return null;
 	}
 }
