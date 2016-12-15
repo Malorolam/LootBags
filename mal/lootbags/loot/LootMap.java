@@ -297,57 +297,67 @@ public class LootMap {
 		{
 			WeightedRandomChestContent c = h[i];
 			
-			LootItem item = new LootItem(c, true);
+			LootItem item;
 			boolean skip = false;
-			//Do some fixing to prevent <1 errors in the bags
-			if(item.getContentItem().itemWeight < 1)
-			{
-				LootbagsUtil.LogError("Item " + item.getContentItem().theItemId.toString() + " has a weighting of " + item.getContentItem().itemWeight + ".  This is not a Lootbags error but an error in a different mod!  "
-						+ "This item will be excluded from the Lootbags loot table.");
-//				ChestGenHooks.removeItem(categoryName, c.theItemId);
+			try {
+				item = new LootItem(c, true);
+			} catch (Exception e) {
+				item = null;
+				skip = true;
+				LootbagsUtil.LogError("Creation of Loot Item failed!  This is an issue with a different mod!");
 			}
-			else
+			if(!skip)
 			{
-			
-				for(String modid:generalModBlacklist)
+				//Do some fixing to prevent <1 errors in the bags
+				if(item.getContentItem().itemWeight < 1)
 				{
-					if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourceDomain().equalsIgnoreCase(modid))
-					{
-						skip = true;
-						LootbagsUtil.LogInfo("Found item to skip from Blacklisted mod: " + item.toString());
-					}
+					LootbagsUtil.LogError("Item " + item.getContentItem().theItemId.toString() + " has a weighting of " + item.getContentItem().itemWeight + ".  This is not a Lootbags error but an error in a different mod!  "
+							+ "This item will be excluded from the Lootbags loot table.");
+	//				ChestGenHooks.removeItem(categoryName, c.theItemId);
 				}
-				for(LootItem entry:generalBlacklist)
+				else
 				{
-					String name = entry.getItemName();
-					if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).name.equalsIgnoreCase(name))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourcePath().equalsIgnoreCase(name))
+				
+					for(String modid:generalModBlacklist)
 					{
-						skip = true;
-						LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
+						if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).modId.equalsIgnoreCase(modid))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourceDomain().equalsIgnoreCase(modid))
+						{
+							skip = true;
+							LootbagsUtil.LogInfo("Found item to skip from Blacklisted mod: " + item.toString());
+						}
 					}
-				}
-				if(!skip)
-				{
-					
-					String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
-					
-					if(!generalMap.containsKey(key))
+					for(LootItem entry:generalBlacklist)
 					{
-						generalMap.put(key, item);
-						//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
-						if(!totalList.containsKey(key))
-							totalList.put(key, item);
+						String name = entry.getItemName();
+						if(GameRegistry.findUniqueIdentifierFor(c.theItemId.getItem()).name.equalsIgnoreCase(name))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourcePath().equalsIgnoreCase(name))
+						{
+							skip = true;
+							LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
+						}
 					}
-					else
+					if(!skip)
 					{
-						LootItem it = generalMap.get(key);
-						int weight = it.getContentItem().itemWeight;
-						weight = (weight+c.itemWeight)/2;
-						it.getContentItem().itemWeight = weight;
-						generalMap.put(key, it);
-						//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
-						if(!totalList.containsKey(key))
-							totalList.put(key, it);
+						
+						String key = item.getItemModID()+item.getItemName()+item.getContentItem().theItemId.getItemDamage();
+						
+						if(!generalMap.containsKey(key))
+						{
+							generalMap.put(key, item);
+							//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
+							if(!totalList.containsKey(key))
+								totalList.put(key, item);
+						}
+						else
+						{
+							LootItem it = generalMap.get(key);
+							int weight = it.getContentItem().itemWeight;
+							weight = (weight+c.itemWeight)/2;
+							it.getContentItem().itemWeight = weight;
+							generalMap.put(key, it);
+							//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
+							if(!totalList.containsKey(key))
+								totalList.put(key, it);
+						}
 					}
 				}
 			}

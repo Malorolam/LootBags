@@ -39,7 +39,7 @@ public class LootItem implements Comparable{
 	 * The new LootItem, moved to the correct package, there is now no fixed loot sources, so this is just in whichever list is needed
 	 * now it's more of a wrapper to be able to construct weightedrandomchestcontent objects cleanly
 	 */
-	public LootItem(WeightedRandomChestContent item, boolean isgeneral)
+	public LootItem(WeightedRandomChestContent item, boolean isgeneral) throws NullPointerException
 	{
 		this.item = item;
 		this.modid = GameRegistry.findUniqueIdentifierFor(item.theItemId.getItem()).modId;
