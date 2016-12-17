@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.apache.logging.log4j.Level;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -94,9 +95,9 @@ public class GeneralConfigHandler {
 		prop.setComment("This if true will show all the secret bags in creative inventory or item list mods.  Kind of ruins the fun if you ask me.");
 		LootBags.SHOWSECRETBAGS = prop.getBoolean();
 		
-		prop = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag Multiplier", 1.0);
-		prop.setComment("This is kind of ambiguous, but essentially it's a global multiplier to adjust the cost to fabricate new bags in the loot recycler.");
-		LootBags.TOTALVALUEMULTIPLIER = prop.getDouble();
+		prop = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1000);
+		prop.setComment("This is kind of ambiguous, but essentially it's the value of loot stuff needed to fabricate new bags in the loot recycler.");
+		LootBags.TOTALVALUE = prop.getInt();
 		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Recycler Recipe", false);
 		prop.setComment("Disables the loot recycler from being crafted.");
@@ -125,10 +126,30 @@ public class GeneralConfigHandler {
 			LootBags.BAGFROMPLAYERKILL = 2;
 		else
 		{
-			FMLLog.log(Level.WARN, "Invalid death source: " + method + ".  Setting method to allow all sources.");
+			LootbagsUtil.LogError("Invalid death source: " + method + ".  Setting method to allow all sources.");
 			LootBags.BAGFROMPLAYERKILL=0;
 		}
 		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Bag Conversion Methods", "BOTH");
+		prop.setComment("Sets the crafting recipes of bags into other bags.  Allowable names: UP, BOTH, DOWN, NONE.  UP only allows many bags into fewer bags, DOWN only allows few bags into many bags, BOTH allows for both, NONE disables bag conversion.");
+		String craft = prop.getString();
+		switch(craft.toUpperCase())
+		{
+			case "UP":
+				LootBags.CRAFTTYPES=1;
+				break;
+			case "BOTH":
+				LootBags.CRAFTTYPES=2;
+				break;
+			case "DOWN":
+				LootBags.CRAFTTYPES=3;
+				break;
+			case "NONE":
+				LootBags.CRAFTTYPES=0;
+				break;
+			default:
+				LootbagsUtil.LogError("Invalid Conversion Name: " + craft + ".  Setting method to allow both types");
+		}
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", true);
 		prop.setComment("This limits the loot bags to only drop one bag.  Bag weighting is dependant on drop chances.");
 		LootBags.LIMITONEBAGPERDROP = prop.getBoolean();

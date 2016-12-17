@@ -3,13 +3,16 @@ package mal.lootbags.network.message;
 import java.io.IOException;
 
 import mal.lootbags.tileentity.TileEntityRecycler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -50,13 +53,17 @@ public class RecyclerMessageServer implements IMessage, IMessageHandler<Recycler
 	}
 	@Override
 	public IMessage onMessage(RecyclerMessageServer message, MessageContext ctx) {
-		try {
-			TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
-			if(te instanceof TileEntityRecycler)
-			{
-				((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
+		IThreadListener mainThread = Minecraft.getMinecraft();
+		mainThread.addScheduledTask(new Runnable() {
+			@Override
+			public void run() {
+				TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
+				if(te instanceof TileEntityRecycler)
+				{
+					((TileEntityRecycler)te).setData(message.lootbagCount, message.totalValue);
+				}
 			}
-		} catch (Exception e) {}
+		});
 		return null;
 	}
 }

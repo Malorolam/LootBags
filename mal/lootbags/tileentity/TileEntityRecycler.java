@@ -25,11 +25,9 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	private int lootbagCount = 0;
 	private int totalValue = 0;
 	private ItemStack[] inventory = new ItemStack[27];
-	private int lootvalue;
 	
 	public TileEntityRecycler()
 	{
-		lootvalue = (int)Math.floor(BagHandler.getBag(LootBags.RECYCLEDID).getBagWeight()*LootBags.TOTALVALUEMULTIPLIER);
 	}
 	
 	@Override
@@ -54,9 +52,9 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 					}
 			}
 			
-			if(totalValue >= lootvalue && lootbagCount < Integer.MAX_VALUE-1)
+			if(totalValue >= LootBags.TOTALVALUE && lootbagCount < Integer.MAX_VALUE-1)
 			{
-				totalValue -= lootvalue;
+				totalValue -= LootBags.TOTALVALUE;
 				lootbagCount += 1;
 			}
 			

@@ -27,6 +27,7 @@ public class Bag {
 	private int bagTextureColorString = 16777215;
 	private boolean useAltJsonFile = true;
 	private int bagWeight=LootBags.getDefaultDropWeight();//the weight of the bag, used for crafting, recycling weights, and appearances in dungeon chests
+	private int craftCount=-1;//number of bags to craft into the next one
 	private int[] spawnChances = new int[4];//chance of the bag spawning from player, passive, monster, and boss
 	private int maxItems=5;//maximum items
 	private int minItems=1;//minimum items
@@ -248,9 +249,10 @@ public class Bag {
 		spawnChances[3] = spawnchance;
 	}
 	
-	public void setCraftingSource(String bagName)
+	public void setCraftingSource(String bagName, int count)
 	{
 		sourceBagName = bagName;
+		craftCount = count;
 	}
 	
 	public void setBagNameColor(String code)
@@ -310,6 +312,11 @@ public class Bag {
 	public String getCraftingSource()
 	{
 		return sourceBagName;
+	}
+	
+	public int getCraftingCount()
+	{
+		return craftCount;
 	}
 	
 	public boolean isBagEmpty()

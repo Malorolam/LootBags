@@ -50,7 +50,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.2.3";
+	public static final String VERSION = "2.3.0";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -80,7 +80,7 @@ public class LootBags {
 	public static int MAXITEMSDROPPED = 5;//maximum number of items dropped by a bag
 	
 	public static int MAXREROLLCOUNT = 50;
-	public static double TOTALVALUEMULTIPLIER = 1.0;//multiplier for the total value to fabricate the bag
+	public static int TOTALVALUE = 1000;//multiplier for the total value to fabricate the bag
 	public static int RECYCLEDID = 0;//bag id of the bag the recycler creates
 	
 	public static double RECYCLERVALUENUMERATOR = 2.0;
@@ -90,6 +90,7 @@ public class LootBags {
 	public static int OPENERMAXCOOLDOWN = 100;
 	
 	public static boolean PREVENTMERGEDBAGS = false;
+	public static byte CRAFTTYPES = 1;//crafting controlling, 1 is both types, 0 is only upconvert, 2 is only downconvert
 	
 	public static String[] LOOTCATEGORYLIST = null;
 	
@@ -152,10 +153,10 @@ public class LootBags {
 			OPENERMAXCOOLDOWN=0;
 		}
 		
-		if(TOTALVALUEMULTIPLIER<=0.0)
+		if(TOTALVALUE<=1)
 		{
 			LootbagsUtil.LogInfo("Free or negative value required for lootbag creation is not a good thing.  Setting it to 1.");
-			TOTALVALUEMULTIPLIER=1.0;
+			TOTALVALUE=1;
 		}
 		
 		if(BagHandler.isIDFree(RECYCLEDID))

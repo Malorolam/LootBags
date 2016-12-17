@@ -133,7 +133,7 @@ public class BagHandler {
 				Bag source = getBag(b.getCraftingSource());
 				if(source != null)
 				{
-					int bagsneeded = (int)Math.ceil(b.getBagWeight()/source.getBagWeight());
+					int bagsneeded = b.getCraftingCount();
 					if(bagsneeded < 1)
 						bagsneeded = 1;
 					if(bagsneeded > 9)
@@ -148,8 +148,13 @@ public class BagHandler {
 					Object[] d = new Object[1];
 					d[0] = new ItemStack(LootBags.lootbagItem, 1, b.getBagIndex());
 					
-					recipeList.add(new LootRecipe(b.getBagItem(), c));//source to bag
-					recipeList.add(new LootRecipe(new ItemStack(LootBags.lootbagItem, bagsneeded, source.getBagIndex()), d));//bag to source
+					if(LootBags.CRAFTTYPES != 0)
+					{
+						if(LootBags.CRAFTTYPES < 3)
+							recipeList.add(new LootRecipe(b.getBagItem(), c));//source to bag
+						if(LootBags.CRAFTTYPES > 1)
+							recipeList.add(new LootRecipe(new ItemStack(LootBags.lootbagItem, bagsneeded, source.getBagIndex()), d));//bag to source
+					}
 				}
 			}
 		}

@@ -55,7 +55,7 @@ public class RecyclerGui extends GuiContainer{
 			ArrayList list = new ArrayList();
 			
 			list.add("\u00A73" + "Stored Loot Value:");
-			list.add("\u00A78" + bench.getValue() + "/" + (BagHandler.getBag(LootBags.RECYCLEDID).getBagWeight()*LootBags.TOTALVALUEMULTIPLIER));
+			list.add("\u00A78" + bench.getValue() + "/" + LootBags.TOTALVALUE);
 			
 	        this.drawHoveringText(list, par1, par2, fontRendererObj);
 		}

@@ -2,7 +2,9 @@ package mal.lootbags.network.message;
 
 import io.netty.buffer.ByteBuf;
 import mal.lootbags.tileentity.TileEntityOpener;
+import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.IThreadListener;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -23,13 +25,17 @@ public class OpenerMessageServer implements IMessage, IMessageHandler<OpenerMess
 	}
 	@Override
 	public IMessage onMessage(OpenerMessageServer message, MessageContext ctx) {
-		try {
-			TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
-			if(te instanceof TileEntityOpener)
-			{
-				((TileEntityOpener)te).setData(message.cooldown);
+		IThreadListener mainThread = Minecraft.getMinecraft();
+		mainThread.addScheduledTask(new Runnable() {
+			@Override
+			public void run() {
+				TileEntity te = FMLClientHandler.instance().getWorldClient().getTileEntity(message.pos);
+				if(te instanceof TileEntityOpener)
+				{
+					((TileEntityOpener)te).setData(message.cooldown);
+				}
 			}
-		} catch (Exception e) {}
+		});
 		return null;
 	}
 

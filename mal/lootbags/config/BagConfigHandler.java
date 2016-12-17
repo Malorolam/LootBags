@@ -258,9 +258,6 @@ public class BagConfigHandler {
 				case "$BAGTEXTSHIFT"://shift text, can show up multiple times, expects one or two words
 					addBagTextShift(words, linenum+1, currentBag);
 					break;
-				case "$WEIGHT"://the weight of the bag for use in recycling and crafting, expects two words
-					addBagWeight(words, linenum+1, currentBag);
-					break;
 				case "$CRAFTEDFROM"://the bag name and number of bags needed to craft this bag, expects two words
 					addBagCrafting(words, linenum+1, currentBag);
 					break;
@@ -552,7 +549,7 @@ public class BagConfigHandler {
 		}
 	}
 	
-	private void addBagWeight(String[] words, int linenum, Bag currentBag)
+/*	private void addBagWeight(String[] words, int linenum, Bag currentBag)
 	{
 		if(currentBag==null)
 		{
@@ -580,7 +577,7 @@ public class BagConfigHandler {
 			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag weight command at line " + linenum + " has error: Second word is not a number.", command);
 			return;
 		}
-	}
+	}*/
 	
 	private void addBagCrafting(String[] words, int linenum, Bag currentBag)
 	{
@@ -589,21 +586,22 @@ public class BagConfigHandler {
 			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
 			return;
 		}
-		if(words.length<2)//insufficient words error
+		if(words.length<3)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting command at line " + linenum + " has error: Too few words, it needs the command and the source bag name.", command);
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting command at line " + linenum + " has error: Too few words, it needs the command, the source bag name, and the number of bags needed.", command);
 			return;
 		}
-		if(words.length>2)//excessive words error
+		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting at line " + linenum + " has error: Too many words, it needs only the command and the source bag name.", command);
+			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting at line " + linenum + " has error: Too many words, it needs only the command, the source bag name, and the number of bags needed.", command);
 			return;
 		}
 		
 		String name = words[1];
+		int count = Integer.parseInt(words[2]);
 		
 		if(!name.equalsIgnoreCase("$NULL"))
-			currentBag.setCraftingSource(name);
+			currentBag.setCraftingSource(name, count);
 	}
 	
 	private void addPassiveSpawnWeight(String[] words, int linenum, Bag currentBag)
@@ -1270,8 +1268,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:1000");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:50");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:100");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:100");
@@ -1295,8 +1292,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:4000");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagCommon");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagCommon:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:50");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:50");
@@ -1320,8 +1316,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:16000");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagUncommon");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagUncommon:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:15");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:15");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1345,8 +1340,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:64000");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagRare");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagRare:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:10");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:10");
 		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:15");
@@ -1370,8 +1364,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:256000");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagEpic");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagEpic:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:5");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:5");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:10");
@@ -1396,8 +1389,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:One of a kind?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:No, not really.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$WHITE:Hopefully not a supernova on a stick.");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
@@ -1423,8 +1415,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:seems to hold something inside.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$BLUE:I don't know what I expected.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$BLUE:You'll have to open it to find out.");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:0");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:0");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:0");
@@ -1452,8 +1443,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:\u00A7d:Turns out there is bacon inside...");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:\u00A77:Three out of every four bacons agree that they don't have enough bacon. The fourth has a bag full of bacon.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:\u00A7b:(It still isn't enough bacon.)");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1481,8 +1471,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:The Fluffiest of Truth.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:My bags are not configured to drop beds in this pack. I am 100% certain about this.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_PURPLE:~Malorolam");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1507,8 +1496,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:Everytime a random chest is placed, a Soaryn gets more Chick Fil A.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:One out of every four chests is a Soaryn chest. Only you can prevent inventory clutter by creating more.");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1535,8 +1523,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:Raise your Cluckingtons!");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:Cluck Cluck...");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1561,8 +1548,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_GREEN:A hero with no praise or glory.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$GREEN:Paging Doctor Bat, paging Doctor Bat! Is there a Doctor Bat in the room?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_GRAY:Stop touching me! I am the night! I am the night!");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1588,8 +1574,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_RED:The most fitting of loot.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$YELLOW:Happy Birthday Darkosto ~ Wyld");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DARK_RED:Only drops on a certain special day.");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1618,8 +1603,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:Enclosed is everything one needs to");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:make their very own Direwolf20 9x9!");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$AQUA:(Door and lighting sold separately)");
-		list.add(ConfigText.TAB.getText()+"$WEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:$NULL:0");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
