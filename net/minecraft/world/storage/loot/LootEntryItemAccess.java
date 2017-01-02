@@ -49,10 +49,10 @@ public class LootEntryItemAccess {
 		return null;
 	}
 	
-	public static void applyFunctions(LootEntryItem item, ItemStack stack, LootContext context)
+	public static ItemStack applyFunctions(LootEntryItem item, ItemStack stack, LootContext context)
 	{
 		if(item == null)
-			return;
+			return stack;
 		
 		for (LootFunction lootfunction : item.functions)
         {
@@ -61,10 +61,12 @@ public class LootEntryItemAccess {
                 stack = lootfunction.apply(stack, LootBags.getRandom(), context);
             }
         }
+		
+		return stack;
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2016 Malorolam.
+ * Copyright (c) 2017 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

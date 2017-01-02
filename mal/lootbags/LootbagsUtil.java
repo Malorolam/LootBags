@@ -227,7 +227,7 @@ public class LootbagsUtil {
     {
         int count = min + (rand.nextInt(max - min + 1));
         ItemStack source = lootitem.getContentItem().copy();
-        LootEntryItemAccess.applyFunctions(lootitem.getLootItem(), source, LootBags.LOOTMAP.getContext());
+        source = LootEntryItemAccess.applyFunctions(lootitem.getLootItem(), source, LootBags.LOOTMAP.getContext());
 
         ItemStack[] ret;
         if (source.getItem() == null)
@@ -273,7 +273,7 @@ public class LootbagsUtil {
     }
 }
 /*******************************************************************************
- * Copyright (c) 2016 Malorolam.
+ * Copyright (c) 2017 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.
