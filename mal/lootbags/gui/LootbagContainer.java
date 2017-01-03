@@ -169,12 +169,12 @@ public class LootbagContainer extends Container{
         ItemStack itemstack = null;
         InventoryPlayer inventoryplayer = player.inventory;
         
-        if(!player.worldObj.isRemote && !LootBags.areItemStacksEqualItem(player.inventory.mainInventory[islot], wrapper.getStack(), true, false))
+/*        if(!player.worldObj.isRemote && !LootBags.areItemStacksEqualItem(player.inventory.mainInventory[islot], wrapper.getStack(), true, false))
         {
         	player.closeScreen();
         	//LootbagsUtil.LogInfo("Missing Lootbag");
         	return null;
-        }
+        }*/
 
         if (clickTypeIn == ClickType.QUICK_CRAFT)
         {
