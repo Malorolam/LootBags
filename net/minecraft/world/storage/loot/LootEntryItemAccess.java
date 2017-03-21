@@ -3,7 +3,9 @@ package net.minecraft.world.storage.loot;
 import java.lang.reflect.Field;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
 import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraft.world.storage.loot.functions.SetCount;
@@ -37,7 +39,16 @@ public class LootEntryItemAccess {
 			{
 				try
 				{
-					Field countRangeField = SetCount.class.getDeclaredField("countRange");
+					String cRng;
+					if((boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment"))
+					{
+						cRng = "countRange";
+					}
+					else
+					{
+						cRng = "field_186568_a";
+					}
+					Field countRangeField = SetCount.class.getDeclaredField(cRng);
 					countRangeField.setAccessible(true);
 					RandomValueRange range = (RandomValueRange)countRangeField.get(lootfunction);
 					return range;

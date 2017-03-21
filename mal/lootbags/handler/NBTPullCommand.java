@@ -28,7 +28,7 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 /**
- * Hopefully a way to pull nbt data and use it for configs
+ * Hopefully a way to pull item data and use it for configs
  * @author Mal
  *
  */
@@ -38,17 +38,17 @@ public class NBTPullCommand implements ICommand{
 	
 	public NBTPullCommand()
 	{
-		aliases.add("lootbags_pullnbt");
+		aliases.add("lootbags_dumphelditem");
 	}
 
 	@Override
 	public String getCommandName() {
-		return "/lootbags_pullnbt";
+		return "/lootbags_dumphelditem";
 	}
 
 	@Override
 	public String getCommandUsage(ICommandSender p_71518_1_) {
-		return "/lootbags_pullnbt";
+		return "/lootbags_dumphelditem";
 	}
 
 	@Override
@@ -73,14 +73,14 @@ public class NBTPullCommand implements ICommand{
 			player = (EntityPlayer)icommand;
 		else
 		{
-			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Did not recognize command sender as a player."));
+			icommand.addChatMessage(new TextComponentString("Lootbags Held Item Dump Failed: Did not recognize command sender as a player."));
 			return;
 		}
 		
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(stack==null)
 		{
-			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Player has no held item."));
+			icommand.addChatMessage(new TextComponentString("Lootbags Held Item Dump Failed: Player has no held item."));
 			return;
 		}
 		byte[] barray = new byte[0];
@@ -96,12 +96,12 @@ public class NBTPullCommand implements ICommand{
 		}
 		else
 		{
-			icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
-			return;
+			/*icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
+			return;*/
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsNBTDump.txt");
+			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsHeldItemDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
@@ -111,14 +111,18 @@ public class NBTPullCommand implements ICommand{
 			
 			String s = "";
 			ResourceLocation id = stack.getItem().getRegistryName();
-			s = id.getResourceDomain() + ":" + id.getResourcePath() + ":" + stack.getItemDamage() + ":1:" + stack.getMaxStackSize() +":20:"; 
-			for(byte b:barray)
+			s = id.getResourceDomain() + ":" + id.getResourcePath() + ":" + stack.getItemDamage() + ":1:" + stack.getMaxStackSize() +":20"; 
+			if(barray != null)
 			{
-				s += b+"|";
+				s += ":";
+				for(byte b:barray)
+				{
+					s += b+"|";
+				}
 			}
 			s=s.substring(0, s.length()-1);
 			write.print(s);
-			icommand.addChatMessage(new TextComponentString("LootBags NBT Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
+			icommand.addChatMessage(new TextComponentString("LootBags Held Item Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {

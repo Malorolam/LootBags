@@ -124,6 +124,11 @@ public class BagHandler {
 		return list;
 	}
 	
+	public static int getBagCount()
+	{
+		return bagList.size();
+	}
+	
 	public static void generateBagRecipes(List recipeList)
 	{
 		for(Bag b: bagList.values())

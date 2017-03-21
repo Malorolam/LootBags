@@ -78,6 +78,8 @@ public class MobDropHandler {
 							state = true;
 						else if(bs.getName().equalsIgnoreCase(EntityList.getEntityString(event.getEntityLiving())))
 							state = true;
+						else if(bs.getName().equalsIgnoreCase("Player"))//case to handle players
+							state = true;
 					}
 				}
 				else//false means a match prevents a drop

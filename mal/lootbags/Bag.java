@@ -10,7 +10,6 @@ import mal.lootbags.loot.LootItem;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.WeightedRandom;
 
 /*
  * A single bag, contains ALL the information about it
@@ -96,7 +95,7 @@ public class Bag {
 			if(item.getContentItem()!=null)//if it's still null, something is really wrong with the item
 			{
 				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
-				if(item.getContentItem().getItem() instanceof ItemEnchantedBook && item.getContentItem().hasTagCompound())//a specific enchanted book
+				if(item.getContentItem().hasTagCompound())//a specific npt item
 					key += item.getContentItem().getTagCompound().toString();
 				if(this.getItemRepeats()==3)//fixed list
 					key += BagWhitelist.indexOf(item);
@@ -155,12 +154,12 @@ public class Bag {
 		
 		if(content.size() > 0 && bagMapWeight > 0)
 		{	
-			LootItem item = WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
+			LootItem item = LootbagsUtil.getRandomItem(content, bagMapWeight);
 			int r = 0;
 			while (item == null && r < LootBags.MAXREROLLCOUNT)
 			{
 				LootbagsUtil.LogInfo("Rerolling null item: Reroll count " + r + ".");
-				item = WeightedRandom.getRandomItem(LootBags.getRandom(), content, bagMapWeight);
+				item = LootbagsUtil.getRandomItem(content, bagMapWeight);
 				r++;
 			}
 			if(item == null)

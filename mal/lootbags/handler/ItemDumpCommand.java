@@ -47,13 +47,13 @@ public class ItemDumpCommand implements ICommand{
 	public void execute(MinecraftServer server, ICommandSender icommand, String[] args) throws CommandException {
 		ArrayList<String> stringlist = new ArrayList<String>();
 		stringlist.add("XXXX LootBags General Drop Table XXXX");
-		stringlist.add("<modid>:<itemname>:<itemdamage>:<droppercent>:<weight>");
+		stringlist.add("<modid>:<itemname>:<itemdamage>:<droppercent>:<weight>:<min>:<max>");
 		for(LootItem it : LootBags.LOOTMAP.getMap().values())
 		{
 			if(it != null && it.getContentItem() != null)
 			{
 				float percent = (100.0f*it.getItemWeight())/LootBags.LOOTMAP.getTotalListWeight();
-				stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight());
+				stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight() + ":" + it.getMinStack() + ":" + it.getMaxStack());
 			}
 			else if(it.getContentItem() != null)
 			{
@@ -74,7 +74,7 @@ public class ItemDumpCommand implements ICommand{
 				if(it != null && it.getContentItem() != null)
 				{
 					float percent = (100.0f*it.getItemWeight()/LootBags.LOOTMAP.getTotalListWeight());
-					stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight());
+					stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight() + ":" + it.getMinStack() + ":" + it.getMaxStack());
 				}
 				else if(it.getContentItem() != null)
 				{

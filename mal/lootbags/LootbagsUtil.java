@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.zip.GZIPOutputStream;
@@ -270,6 +271,27 @@ public class LootbagsUtil {
     		return manager;
     	}
     	return world.getLootTableManager();
+    }
+    
+    public static LootItem getRandomItem(List<LootItem> list, int totalWeight)
+    {
+    	if(totalWeight <= 0)
+    	{
+    		LootbagsUtil.LogError("Total Weight less than or equal to zero.");
+    		return null;
+    	}
+    	
+    	int weight = LootBags.getRandom().nextInt(totalWeight);
+    	for(int i=0; i < list.size(); i++)
+    	{
+    		LootItem item = list.get(i);
+    		weight -= item.itemWeight;
+    		
+    		if(weight < 0)
+    			return item;
+    	}
+    	
+    	return null;
     }
 }
 /*******************************************************************************
