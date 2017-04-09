@@ -387,7 +387,7 @@ public class LootMap {
 					
 					LootItem item=null;
 					boolean skip = false;
-					if(stack==null)
+					if(stack==null || stack.getItem()==null)
 					{
 						skip = true;
 						LootbagsUtil.LogInfo("Found a null item in the loot table, skipping it.");
