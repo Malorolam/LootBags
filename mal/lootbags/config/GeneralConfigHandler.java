@@ -77,7 +77,8 @@ public class GeneralConfigHandler {
 		
 		prop = config.get("Loot Categories", "Loot Bags in worldgen chests", new String[]{LootTableList.CHESTS_SIMPLE_DUNGEON.toString(), LootTableList.CHESTS_ABANDONED_MINESHAFT.toString(), 
 				LootTableList.CHESTS_DESERT_PYRAMID.toString(), LootTableList.CHESTS_JUNGLE_TEMPLE.toString(), LootTableList.CHESTS_JUNGLE_TEMPLE_DISPENSER.toString(),
-				LootTableList.CHESTS_STRONGHOLD_CORRIDOR.toString(), LootTableList.CHESTS_STRONGHOLD_CROSSING.toString(), LootTableList.CHESTS_STRONGHOLD_LIBRARY.toString(), LootTableList.CHESTS_VILLAGE_BLACKSMITH.toString()});
+				LootTableList.CHESTS_STRONGHOLD_CORRIDOR.toString(), LootTableList.CHESTS_STRONGHOLD_CROSSING.toString(), LootTableList.CHESTS_STRONGHOLD_LIBRARY.toString(), 
+				LootTableList.CHESTS_VILLAGE_BLACKSMITH.toString(), LootTableList.CHESTS_END_CITY_TREASURE.toString(), LootTableList.CHESTS_NETHER_BRIDGE.toString(), LootTableList.CHESTS_IGLOO_CHEST.toString()});
 		prop.setComment("This adds the loot bags to each of the loot tables listed.");
 		LootBags.LOOTBAGINDUNGEONLOOT = prop.getStringList();
 		

@@ -21,6 +21,10 @@ public class LootRegistry {
 			instance = new LootRegistry();
 		return instance;
 	}
+	public static void resetInstance()
+	{
+		instance = new LootRegistry();
+	}
 	
 	public LootRegistry()
 	{

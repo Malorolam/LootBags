@@ -41,6 +41,7 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -50,7 +51,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.3.5";
+	public static final String VERSION = "2.3.6";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -205,6 +206,7 @@ public class LootBags {
 		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		
+		LOOTMAP.setContext(null);
 		LOOTMAP.populateGeneralMap(null);//FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 		BagHandler.populateBagLists();
 		LOOTMAP.setTotalListWeight();
@@ -242,7 +244,12 @@ public class LootBags {
 			LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 			BagHandler.populateBagLists();
 			LOOTMAP.setTotalListWeight();
+			
+			LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
+			LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 			LootbagsUtil.LogInfo("Completed on-load tasks.");
+			
+			LootRegistry.resetInstance();
 			HASLOADED = true;
 		}
 	}*/
