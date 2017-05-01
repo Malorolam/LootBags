@@ -207,6 +207,12 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		boolean reroll = false;
 		Bag b = BagHandler.getBag(damage);
 		
+		if(b == null)
+		{
+			LootbagsUtil.LogError("Bag at ID: " + damage + " doesn't exist!");
+			return null;
+		}
+		
 		//special case for very small loot tables and item repeat prevention
 		if(b.getItemRepeats()==3)
 		{
@@ -403,6 +409,12 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	private static int getNumItems(ItemStack is)
 	{
 		Bag b = BagHandler.getBag(is.getItemDamage());
+		
+		if(b == null)
+		{
+			LootbagsUtil.LogError("Bag at ID: " + is.getItemDamage() + " doesn't exist!");
+			return 0;
+		}
 		
 		int min = b.getMinItems();
 		int max = b.getMaxItems();

@@ -101,7 +101,7 @@ public class NBTPullCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsHeldItemDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(), "dumps/LootBagsHeldItemDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())

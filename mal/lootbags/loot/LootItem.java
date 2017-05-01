@@ -65,8 +65,12 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	{
 		super(weight);
 		this.lootitem = lootitem;
-		this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
-		this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
+		try {
+			this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
+			this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
+		} catch (Exception e) {
+			LootbagsUtil.LogError("Mod/Item ID lookup failed for: " + item.toString() + ". This is likely an issue caused by a different mod.");
+		}
 		this.item = item;
 		this.damage = item.getItemDamage();
 		this.minstack = minstack;

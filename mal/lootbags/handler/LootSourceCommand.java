@@ -107,7 +107,7 @@ public class LootSourceCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File("./dumps/LootBagsSourcesDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(), "./dumps/LootBagsSourcesDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())

@@ -88,7 +88,7 @@ public class ItemDumpCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(/*MinecraftServer.getServer().getFolderName(), */"./dumps/LootBagsItemDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(), "./dumps/LootBagsItemDump.txt");
 			//System.out.println(file.getAbsolutePath());
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
