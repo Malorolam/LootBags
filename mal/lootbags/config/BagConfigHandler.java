@@ -19,6 +19,7 @@ import org.apache.logging.log4j.Level;
 
 import com.google.common.base.CharMatcher;
 
+import mal.core.util.BagConfigException;
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
@@ -327,17 +328,15 @@ public class BagConfigHandler {
 	{
 		if(words.length<3)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Too few words, it needs the command, the bag name, and the bag id to properly initialize a bag.", command);
-			return null;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Too few words, it needs the command, the bag name, and the bag id to properly initialize a bag.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Too many words, it needs the command, the bag name, and the bag id only.", command);
-			return null;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Too many words, it needs the command, the bag name, and the bag id only.");
 		}
 		if(currentBag != null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: There is a bag already open with name " + currentBag.getBagName() + ".", command);
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: There is a bag already open with name " + currentBag.getBagName() + ".");
 		}
 		
 		int bagID=-1;
@@ -346,13 +345,11 @@ public class BagConfigHandler {
 		}
 		catch (Exception e)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Third word is not a number.", command);
-			return null;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Third word is not a number.");
 		}
 		if(!BagHandler.isIDFree(bagID))
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Specified Bag ID not free.", command);
-			return null;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag start command at line " + linenum + " has error: Specified Bag ID not free.");
 		}
 		LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Started defining properties for bag named: " + words[1] + ".");
 		return new Bag(words[1], bagID);
@@ -362,13 +359,11 @@ public class BagConfigHandler {
 	{
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " has error: Too few words, it needs the command and the bag name.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " has error: Too few words, it needs the command and the bag name.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " has error: Too many words, it only needs the command and the bag name.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " has error: Too many words, it only needs the command and the bag name.");
 		}
 		if(words[1].equals(currentBag.getBagName()))
 		{
@@ -378,8 +373,7 @@ public class BagConfigHandler {
 		}
 		else
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " is not closing the currently open bag.  Bag will be not saved.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag end command at line " + linenum + " is not closing the currently open bag.  Bag will be not saved.");
 		}
 	}
 	
@@ -387,18 +381,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<3)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag color command at line " + linenum + " has error: Too few words, it needs the command and two colors in RGB format.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag color command at line " + linenum + " has error: Too few words, it needs the command and two colors in RGB format.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag image command at line " + linenum + " has error: Too many words, it needs only the command and two colors in RGB format.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag image command at line " + linenum + " has error: Too many words, it needs only the command and two colors in RGB format.");
 		}
 		currentBag.setBagColor(parseBagColor(words[1]), parseBagColor(words[2]));
 		
@@ -409,18 +400,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: Too few words, it needs the command and a boolean state (true/false) to to set the secret state.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: Too few words, it needs the command and a boolean state (true/false) to to set the secret state.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: Too many words, it needs only the command and the boolean state.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: Too many words, it needs only the command and the boolean state.");
 		}
 		if(words[1].equalsIgnoreCase("true") || words[1].equalsIgnoreCase("t"))
 			currentBag.setSecret(true);
@@ -428,8 +416,7 @@ public class BagConfigHandler {
 			currentBag.setSecret(false);
 		else
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: text is not true, t, false, or f.  Please use one of those four options.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag secret command at line " + linenum + " has error: text is not true, t, false, or f.  Please use one of those four options.");
 		}
 		LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Set bag secret state for bag: " + currentBag.getBagName() + ".");
 	}
@@ -438,18 +425,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag name color command at line " + linenum + " has error: Too few words, it needs the command and either a color string or a color command.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag name color command at line " + linenum + " has error: Too few words, it needs the command and either a color string or a color command.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag name color at line " + linenum + " has error: Too many words, it needs only the command and a color string or command.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag name color at line " + linenum + " has error: Too many words, it needs only the command and a color string or command.");
 		}
 		
 		String code = parseColorText(words[1]);
@@ -460,18 +444,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag unopened text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag unopened text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag unopened text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag unopened text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.");
 		}
 		
 		if(words.length==2)//only the text is included so use default color
@@ -491,18 +472,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag opened text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag opened text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag opened text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag opened text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.");
 		}
 		
 		if(words.length==2)//only the text is included so use default color
@@ -522,18 +500,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag shift text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag shift text command at line " + linenum + " has error: Too few words, it needs the command and at minimum the text to add.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag shift text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag shift text at line " + linenum + " has error: Too many words, it needs only the command, the color (either the / code or the $ command), and the text to add.");
 		}
 		
 		if(words.length==2)//only the text is included so use default color
@@ -583,18 +558,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<3)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting command at line " + linenum + " has error: Too few words, it needs the command, the source bag name, and the number of bags needed.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag crafting command at line " + linenum + " has error: Too few words, it needs the command, the source bag name, and the number of bags needed.");
 		}
 		if(words.length>3)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag crafting at line " + linenum + " has error: Too many words, it needs only the command, the source bag name, and the number of bags needed.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag crafting at line " + linenum + " has error: Too many words, it needs only the command, the source bag name, and the number of bags needed.");
 		}
 		
 		String name = words[1];
@@ -608,18 +580,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.");
 		}
 
 		int weight = 0;
@@ -640,18 +609,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.");
 		}
 
 		int weight = 0;
@@ -672,18 +638,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.");
 		}
 
 		int weight = 0;
@@ -704,18 +667,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight command at line " + linenum + " has error: Too few words, it needs the command and the weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag spawn weight at line " + linenum + " has error: Too many words, it needs only the command and the weight.");
 		}
 
 		int weight = 0;
@@ -736,18 +696,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.");
 		}
 		
 		if(words[1].equalsIgnoreCase("true") || words[1].equalsIgnoreCase("t") || words[1].equalsIgnoreCase("1"))
@@ -755,24 +712,21 @@ public class BagConfigHandler {
 		else if(words[1].equalsIgnoreCase("false") || words[1].equalsIgnoreCase("f") || words[1].equalsIgnoreCase("0"))
 			currentBag.setGeneralSources(false);
 		else
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: boolean value not recognized as boolean.", command);
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag general source command at line " + linenum + " has error: boolean value not recognized as boolean.");
 	}
 	
 	private void addMaximumItemCount(String[] words, int linenum, Bag currentBag) {
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag maximum item count command at line " + linenum + " has error: Too few words, it needs the command and the number of items.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag maximum item count command at line " + linenum + " has error: Too few words, it needs the command and the number of items.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag maximum item count at line " + linenum + " has error: Too many words, it needs only the command and the number of items.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag maximum item count at line " + linenum + " has error: Too many words, it needs only the command and the number of items.");
 		}
 
 		int weight = 0;
@@ -802,18 +756,15 @@ public class BagConfigHandler {
 	private void addMinimumItemCount(String[] words, int linenum, Bag currentBag) {
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag minimum item count command at line " + linenum + " has error: Too few words, it needs the command and the number of items.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag minimum item count command at line " + linenum + " has error: Too few words, it needs the command and the number of items.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag minimum item count at line " + linenum + " has error: Too many words, it needs only the command and the number of items.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag minimum item count at line " + linenum + " has error: Too many words, it needs only the command and the number of items.");
 		}
 
 		int weight = 0;
@@ -843,18 +794,15 @@ public class BagConfigHandler {
 	private void addMaximumGeneralWeight(String[] words, int linenum, Bag currentBag) {
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag maximum general weight command at line " + linenum + " has error: Too few words, it needs the command and weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag maximum general weight command at line " + linenum + " has error: Too few words, it needs the command and weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag maximum general weight command at line " + linenum + " has error: Too many words, it needs only the command and weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag maximum general weight command at line " + linenum + " has error: Too many words, it needs only the command and weight.");
 		}
 
 		int weight = 0;
@@ -874,18 +822,15 @@ public class BagConfigHandler {
 	private void addMinimumGeneralWeight(String[] words, int linenum, Bag currentBag) {
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag minimum general weight command at line " + linenum + " has error: Too few words, it needs the command and weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag minimum general weight command at line " + linenum + " has error: Too few words, it needs the command and weight.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag minimum general weight command at line " + linenum + " has error: Too many words, it needs only the command and weight.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag minimum general weight command at line " + linenum + " has error: Too many words, it needs only the command and weight.");
 		}
 
 		int weight = 0;
@@ -906,18 +851,15 @@ public class BagConfigHandler {
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.");
 		}
 		
 		if(words[1].equalsIgnoreCase("none"))
@@ -929,25 +871,22 @@ public class BagConfigHandler {
 		else if(words[1].equalsIgnoreCase("fixed"))
 			currentBag.setItemRepeats(3);
 		else
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: text not recognized as 'none', 'damage', or 'item'.", command);
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag item repeat command at line " + linenum + " has error: text not recognized as 'none', 'damage', or 'item'.");
 	}
 	
 	private void addExcludeEntities(String[] words, int linenum, Bag currentBag)
 	{
 		if(currentBag==null)
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"No active bag, ensure that a bag is correctly started before trying to change information on it.");
 		}
 		if(words.length<2)//insufficient words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag entitity exclusion command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag entitity exclusion command at line " + linenum + " has error: Too few words, it needs the command and a boolean value.");
 		}
 		if(words.length>2)//excessive words error
 		{
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag entity exlusion command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.", command);
-			return;
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag entity exlusion command at line " + linenum + " has error: Too many words, it needs only the command and a boolean value.");
 		}
 		
 		if(words[1].equalsIgnoreCase("true") || words[1].equalsIgnoreCase("t") || words[1].equalsIgnoreCase("1"))
@@ -955,7 +894,7 @@ public class BagConfigHandler {
 		else if(words[1].equalsIgnoreCase("false") || words[1].equalsIgnoreCase("f") || words[1].equalsIgnoreCase("0"))
 			currentBag.setEntityExclusion(false);
 		else
-			LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Bag entity exclusion command at line " + linenum + " has error: boolean value not recognized as boolean.", command);
+			throw new BagConfigException(ConfigText.ERROR.getText()+"Bag entity exclusion command at line " + linenum + " has error: boolean value not recognized as boolean.");
 	}
 	
 	private void addEntityList(String[] words, int linenum, Bag currentBag)
