@@ -33,7 +33,7 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 	
 	public LootCategory()
 	{	
-		ResourceLocation location = new ResourceLocation(LootBags.MODID, "textures/gui/JEILootbagGui.png");
+		ResourceLocation location = new ResourceLocation(LootBags.MODID, "textures/gui/jei_lootbag_gui.png");
 		background = JEILoot.getJEIHelpers().getGuiHelper().createDrawable(location, 0, 0, WIDTH, HEIGHT);
 	}
 	
@@ -77,6 +77,7 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 		layout.getItemStacks().addTooltipCallback(wrapper);
 		IFocus<ItemStack> focus = (IFocus<ItemStack>)layout.getFocus();
 		int slots = Math.min(wrapper.amountOfItems(focus), ITEMSPERPAGE);
+		layout.getItemStacks().set(0, wrapper.getBag());
 		for(int i = 0; i < slots; i++)
 			layout.getItemStacks().set(i+1, wrapper.getItems(focus, i, slots));
 	}

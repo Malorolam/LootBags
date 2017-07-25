@@ -15,13 +15,13 @@ import mezz.jei.api.recipe.IFocus;
 
 public class LootEntry {
 
-	private Set<LootItem> drops;
+	private List<LootItem> drops;
 	private Bag bag;
 	private String bagName;
 	
 	public LootEntry(Bag bag)
 	{
-		this.drops = new HashSet<LootItem>();
+		this.drops = new ArrayList<LootItem>();
 		this.bag = bag;
 		this.bagName = bag.getBagName();
 		
@@ -43,7 +43,8 @@ public class LootEntry {
 	
 	public List<ItemStack> getItemStacks(IFocus<ItemStack> focus)
 	{
-		return drops.stream().map(drop -> drop.getContentItem()).filter(stack -> focus==null || ItemStack.areItemStacksEqual(ItemHandlerHelper.copyStackWithSize(stack, focus.getValue().getCount()), focus.getValue()))
+		return drops.stream().map(drop -> drop.getContentItem())
+				/*.filter(stack -> focus==null || ItemStack.areItemStacksEqual(ItemHandlerHelper.copyStackWithSize(stack, focus.getValue().getCount()), focus.getValue()))*/
 				.collect(Collectors.toList());
 	}
 	

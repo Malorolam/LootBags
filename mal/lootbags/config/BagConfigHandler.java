@@ -1201,7 +1201,7 @@ public class BagConfigHandler {
 		 * Standard Bags
 		 */
 		//common bag
-		list.add("$STARTBAG:lootbagCommon:0");
+		list.add("$STARTBAG:lootbag_Common:0");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$WHITE");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
@@ -1222,16 +1222,16 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTBLACKLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
-		list.add("$ENDBAG:lootbagCommon");
+		list.add("$ENDBAG:lootbag_Common");
 		
 		//uncommon bag
-		list.add("$STARTBAG:lootbagUncommon:1");
+		list.add("$STARTBAG:lootbag_Uncommon:1");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GREEN");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagCommon:4");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbag_Common:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:25");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:50");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:50");
@@ -1246,16 +1246,16 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTBLACKLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
-		list.add("$ENDBAG:lootbagUncommon");
+		list.add("$ENDBAG:lootbag_Uncommon");
 		
 		//rare bag
-		list.add("$STARTBAG:lootbagRare:2");
+		list.add("$STARTBAG:lootbag_Rare:2");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagUncommon:4");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbag_Uncommon:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:15");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:15");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:25");
@@ -1270,16 +1270,16 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTBLACKLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
-		list.add("$ENDBAG:lootbagRare");
+		list.add("$ENDBAG:lootbag_Rare");
 		
 		//epic bag
-		list.add("$STARTBAG:lootbagEpic:3");
+		list.add("$STARTBAG:lootbag_Epic:3");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$LIGHT_PURPLE");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagRare:4");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbag_Rare:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:10");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:10");
 		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:15");
@@ -1294,16 +1294,16 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTBLACKLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
-		list.add("$ENDBAG:lootbagEpic");
+		list.add("$ENDBAG:lootbag_Epic");
 		
 		//legendary bag
-		list.add("$STARTBAG:lootbagLegendary:4");
+		list.add("$STARTBAG:lootbag_Legendary:4");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GOLD");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:What's inside is not as interesting as not knowing.");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$DROPCHANCES");
-		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbagEpic:4");
+		list.add(ConfigText.TAB.getText()+"$CRAFTEDFROM:lootbag_Epic:4");
 		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:5");
 		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:5");
 		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:10");
@@ -1318,10 +1318,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTBLACKLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
-		list.add("$ENDBAG:lootbagLegendary");
+		list.add("$ENDBAG:lootbag_Legendary");
 		
 		//artifact bag
-		list.add("$STARTBAG:lootbagArtifact:11");
+		list.add("$STARTBAG:lootbag_Artifact:11");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$YELLOW");
@@ -1343,10 +1343,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:1");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagArtifact");
+		list.add("$ENDBAG:lootbag_Artifact");
 		
 		//Old Blue Bag
-		list.add("$STARTBAG:lootbagOldBlue:12");
+		list.add("$STARTBAG:lootbag_Old_Blue:12");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:84|89|142:17|23|84");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
@@ -1369,13 +1369,13 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagOldBlue");
+		list.add("$ENDBAG:lootbag_Old_Blue");
 		
 		/**
 		 * Secret Bags
 		 */
 		//Bacon Bag
-		list.add("$STARTBAG:lootbagBacon:5");
+		list.add("$STARTBAG:lootbag_Bacon:5");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:\u00A7d");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
@@ -1399,10 +1399,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:porkchop:0:1:8:20");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cooked_porkchop:0:1:8:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagBacon");
+		list.add("$ENDBAG:lootbag_Bacon");
 		
 		//Worn Out Bag
-		list.add("$STARTBAG:lootbagWornOut:6");
+		list.add("$STARTBAG:lootbag_Worn_Out:6");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:97|28|161:16|145|14");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
@@ -1426,10 +1426,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:bed:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|96|102|-32|10|74|45|72|-52|44|114|-50|47|46|97|0|2|46|6|-10|-108|-52|-30|-126|-100|-60|74|14|6|22|-65|-60|-36|84|6|78|-65|-4|18|5|71|5|-89|-44|20|6|6|0|122|-45|0|-36|50|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagWornOut");
+		list.add("$ENDBAG:lootbag_Worn_Out");
 		
 		//Soaryn Bag
-		list.add("$STARTBAG:lootbagSoaryn:7");
+		list.add("$STARTBAG:lootbag_Soaryn:7");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
@@ -1453,10 +1453,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stick:0:1:1:20");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:quartz:0:4:4:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagSoaryn");
+		list.add("$ENDBAG:lootbag_Soaryn");
 		
 		//Wyld Bag
-		list.add("$STARTBAG:lootbagWyld:8");
+		list.add("$STARTBAG:lootbag_Wyld:8");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$RED");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:Ooh, what could be inside?");
@@ -1478,10 +1478,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|-32|98|-32|116|-51|43|-55|44|-87|12|73|76|-25|96|96|-54|76|97|96|119|-50|-56|76|-50|78|-51|99|96|0|0|104|-97|-118|-19|31|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagWyld");
+		list.add("$ENDBAG:lootbag_Wyld");
 		
 		//Bat Bag
-		list.add("$STARTBAG:lootbagBat:9");
+		list.add("$STARTBAG:lootbag_Bat:9");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$DARK_GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_GREEN:A hero with no praise or glory.");
@@ -1504,10 +1504,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:spawn_egg:0:1:1:20:31|-117|8|0|0|0|0|0|0|0|-29|98|96|-32|98|-32|116|-51|43|-55|44|-87|12|73|76|-25|96|96|-54|76|97|96|118|74|44|97|96|0|0|110|124|-90|-64|27|0|0|0");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagBat");
+		list.add("$ENDBAG:lootbag_Bat");
 		
 		//Darkosto Bag
-		list.add("$STARTBAG:lootbagDarkosto:10");
+		list.add("$STARTBAG:lootbag_Darkosto:10");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$GRAY");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$DARK_RED:The most fitting of loot.");
@@ -1529,11 +1529,11 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cake:0:1:1:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagDarkosto");
+		list.add("$ENDBAG:lootbag_Darkosto");
 		
 		
 		//Direwolf20 Bag
-		list.add("$STARTBAG:lootbagDirewolf:20");
+		list.add("$STARTBAG:lootbag_Direwolf:20");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:93|181|204:70|71|135");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
 		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$AQUA");
@@ -1563,7 +1563,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:62:62:20");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:glass:0:36:36:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbagDirewolf");
+		list.add("$ENDBAG:lootbag_Direwolf");
 		return list;
 	}
 }

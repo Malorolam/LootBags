@@ -321,9 +321,11 @@ public class LootBags {
     
     public static boolean areItemStacksEqualItem(ItemStack is1, ItemStack is2, boolean alwaysUseDamage, boolean considerNBT)
     {
-    	if(is1==null ^ is2==null)
-    		return false;
-    	if(Item.getIdFromItem(is1.getItem()) != Item.getIdFromItem(is2.getItem()))
+    	if(is1==null || is2==null)
+    		return is1==is2;
+    	if(is1.isEmpty() || is2.isEmpty())
+    		return (is1.isEmpty()&&is2.isEmpty());
+    	if(is1.getItem() != is2.getItem())
     		return false;
     	if((alwaysUseDamage && (is1.getHasSubtypes() && is2.getHasSubtypes())) && is1.getItemDamage() != is2.getItemDamage())
     		return false;

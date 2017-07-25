@@ -25,7 +25,7 @@ import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-public class LootItem extends WeightedRandom.Item implements Comparable{
+public class LootItem extends WeightedRandom.Item implements Comparable<LootItem>{
 
 	private ItemStack item;
 	private String modid;
@@ -282,13 +282,10 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	}
 
 	@Override
-	public int compareTo(Object loot) {
-		if(!(loot instanceof LootItem))
-			return 0;
-		
-		if(itemWeight > ((LootItem)loot).getItemWeight())
+	public int compareTo(LootItem loot) {
+		if(itemWeight > loot.getItemWeight())
 			return 1;
-		else if(itemWeight < ((LootItem)loot).getItemWeight())
+		else if(itemWeight < loot.getItemWeight())
 			return -1;
 		else
 			return 0;

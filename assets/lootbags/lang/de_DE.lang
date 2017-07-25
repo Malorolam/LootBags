@@ -1,19 +1,19 @@
-< de_DE.lang - German localization file for LootBags mod >
+﻿< de_DE.lang - German localization file for LootBags mod >
 
-name.lootbags_lootbagCommon.name=gewöhnlicher Beutesack
-name.lootbags_lootbagUncommon.name=ungewöhnlicher Beutesack
-name.lootbags_lootbagRare.name=seltener Beutesack
-name.lootbags_lootbagEpic.name=epischer Beutesack
-name.lootbags_lootbagLegendary.name=legendärer Beutesack
-name.lootbags_lootbagArtifact.name=Artefakt Beutesack
-name.lootbags_lootbagOldBlue.name=Alter blauer Beutel
-name.lootbags_lootbagBacon.name=Speck Beutel
-name.lootbags_lootbagBat.name=Fledermausbeutel
-name.lootbags_lootbagWornOut.name=abgenutzter Beutesack
-name.lootbags_lootbagSoaryn.name=Soaryns Beutel
-name.lootbags_lootbagWyld.name=Wylds Beutel
-name.lootbags_lootbagDarkosto.name=Darkostos Beutel
-name.lootbags_lootbagDirewolf.name=Direwolf20s Beutel
+name.lootbags_lootbag_Common.name=gewöhnlicher Beutesack
+name.lootbags_lootbag_Uncommon.name=ungewöhnlicher Beutesack
+name.lootbags_lootbag_Rare.name=seltener Beutesack
+name.lootbags_lootbag_Epic.name=epischer Beutesack
+name.lootbags_lootbag_Legendary.name=legendärer Beutesack
+name.lootbags_lootbag_Artifact.name=Artefakt Beutesack
+name.lootbags_lootbag_Old_Blue.name=Alter blauer Beutel
+name.lootbags_lootbag_Bacon.name=Speck Beutel
+name.lootbags_lootbag_Bat.name=Fledermausbeutel
+name.lootbags_lootbag_Worn_Out.name=abgenutzter Beutesack
+name.lootbags_lootbag_Soaryn.name=Soaryns Beutel
+name.lootbags_lootbag_Wyld.name=Wylds Beutel
+name.lootbags_lootbag_Darkosto.name=Darkostos Beutel
+name.lootbags_lootbag_Direwolf.name=Direwolf20s Beutel
 
 tile.lootbags_loot_recycler.name=Beute Recycler
 tile.lootbags_loot_opener.name=Beutel Öffner

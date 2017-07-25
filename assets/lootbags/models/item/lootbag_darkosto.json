@@ -1,0 +1,6 @@
+{
+    "parent": "item/generated",
+    "textures": {
+        "layer0": "lootbags:items/lootbag_darkosto_item_texture"
+    }
+}

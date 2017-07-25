@@ -1,7 +1,7 @@
 {
     "parent": "item/generated",
     "textures": {
-        "layer0": "lootbags:items/lootbagTextureBase",
-        "layer1": "lootbags:items/lootbagTextureString"
+        "layer0": "lootbags:items/lootbag_texture_base",
+        "layer1": "lootbags:items/lootbag_texture_string"
     }
 }
