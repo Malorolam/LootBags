@@ -14,6 +14,7 @@ import mal.lootbags.rendering.ItemRenderingRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,6 +25,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
@@ -157,7 +159,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 			int slot = item.getInteger("Slot");
 
 			if (slot >= 0 && slot < inventory.length) {
-				ItemStack ii = ItemStack.loadItemStackFromNBT(item);
+				ItemStack ii = new ItemStack(item);
 				inventory[i] = ii;
 			}
 		}
@@ -173,25 +175,28 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 			if (!gen) {
 				int numitems = getNumItems(is);
 				
-				ItemStack[] items = new ItemStack[numitems];
+				ItemStack[] items = new ItemStack[BagHandler.HARDMAX];
 				
 				NBTTagCompound nbt = new NBTTagCompound();
 				NBTTagList nbtinventory = new NBTTagList();
 
-				for (int i = 0; i < numitems; i++) {
-					ItemStack inv = getLootItem(is.getItemDamage(), i, items);
-					items[i] = inv;
+				for (int i = 0; i < BagHandler.HARDMAX; i++) {
 					NBTTagCompound var4 = new NBTTagCompound();
 					var4.setInteger("Slot", i);
-					if (inv != null && inv.stackSize>0) {
-						inv.writeToNBT(var4);
+					
+					if(i<numitems)
+					{
+						ItemStack inv = getLootItem(is.getItemDamage(), i, items);
+						items[i] = inv;
+						if (inv != null && inv.getCount()>0)
+							inv.writeToNBT(var4);
 					}
 					else
 					{
-						//System.out.println("Skipping null slot.");
-						i--;
-						numitems--;
+						items[i] = ItemStack.EMPTY;
+						
 					}
+
 					nbtinventory.appendTag(var4);
 				}
 				
@@ -207,6 +212,13 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		boolean reroll = false;
 		Bag b = BagHandler.getBag(damage);
 		
+		if(b == null)
+		{
+			LootbagsUtil.LogError("Bag at ID: " + damage + " doesn't exist!");
+			return null;
+		}
+		
+		
 		//special case for very small loot tables and item repeat prevention
 		if(b.getItemRepeats()==3)
 		{
@@ -214,7 +226,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		}
 		
 		ItemStack is = b.getRandomItem();
-		if(is == null || is.getItem()==null || is.stackSize<= 0)
+		if(is == null || is.getItem()==null || is.getCount()<= 0 || is.isEmpty())
 			reroll = true;
 		if(itemAlreadyRolled(is, items, b))
 			reroll = true;
@@ -224,7 +236,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 			return getLootItem(rerollCount, damage, slot, items);
 		}
 		else if (rerollCount>=LootBags.MAXREROLLCOUNT)
-			return null;
+			return ItemStack.EMPTY;
 		return is;
 	}
 	
@@ -237,7 +249,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 
 		for(int i = 0; i < items.length; i++)
 		{
-			if(items[i] != null)
+			if(items[i] != null && !items[i].isEmpty())
 			{
 				if(b.getItemRepeats()==1 && stack.isItemEqual(items[i]))
 					return true;
@@ -248,7 +260,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return false;
 	}
 	
-	public ActionResult<ItemStack> onItemRightClick(ItemStack is, World world, EntityPlayer player, EnumHand hand) {
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand handIn) {
+		ItemStack is = player.getHeldItem(handIn);
 		if (!world.isRemote && !player.isSneaking()) {
 			if(BagHandler.isBagEmpty(is.getItemDamage()))
 				return new ActionResult(EnumActionResult.PASS, is);
@@ -260,10 +273,12 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	}
 
 	@Override
-	public EnumActionResult onItemUse(ItemStack is, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
 	{
 		if(!world.isRemote)
 		{
+			ItemStack is = player.getHeldItem(hand);
+			
 			if(BagHandler.isBagEmpty(is.getItemDamage()))
 				return EnumActionResult.FAIL;
 			if(!player.isSneaking())
@@ -292,18 +307,18 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 									iss[j] = null;
 									break;
 								}
-								else if(itstack.stackSize+stack.stackSize<=itstack.getMaxStackSize())
+								else if(itstack.getCount()+stack.getCount()<=itstack.getMaxStackSize())
 								{
-									itstack.stackSize += stack.stackSize;
+									itstack.grow(stack.getCount());
 									iss[j] = null;
 									break;
 								}
-								else if(itstack.stackSize<itstack.getMaxStackSize())
+								else if(itstack.getCount()<itstack.getMaxStackSize())
 								{
-									int diff =  itstack.getMaxStackSize()-itstack.stackSize;
-									ite.getStackInSlot(i).stackSize = ite.getStackInSlot(i).getMaxStackSize();
-									stack.stackSize -= diff;
-									if(stack.stackSize<=0)
+									int diff =  itstack.getMaxStackSize()-itstack.getCount();
+									ite.getStackInSlot(i).setCount(ite.getStackInSlot(i).getMaxStackSize());
+									stack.shrink(diff);
+									if(stack.getCount()<=0)
 									{
 										iss[j] = null;
 										break;
@@ -326,13 +341,13 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		{
 			EntityPlayer player = (EntityPlayer)entityIn;
 			if(LootBags.areItemStacksEqualItem(is, player.getHeldItemOffhand(), true, true))
-				player.inventory.offHandInventory[0]=null;
+				player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, null);
 			else
 				player.inventory.removeStackFromSlot(itemSlot);
 		}
     }
     
-    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
+/*    public EnumActionResult onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, EnumHand hand)
     {
     	if(!world.isRemote && !player.isSneaking() && world.getTileEntity(pos)==null)
     	{
@@ -343,7 +358,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
     		return EnumActionResult.FAIL;
     	}
         return EnumActionResult.PASS;
-    }
+    }*/
     
 	/**
 	 * Returns true if the stack should be removed
@@ -363,7 +378,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 			boolean b = true;
 			for(int i = 0; i < stack.length; i++)
 			{
-				if(stack[i]!=null && stack[i].stackSize>0)
+				if((stack[i]!=null && stack[i] != ItemStack.EMPTY) && stack[i].getCount()>0)
 					b=false;
 			}
 			return b;
@@ -380,12 +395,14 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return base+"_"+bag.getBagName();
 	}
 	
-	public void getSubItems(Item par1, CreativeTabs par2CreativeTabs, List par3List)
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems)
     {
 		for(Bag b:BagHandler.getBagList().values())
 		{
 			if(!b.getSecret() || LootBags.SHOWSECRETBAGS)
-				par3List.add(new ItemStack(par1, 1, b.getBagIndex()));
+				subItems.add(new ItemStack(itemIn, 1, b.getBagIndex()));
 		}
     }
 
@@ -403,6 +420,12 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	private static int getNumItems(ItemStack is)
 	{
 		Bag b = BagHandler.getBag(is.getItemDamage());
+		
+		if(b == null)
+		{
+			LootbagsUtil.LogError("Bag at ID: " + is.getItemDamage() + " doesn't exist!");
+			return 0;
+		}
 		
 		int min = b.getMinItems();
 		int max = b.getMaxItems();

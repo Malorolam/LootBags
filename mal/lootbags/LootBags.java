@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 import mal.lootbags.blocks.BlockOpener;
 import mal.lootbags.blocks.BlockRecycler;
@@ -50,7 +51,7 @@ import net.minecraftforge.oredict.ShapedOreRecipe;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.3.5";
+	public static final String VERSION = "2.4.0";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -58,11 +59,7 @@ public class LootBags {
 	
 	public static int CHESTQUALITYWEIGHT = 20;
 	
-	public static int CPERCENTILE = 100;
-	public static int UPERCENTILE = 75;
-	public static int RPERCENTILE = 50;
-	public static int EPERCENTILE = 25;
-	public static int LPERCENTILE = 5;
+	public static Logger LOOTLOG;
 	
 	public static boolean REVERSEQUALITY = true;//reverses the quality to determine what can be dropped from a bag
 	
@@ -122,8 +119,8 @@ public class LootBags {
 		MobDropHandler handler = new MobDropHandler();
 		MinecraftForge.EVENT_BUS.register(handler);
 		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, new GUIHandler());
-		
-		FMLLog.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION);
+		LOOTLOG = event.getModLog();
+		LOOTLOG.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION);
 		
 		GeneralConfigHandler.loadConfig(event);
 		bagconfig = new BagConfigHandler(event);
@@ -205,6 +202,7 @@ public class LootBags {
 		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		
+		LOOTMAP.setContext(null);
 		LOOTMAP.populateGeneralMap(null);//FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
 		BagHandler.populateBagLists();
 		LOOTMAP.setTotalListWeight();
@@ -231,7 +229,7 @@ public class LootBags {
 		event.registerServerCommand(new LootSourceCommand());
 		event.registerServerCommand(new NBTPullCommand());
 		event.registerServerCommand(new ConfigReloadCommand());
-		LootBags.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
+		LootBags.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0]);
 	}
 	
 /*	@EventHandler

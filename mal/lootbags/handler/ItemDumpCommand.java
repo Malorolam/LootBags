@@ -29,17 +29,17 @@ public class ItemDumpCommand implements ICommand{
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "/lootbags_itemdump";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
+	public String getUsage(ICommandSender p_71518_1_) {
 		return "/lootbags_itemdump";
 	}
 
 	@Override
-	public List getCommandAliases() {
+	public List getAliases() {
 		return aliases;
 	}
 
@@ -50,12 +50,12 @@ public class ItemDumpCommand implements ICommand{
 		stringlist.add("<modid>:<itemname>:<itemdamage>:<droppercent>:<weight>:<min>:<max>");
 		for(LootItem it : LootBags.LOOTMAP.getMap().values())
 		{
-			if(it != null && it.getContentItem() != null)
+			if(it != null && !it.getContentItem().isEmpty())
 			{
 				float percent = (100.0f*it.getItemWeight())/LootBags.LOOTMAP.getTotalListWeight();
 				stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight() + ":" + it.getMinStack() + ":" + it.getMaxStack());
 			}
-			else if(it.getContentItem() != null)
+			else if(!it.getContentItem().isEmpty())
 			{
 				stringlist.add(it.getContentItem().toString() + ": Unique Identifier not found.");
 			}
@@ -71,12 +71,12 @@ public class ItemDumpCommand implements ICommand{
 			stringlist.add("XXXX " + bag.getBagName() + " Drop Table XXXX");
 			for(LootItem it: bag.getMap().values())
 			{
-				if(it != null && it.getContentItem() != null)
+				if(it != null && !it.getContentItem().isEmpty())
 				{
 					float percent = (100.0f*it.getItemWeight()/LootBags.LOOTMAP.getTotalListWeight());
 					stringlist.add(it.getItemModID() + ":" + it.getItemName() + ":" + it.getContentItem().getItemDamage() + ":" + String.format("%.3f", percent) + ":" + it.getItemWeight() + ":" + it.getMinStack() + ":" + it.getMaxStack());
 				}
-				else if(it.getContentItem() != null)
+				else if(!it.getContentItem().isEmpty())
 				{
 					stringlist.add(it.getContentItem().toString() + ": Unique Identifier not found.");
 				}
@@ -88,7 +88,7 @@ public class ItemDumpCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(/*MinecraftServer.getServer().getFolderName(), */"./dumps/LootBagsItemDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(), "./dumps/LootBagsItemDump.txt");
 			//System.out.println(file.getAbsolutePath());
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
@@ -101,7 +101,7 @@ public class ItemDumpCommand implements ICommand{
 			{
 				write.println(s);
 			}
-			icommand.addChatMessage(new TextComponentString("LootBags Item Dump Written - Look in your dumps folder"));
+			icommand.sendMessage(new TextComponentString("LootBags Item Dump Written - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
@@ -117,7 +117,7 @@ public class ItemDumpCommand implements ICommand{
 
 	@Override
 	public int compareTo(ICommand o) {
-		return this.getCommandName().compareTo(o.getCommandName());
+		return this.getName().compareTo(o.getName());
 	}
 
 	@Override
@@ -126,7 +126,7 @@ public class ItemDumpCommand implements ICommand{
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		return null;
 	}

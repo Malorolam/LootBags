@@ -24,19 +24,21 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public class TileEntityRecycler extends TileEntity implements IInventory, ISidedInventory, ITickable{
 
-	private ItemStack lootbagSlot;
+	private ItemStack lootbagSlot = ItemStack.EMPTY;
 	private int lootbagCount = 0;
 	private int totalValue = 0;
 	private ItemStack[] inventory = new ItemStack[27];
 	
 	public TileEntityRecycler()
 	{
+		for(int i = 0; i < inventory.length; i++)
+			inventory[i] = ItemStack.EMPTY;
 	}
 	
 	@Override
 	public void update()
 	{
-		if(worldObj != null && !this.worldObj.isRemote)
+		if(world != null && !this.world.isRemote)
 		{
 			//consume inventory to make a lootbag
 			for(int i = 0; i < inventory.length; i++)
@@ -48,9 +50,9 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 						if(totalValue <= Integer.MAX_VALUE-val)
 						{
 							totalValue += val;
-							inventory[i].stackSize--;
-							if(inventory[i].stackSize <= 0)
-								inventory[i] = null;
+							inventory[i].shrink(1);;
+							if(inventory[i].getCount() <= 0)
+								inventory[i] = ItemStack.EMPTY;
 						}
 					}
 			}
@@ -61,7 +63,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 				lootbagCount += 1;
 			}
 			
-			if(lootbagSlot == null && lootbagCount > 0)
+			if(lootbagSlot == null || lootbagSlot.isEmpty() && lootbagCount > 0)
 			{
 				lootbagSlot = new ItemStack(LootBags.lootbagItem, 1, LootBags.RECYCLEDID);
 				lootbagCount--;
@@ -75,7 +77,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	
 	public int getTotalBags()
 	{
-		return (lootbagCount + ((lootbagSlot!=null)?(1):(0)));
+		return (lootbagCount + ((lootbagSlot!=null && !lootbagSlot.isEmpty())?(1):(0)));
 	}
 	
 	public void setData(int count, int value)
@@ -99,7 +101,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		
 		NBTTagList lootbag = nbt.getTagList("lootbagItem", 10);
 		NBTTagCompound var = (NBTTagCompound)lootbag.getCompoundTagAt(0);
-		lootbagSlot = ItemStack.loadItemStackFromNBT(var);
+		lootbagSlot = new ItemStack(var);
 		
 		
 		NBTTagList input = nbt.getTagList("inputItems", 10);
@@ -110,7 +112,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 
 			if (var5 >= 0 && var5 < this.inventory.length)
 			{
-				this.inventory[var5] = ItemStack.loadItemStackFromNBT(var4);
+				this.inventory[var5] = new ItemStack(var4);
 			}
 		}
 	}
@@ -124,7 +126,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		nbt.setInteger("totalValue", totalValue);
 		
 		NBTTagList lootbag = new NBTTagList();
-		if(lootbagSlot != null)
+		if(lootbagSlot != null && !lootbagSlot.isEmpty())
 		{
 			NBTTagCompound var = new NBTTagCompound();
 			var.setByte("Slot", (byte)0);
@@ -137,7 +139,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 
 		for (int i = 0; i < this.inventory.length; ++i)
 		{
-			if (this.inventory[i] != null)
+			if (this.inventory[i] != null && !this.inventory[i].isEmpty())
 			{
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setByte("Slot", (byte) i);
@@ -173,17 +175,17 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			if(lootbagSlot != null)
 			{
 				ItemStack is;
-				if(lootbagSlot.stackSize <= dec)
+				if(lootbagSlot.getCount() <= dec)
 				{
 					is = lootbagSlot;
-					lootbagSlot = null;
+					lootbagSlot = ItemStack.EMPTY;
 					return is;
 				}
 				else
 				{
 					is = lootbagSlot.splitStack(dec);
-					if(lootbagSlot.stackSize == 0)
-						lootbagSlot = null;
+					if(lootbagSlot.getCount() == 0)
+						lootbagSlot = ItemStack.EMPTY;
 					return is;
 				}
 			}
@@ -193,17 +195,17 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			if(inventory[slot-1] != null)
 			{
 				ItemStack is;
-				if(inventory[slot-1].stackSize <= dec)
+				if(inventory[slot-1].getCount() <= dec)
 				{
 					is = inventory[slot-1];
-					inventory[slot-1] = null;
+					inventory[slot-1] = ItemStack.EMPTY;
 					return is;
 				}
 				else
 				{
 					is = inventory[slot-1].splitStack(dec);
-					if(inventory[slot-1].stackSize == 0)
-						inventory[slot-1] = null;
+					if(inventory[slot-1].getCount() == 0)
+						inventory[slot-1] = ItemStack.EMPTY;
 					return is;
 				}
 			}
@@ -217,18 +219,18 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		{
 			this.lootbagSlot = item;
 
-			if (item != null && item.stackSize > this.getInventoryStackLimit())
+			if (item != null && !item.isEmpty() && item.getCount() > this.getInventoryStackLimit())
 			{
-				item.stackSize = this.getInventoryStackLimit();
+				item.setCount(this.getInventoryStackLimit());
 			}
 		}
 		else if(slot<getSizeInventory())
 		{
 			inventory[slot-1] = item;
 
-			if (item != null && item.stackSize > this.getInventoryStackLimit())
+			if (item != null && !item.isEmpty() && item.getCount() > this.getInventoryStackLimit())
 			{
-				item.stackSize = this.getInventoryStackLimit();
+				item.setCount(this.getInventoryStackLimit());
 			}
 		}
 		
@@ -241,8 +243,8 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer) {
-		return this.worldObj.getTileEntity(this.pos) != this ? false : par1EntityPlayer.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+	public boolean isUsableByPlayer(EntityPlayer par1EntityPlayer) {
+		return this.world.getTileEntity(this.pos) != this ? false : par1EntityPlayer.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 
 	@Override
@@ -353,6 +355,11 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			return (T) new SidedInvWrapper(this, facing);
 		}
 		return super.getCapability(capability, facing);
+	}
+
+	@Override
+	public boolean isEmpty() {
+		return false;
 	}
 
 }

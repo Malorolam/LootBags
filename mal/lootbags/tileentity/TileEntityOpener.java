@@ -27,6 +27,15 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 	private int cooldown = 0;
 	private ItemStack[] inventory = new ItemStack[27];
 	
+	public TileEntityOpener()
+	{
+		for(int i = 0; i < inventory.length; i++)
+		{
+			if(i<lootbagInventory.length)
+				lootbagInventory[i] = ItemStack.EMPTY;
+			inventory[i] = ItemStack.EMPTY;
+		}
+	}
 	@Override
 	public String getName() {
 		return "opener";
@@ -39,7 +48,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 	@Override
 	public void update() {
-		if(worldObj != null && !worldObj.isRemote)
+		if(world != null && !world.isRemote)
 		{
 			//if not cooled down yet, don't do anything
 			if(cooldown > 0)
@@ -52,7 +61,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 				while(!opened && invslot < lootbagInventory.length)
 				{
 					ItemStack stack = lootbagInventory[invslot];
-					if(stack==null)
+					if(stack==null || stack.isEmpty())
 						invslot++;
 					else if(!(stack.getItem() instanceof LootbagItem))//not a lootbag somehow
 					{
@@ -72,7 +81,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 						if(LootbagItem.checkInventory(stack))//empty bag now
 						{
 							cooldown = LootBags.OPENERMAXCOOLDOWN;
-							setInventorySlotContents(invslot, null);
+							setInventorySlotContents(invslot, ItemStack.EMPTY);
 							if(LootBags.OPENERMAXCOOLDOWN>0)
 								opened = true;
 						}
@@ -88,29 +97,29 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 	private ItemStack insertItemToOutput(ItemStack is)
 	{
-		if(is==null)
-			return null;
+		if(is==null || is.isEmpty())
+			return ItemStack.EMPTY;
 		for(int i = 0; i < inventory.length; i++)
 		{
-			if(inventory[i] == null)
+			if(inventory[i] == null || inventory[i].isEmpty())
 			{
 				inventory[i] = is.copy();
-				return null;
+				return ItemStack.EMPTY;
 			}
 			else if(LootBags.areItemStacksEqualItem(is, inventory[i], true, true))
 			{
-				if(inventory[i].stackSize<inventory[i].getMaxStackSize())
+				if(inventory[i].getCount()<inventory[i].getMaxStackSize())
 				{
-					if(inventory[i].stackSize+is.stackSize<=inventory[i].getMaxStackSize())
+					if(inventory[i].getCount()+is.getCount()<=inventory[i].getMaxStackSize())
 					{
-						inventory[i].stackSize += is.stackSize;
-						return null;
+						inventory[i].grow(is.getCount());
+						return ItemStack.EMPTY;
 					}
 					else
 					{
-						int diff = inventory[i].stackSize+is.stackSize-inventory[i].getMaxStackSize();
-						inventory[i].stackSize = inventory[i].getMaxStackSize();
-						is.stackSize=diff;
+						int diff = inventory[i].getCount()+is.getCount()-inventory[i].getMaxStackSize();
+						inventory[i].setCount(inventory[i].getMaxStackSize());
+						is.setCount(diff);
 						return is.copy();
 					}
 				}
@@ -139,7 +148,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 			if (var5 >= 0 && var5 < this.lootbagInventory.length)
 			{
-				this.lootbagInventory[var5] = ItemStack.loadItemStackFromNBT(var4);
+				this.lootbagInventory[var5] = new ItemStack(var4);
 			}
 		}
 		
@@ -151,7 +160,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 			if (var5 >= 0 && var5 < this.inventory.length)
 			{
-				this.inventory[var5] = ItemStack.loadItemStackFromNBT(var4);
+				this.inventory[var5] = new ItemStack(var4);
 			}
 		}
 	}
@@ -167,7 +176,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 		for (int i = 0; i < this.lootbagInventory.length; ++i)
 		{
-			if (this.lootbagInventory[i] != null)
+			if (this.lootbagInventory[i] != null && !this.lootbagInventory[i].isEmpty())
 			{
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setByte("Slot", (byte) i);
@@ -181,7 +190,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 		for (int i = 0; i < this.inventory.length; ++i)
 		{
-			if (this.inventory[i] != null)
+			if (this.inventory[i] != null && !this.inventory[i].isEmpty())
 			{
 				NBTTagCompound var4 = new NBTTagCompound();
 				var4.setByte("Slot", (byte) i);
@@ -236,24 +245,24 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 			return lootbagInventory[index];
 		else if(index < getSizeInventory())
 			return inventory[index-lootbagInventory.length];
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
-		if (this.getStackInSlot(index) != null) {
+		if (this.getStackInSlot(index) != null && !this.getStackInSlot(index).isEmpty()) {
 	        ItemStack itemstack;
 
-	        if (this.getStackInSlot(index).stackSize <= count) {
+	        if (this.getStackInSlot(index).getCount() <= count) {
 	            itemstack = this.getStackInSlot(index);
-	            this.setInventorySlotContents(index, null);
+	            this.setInventorySlotContents(index, ItemStack.EMPTY);
 	            this.markDirty();
 	            return itemstack;
 	        } else {
 	            itemstack = this.getStackInSlot(index).splitStack(count);
 
-	            if (this.getStackInSlot(index).stackSize <= 0) {
-	                this.setInventorySlotContents(index, null);
+	            if (this.getStackInSlot(index).getCount() <= 0) {
+	                this.setInventorySlotContents(index, ItemStack.EMPTY);
 	            } else {
 	                this.setInventorySlotContents(index, this.getStackInSlot(index));
 	            }
@@ -262,21 +271,21 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 	            return itemstack;
 	        }
 	    } else {
-	        return null;
+	        return ItemStack.EMPTY;
 	    }
 	}
 
 	@Override
 	public ItemStack removeStackFromSlot(int index) {
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
-		if(stack != null && stack.stackSize > getInventoryStackLimit())
-			stack.stackSize = this.getInventoryStackLimit();
-		if(stack != null && stack.stackSize <= 0)
-			stack = null;
+		if(stack != null && !stack.isEmpty() && stack.getCount() > getInventoryStackLimit())
+			stack.setCount(this.getInventoryStackLimit());
+		if(stack != null && !stack.isEmpty() && stack.getCount() <= 0)
+			stack = ItemStack.EMPTY;
 		
 		if(index >= 0 && index < lootbagInventory.length)
 			lootbagInventory[index] = stack;
@@ -292,8 +301,8 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer player) {
-		return this.worldObj.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+	public boolean isUsableByPlayer(EntityPlayer player) {
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 
 	@Override
@@ -346,6 +355,10 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 		return super.getCapability(capability, facing);
 	}
 
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

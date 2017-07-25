@@ -83,6 +83,7 @@ public class Bag {
 			{
 				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
 				map.put(key, item);
+				//LootbagsUtil.LogDebug("Added Item: " + item.toString() + " to bag: " + bagName + ".");
 				//bagMapWeight += item.getItemWeight();
 			}
 		}
@@ -106,6 +107,7 @@ public class Bag {
 				}
 				
 				map.put(key, item);
+				//LootbagsUtil.LogDebug("Added whitelisted Item: " + item.toString() + " to bag: " + bagName + ".");
 				//bagMapWeight += item.getItemWeight();
 				
 				//key += this.bagName;

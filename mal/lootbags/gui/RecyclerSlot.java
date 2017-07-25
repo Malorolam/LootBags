@@ -16,7 +16,7 @@ public class RecyclerSlot extends Slot {
 	@Override
 	public boolean isItemValid(ItemStack stack)
     {
-		if(stack == null)
+		if(stack == null || stack.isEmpty())
 			return false;
 		return (LootBags.isItemDroppable(stack) && (!LootBags.isItemRecyleBlacklisted(stack)) || LootBags.isItemRecycleWhitelisted(stack));
     }

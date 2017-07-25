@@ -38,26 +38,26 @@ public class LootbagsUtil {
 
 	public static void LogError(String message)
 	{
-		FMLLog.log(Level.ERROR, "[LOOTBAGS]: " + message);
+		LootBags.LOOTLOG.log(Level.ERROR, message);
 	}
 	
 	public static void LogError(String message, ICommandSender icommand)
 	{
 		LogError(message);
 		if(icommand != null)
-			icommand.addChatMessage(new TextComponentString(message));
+			icommand.sendMessage(new TextComponentString(message));
 	}
 	
 	public static void LogInfo(String message)
 	{
 		if(LootBags.VERBOSEMODE)
-			FMLLog.log(Level.INFO, "[LOOTBAGS]: " + message);
+			LootBags.LOOTLOG.log(Level.INFO, message);
 	}
 	
 	public static void LogDebug(String message)
 	{
 		if(LootBags.DEBUGMODE)
-			FMLLog.log(Level.DEBUG, "[LOOTBAGS]: " + message);
+			LootBags.LOOTLOG.log(Level.INFO, message);
 	}
 	
 	public static ArrayList<Integer> constructDamageRange(String word)
@@ -241,14 +241,14 @@ public class LootbagsUtil {
             for (int x = 0; x < count; x++)
             {
                 ret[x] = source.copy();
-                ret[x].stackSize = 1;
+                ret[x].setCount(1);
             }
         }
         else
         {
             ret = new ItemStack[1];
             ret[0] = source;
-            ret[0].stackSize = count;
+            ret[0].setCount(count);
         }
         return ret;
     }

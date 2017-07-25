@@ -42,17 +42,17 @@ public class NBTPullCommand implements ICommand{
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "/lootbags_dumphelditem";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
+	public String getUsage(ICommandSender p_71518_1_) {
 		return "/lootbags_dumphelditem";
 	}
 
 	@Override
-	public List getCommandAliases() {
+	public List getAliases() {
 		return aliases;
 	}
 
@@ -63,7 +63,7 @@ public class NBTPullCommand implements ICommand{
 
 	@Override
 	public int compareTo(ICommand o) {
-		return this.getCommandName().compareTo(o.getCommandName());
+		return this.getName().compareTo(o.getName());
 	}
 
 	@Override
@@ -73,14 +73,14 @@ public class NBTPullCommand implements ICommand{
 			player = (EntityPlayer)icommand;
 		else
 		{
-			icommand.addChatMessage(new TextComponentString("Lootbags Held Item Dump Failed: Did not recognize command sender as a player."));
+			icommand.sendMessage(new TextComponentString("Lootbags Held Item Dump Failed: Did not recognize command sender as a player."));
 			return;
 		}
 		
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-		if(stack==null)
+		if(stack==null || stack.isEmpty())
 		{
-			icommand.addChatMessage(new TextComponentString("Lootbags Held Item Dump Failed: Player has no held item."));
+			icommand.sendMessage(new TextComponentString("Lootbags Held Item Dump Failed: Player has no held item."));
 			return;
 		}
 		byte[] barray = new byte[0];
@@ -101,7 +101,7 @@ public class NBTPullCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File(Minecraft.getMinecraft().mcDataDir, "dumps/LootBagsHeldItemDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(), "dumps/LootBagsHeldItemDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
@@ -122,7 +122,7 @@ public class NBTPullCommand implements ICommand{
 			}
 			s=s.substring(0, s.length()-1);
 			write.print(s);
-			icommand.addChatMessage(new TextComponentString("LootBags Held Item Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
+			icommand.sendMessage(new TextComponentString("LootBags Held Item Dump Written for item " + stack.toString() + " - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
@@ -137,7 +137,7 @@ public class NBTPullCommand implements ICommand{
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		return null;
 	}

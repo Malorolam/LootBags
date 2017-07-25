@@ -40,7 +40,7 @@ public class RecyclerContainer extends Container{
 	
 	@Override
 	public boolean canInteractWith(EntityPlayer p_75145_1_) {
-		return bench.isUseableByPlayer(p_75145_1_);
+		return bench.isUsableByPlayer(p_75145_1_);
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class RecyclerContainer extends Container{
     @Override
     public ItemStack transferStackInSlot(EntityPlayer player, int slot)
     {
-    	ItemStack var3 = null;
+    	ItemStack var3 = ItemStack.EMPTY;
         Slot var4 = (Slot)this.inventorySlots.get(slot);
 
         if (var4 != null && var4.getHasStack())
@@ -61,7 +61,7 @@ public class RecyclerContainer extends Container{
             {
             	if (!this.mergeItemStack(var5, 28, 64, true))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
 
                 var4.onSlotChange(var5, var3);
@@ -71,7 +71,7 @@ public class RecyclerContainer extends Container{
             {
             	if (!this.mergeItemStack(var5, 28, 64, true))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
 
                 var4.onSlotChange(var5, var3);
@@ -80,27 +80,27 @@ public class RecyclerContainer extends Container{
             {
             	if (!this.mergeItemStack(var5, 1, 28, true))
                 {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
 
                 var4.onSlotChange(var5, var3);
             }
             
-            if (var5.stackSize == 0)
+            if (var5.getCount() == 0)
             {
-                var4.putStack((ItemStack)null);
+                var4.putStack(ItemStack.EMPTY);
             }
             else
             {
                 var4.onSlotChanged();
             }
 
-            if (var5.stackSize == var3.stackSize)
+            if (var5.getCount() == var3.getCount())
             {
-                return null;
+                return ItemStack.EMPTY;
             }
 
-            var4.onPickupFromSlot(player, var5);
+            var4.onTake(player, var5);
         }
         
         return var3;
@@ -109,7 +109,7 @@ public class RecyclerContainer extends Container{
     /**
      * merges provided ItemStack with the first avaliable one in the container/player inventory
      */
-    @Override
+ /*   @Override
     protected boolean mergeItemStack(ItemStack p_75135_1_, int p_75135_2_, int p_75135_3_, boolean p_75135_4_)
     {
         boolean flag1 = false;
@@ -125,26 +125,26 @@ public class RecyclerContainer extends Container{
 
         if (p_75135_1_.isStackable())
         {
-            while (p_75135_1_.stackSize > 0 && (!p_75135_4_ && k < p_75135_3_ || p_75135_4_ && k >= p_75135_2_))
+            while (p_75135_1_.getCount() > 0 && (!p_75135_4_ && k < p_75135_3_ || p_75135_4_ && k >= p_75135_2_))
             {
                 slot = (Slot)this.inventorySlots.get(k);
                 itemstack1 = slot.getStack();
 
-                if (itemstack1 != null && itemstack1.getItem() == p_75135_1_.getItem() && (!p_75135_1_.getHasSubtypes() || p_75135_1_.getItemDamage() == itemstack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(p_75135_1_, itemstack1))
+                if (!itemstack1.isEmpty() && itemstack1.getItem() == p_75135_1_.getItem() && (!p_75135_1_.getHasSubtypes() || p_75135_1_.getItemDamage() == itemstack1.getItemDamage()) && ItemStack.areItemStackTagsEqual(p_75135_1_, itemstack1))
                 {
-                    int l = itemstack1.stackSize + p_75135_1_.stackSize;
+                    int l = itemstack1.getCount() + p_75135_1_.getCount();
 
                     if (l <= p_75135_1_.getMaxStackSize())
                     {
-                        p_75135_1_.stackSize = 0;
-                        itemstack1.stackSize = l;
+                        p_75135_1_.setCount(0);
+                        itemstack1.setCount(l);
                         slot.onSlotChanged();
                         flag1 = true;
                     }
-                    else if (itemstack1.stackSize < p_75135_1_.getMaxStackSize())
+                    else if (itemstack1.getCount() < p_75135_1_.getMaxStackSize())
                     {
-                        p_75135_1_.stackSize -= p_75135_1_.getMaxStackSize() - itemstack1.stackSize;
-                        itemstack1.stackSize = p_75135_1_.getMaxStackSize();
+                        p_75135_1_.setCount(p_75135_1_.getCount() - (p_75135_1_.getMaxStackSize() - itemstack1.getCount()));
+                        itemstack1.setCount(p_75135_1_.getMaxStackSize());
                         slot.onSlotChanged();
                         flag1 = true;
                     }
@@ -161,7 +161,7 @@ public class RecyclerContainer extends Container{
             }
         }
 
-        if (p_75135_1_.stackSize > 0)
+        if (p_75135_1_.getCount() > 0)
         {
             if (p_75135_4_)
             {
@@ -177,11 +177,11 @@ public class RecyclerContainer extends Container{
                 slot = (Slot)this.inventorySlots.get(k);
                 itemstack1 = slot.getStack();
 
-                if (itemstack1 == null && slot.isItemValid(p_75135_1_))
+                if ((itemstack1 == null || itemstack1.isEmpty()) && slot.isItemValid(p_75135_1_))
                 {
                     slot.putStack(p_75135_1_.copy());
                     slot.onSlotChanged();
-                    p_75135_1_.stackSize = 0;
+                    p_75135_1_.setCount(0);
                     flag1 = true;
                     break;
                 }
@@ -198,7 +198,7 @@ public class RecyclerContainer extends Container{
         }
 
         return flag1;
-    }
+    }*/
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

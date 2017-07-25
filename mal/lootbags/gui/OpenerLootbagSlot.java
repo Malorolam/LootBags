@@ -14,7 +14,7 @@ public class OpenerLootbagSlot extends Slot{
 	@Override
 	public boolean isItemValid(ItemStack stack)
 	{
-		if(stack==null)
+		if(stack==null || stack.isEmpty())
 			return false;
 		if(stack.getItem() instanceof LootbagItem)
 			return true;

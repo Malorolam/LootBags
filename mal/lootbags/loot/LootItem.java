@@ -65,8 +65,12 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	{
 		super(weight);
 		this.lootitem = lootitem;
-		this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
-		this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
+		try {
+			this.modid = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourceDomain();
+			this.name = ForgeRegistries.ITEMS.getKey(item.getItem()).getResourcePath();
+		} catch (Exception e) {
+			LootbagsUtil.LogError("Mod/Item ID lookup failed for: " + item.toString() + ". This is likely an issue caused by a different mod.");
+		}
 		this.item = item;
 		this.damage = item.getItemDamage();
 		this.minstack = minstack;
@@ -96,16 +100,16 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 		this.nbt = null;
 		this.generalItem = isgeneral;
 		
-		if(stack != null && stack.getItem() != null)
+		if(stack != null && !stack.isEmpty() && stack.getItem() != null)
 		{
-			stack.stackSize = maxstack;
+			stack.setCount(maxstack);
 			stack.setItemDamage(damage);
 			
-			if(stack.stackSize > stack.getMaxStackSize())
-				stack.stackSize = stack.getMaxStackSize();
-			if(stack.stackSize < 1)
+			if(stack.getCount() > stack.getMaxStackSize())
+				stack.setCount(stack.getMaxStackSize());
+			if(stack.getCount() < 1)
 			{
-				stack.stackSize=1;
+				stack.setCount(1);
 				LootbagsUtil.LogInfo("Stack size for whitelisted item: " + stack.toString() + " below 1.  Setting to 1.");
 			}
 			
@@ -133,7 +137,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 		this.nbt = nbt;
 		this.generalItem = isgeneral;
 		
-		if(stack.getItem() == null)
+		if(stack.isEmpty() || stack.getItem() == null)
 		{
 		//one of these should be not null
 		Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modid, itemname));
@@ -144,9 +148,9 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 			stack = new ItemStack(block,maxstack,damage);
 		}
 		
-		if(stack != null && stack.getItem() != null)
+		if(stack != null && !stack.isEmpty() && stack.getItem() != null)
 		{
-			stack.stackSize = maxstack;
+			stack.setCount(maxstack);
 			stack.setItemDamage(damage);
 			InputStream st = new ByteArrayInputStream(nbt); 
 			NBTTagCompound tag;
@@ -157,11 +161,11 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 				e.printStackTrace();
 			}
 			
-			if(stack.stackSize > stack.getMaxStackSize())
-				stack.stackSize = stack.getMaxStackSize();
-			if(stack.stackSize < 1)
+			if(stack.getCount() > stack.getMaxStackSize())
+				stack.setCount(stack.getMaxStackSize());
+			if(stack.getCount() < 1)
 			{
-				stack.stackSize=1;
+				stack.setCount(1);
 				LootbagsUtil.LogInfo("Stack size for whitelisted item: " + stack.toString() + " below 1.  Setting to 1.");
 			}
 			
@@ -175,7 +179,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 	public void reinitializeLootItem()
 	{
 		ItemStack stack = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(modid, name)), 1);
-		if(stack.getItem() == null)
+		if(stack.isEmpty() || stack.getItem() == null)
 		{
 		//one of these should be not null
 		Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(modid, name));
@@ -186,9 +190,9 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 			stack = new ItemStack(block,maxstack,damage);
 		}
 		
-		if(stack != null && stack.getItem() != null)
+		if(stack != null && !stack.isEmpty() && stack != ItemStack.EMPTY && stack.getItem() != null)
 		{
-			stack.stackSize = maxstack;
+			stack.setCount(maxstack);
 			stack.setItemDamage(damage);
 			
 			if(nbt != null)
@@ -203,11 +207,11 @@ public class LootItem extends WeightedRandom.Item implements Comparable{
 				}
 			}
 			
-			if(stack.stackSize > stack.getMaxStackSize())
-				stack.stackSize = stack.getMaxStackSize();
-			if(stack.stackSize < 1)
+			if(stack.getCount() > stack.getMaxStackSize())
+				stack.setCount(stack.getMaxStackSize());
+			if(stack.getCount() < 1)
 			{
-				stack.stackSize=1;
+				stack.setCount(1);
 				LootbagsUtil.LogInfo("Stack size for whitelisted item: " + stack.toString() + " below 1.  Setting to 1.");
 			}
 			

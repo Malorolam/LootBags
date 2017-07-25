@@ -28,17 +28,17 @@ public class ConfigReloadCommand implements ICommand {
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "/lootbags_reloadconfig";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
+	public String getUsage(ICommandSender p_71518_1_) {
 		return "/lootbags_reloadconfig";
 	}
 
 	@Override
-	public List getCommandAliases() {
+	public List getAliases() {
 		return aliases;
 	}
 
@@ -47,29 +47,29 @@ public class ConfigReloadCommand implements ICommand {
 		//clear the bags
 		BagHandler.clearBags();
 		LootBags.LOOTMAP.clearMapData();
-		icommand.addChatMessage(new TextComponentString("Cleared the existing bags and tables."));
+		icommand.sendMessage(new TextComponentString("Cleared the existing bags and tables."));
 		
 		//reload the general config
 		GeneralConfigHandler.reloadConfig();
-		icommand.addChatMessage(new TextComponentString("Reloaded the general config."));
+		icommand.sendMessage(new TextComponentString("Reloaded the general config."));
 		
 		//reload the bag config
 		LootBags.bagconfig.reloadBagConfig(icommand);
-		icommand.addChatMessage(new TextComponentString("Reloaded the bag config."));
+		icommand.sendMessage(new TextComponentString("Reloaded the bag config."));
 		
 		//repopulate the general map
 		LootBags.LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
 		LootBags.LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 		LootBags.LOOTMAP.setLootSources(LootBags.LOOTCATEGORYLIST);
-		LootBags.LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worldServers[0]);
-		icommand.addChatMessage(new TextComponentString("Repopulated the general map."));
+		LootBags.LOOTMAP.populateGeneralMap(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0]);
+		icommand.sendMessage(new TextComponentString("Repopulated the general map."));
 		
 		//repopulate the bags
 		BagHandler.populateBagLists();
 		LootBags.LOOTMAP.setTotalListWeight();
 		LootBags.LOOTMAP.populateRecyclerBlacklist(GeneralConfigHandler.getRecyclerBlacklistConfigData());
 		LootBags.LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
-		icommand.addChatMessage(new TextComponentString("Repopulated the bags."));
+		icommand.sendMessage(new TextComponentString("Repopulated the bags."));
 	}
 
 	@Override
@@ -79,17 +79,17 @@ public class ConfigReloadCommand implements ICommand {
 
 	@Override
 	public int compareTo(ICommand o) {
-		return this.getCommandName().compareTo(o.getCommandName());
+		return this.getName().compareTo(o.getName());
 		
 	}
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		return sender.canCommandSenderUseCommand(4, getCommandName());
+		return sender.canUseCommand(4, getName());
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		return null;
 	}

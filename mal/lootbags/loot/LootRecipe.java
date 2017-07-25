@@ -22,7 +22,6 @@ public class LootRecipe extends ShapelessOreRecipe{
     /**
      * Used to check if a recipe matches current crafting inventory
      */
-    @SuppressWarnings("unchecked")
     @Override
     public boolean matches(InventoryCrafting var1, World world)
     {

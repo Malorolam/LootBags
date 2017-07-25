@@ -1,5 +1,7 @@
 package mal.lootbags.gui;
 
+import java.awt.Color;
+
 import org.lwjgl.opengl.GL11;
 
 import mal.lootbags.LootBags;
@@ -38,10 +40,11 @@ public class OpenerGui extends GuiContainer {
     	
     	if(LootBags.OPENERMAXCOOLDOWN>0)
     	{
-    		GL11.glPushMatrix();
-    		GL11.glScalef(0.7f, 0.7f, 0.7f);
-    		this.fontRendererObj.drawString("Cooldown: " + bench.getCooldown(), 103, 52, 4210752);
-    		GL11.glPopMatrix();
+    		int red = (int)Math.floor(255*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
+    		int green = 155-(int)Math.floor(155*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
+    		Color color1 = new Color(red, green, 0, 255);
+    		int width = 162-(int) Math.floor(162*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
+    		this.drawRect(7, 37, 7+width, 41, color1.getRGB());
     	}
     	
     }

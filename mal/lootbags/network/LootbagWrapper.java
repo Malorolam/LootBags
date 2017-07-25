@@ -45,7 +45,7 @@ public class LootbagWrapper implements IInventory {
 		ItemStack s = getStackInSlot(i);
 		if(s != null)
 		{
-			if(s.stackSize > j)
+			if(s.getCount() > j)
 			{
 				s = s.splitStack(j);
 				
@@ -53,7 +53,7 @@ public class LootbagWrapper implements IInventory {
 			}
 			else
 			{
-				setInventorySlotContents(i, null);
+				setInventorySlotContents(i, ItemStack.EMPTY);
 			}
 		}
 		return s;
@@ -68,9 +68,9 @@ public class LootbagWrapper implements IInventory {
 	public void setInventorySlotContents(int i, ItemStack itemstack) {
 		this.inventory[i] = itemstack;
 
-		if (itemstack != null && itemstack.stackSize > this.getInventoryStackLimit())
+		if (itemstack != null && !itemstack.isEmpty() && itemstack.getCount() > this.getInventoryStackLimit())
 		{
-			itemstack.stackSize = this.getInventoryStackLimit();
+			itemstack.setCount(this.getInventoryStackLimit());
 		}
 
 		this.markDirty();
@@ -81,8 +81,8 @@ public class LootbagWrapper implements IInventory {
 	{
 		for (int i = 0; i < this.getSizeInventory(); ++i)
 		{
-			if (this.getStackInSlot(i) != null && this.getStackInSlot(i).stackSize <= 0)
-				this.setInventorySlotContents(i, null);
+			if (this.getStackInSlot(i) != null && !this.getStackInSlot(i).isEmpty() && this.getStackInSlot(i).getCount() <= 0)
+				this.setInventorySlotContents(i, ItemStack.EMPTY);
 		}
 
 		LootbagItem.setTagCompound(stack,inventory);
@@ -100,7 +100,7 @@ public class LootbagWrapper implements IInventory {
 
 			if (slot >= 0 && slot < getSizeInventory())
 			{
-				setInventorySlotContents(slot, ItemStack.loadItemStackFromNBT(item));
+				setInventorySlotContents(slot, new ItemStack(item));
 			}
 		}
 	}
@@ -139,7 +139,7 @@ public class LootbagWrapper implements IInventory {
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
+	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
 		return !LootbagItem.checkInventory(stack);
 	}
 
@@ -196,6 +196,12 @@ public class LootbagWrapper implements IInventory {
 	@Override
 	public void clear() {
 		
+	}
+
+	@Override
+	public boolean isEmpty() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
 /*******************************************************************************

@@ -31,10 +31,10 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 	@Nonnull
 	private final IDrawable background;
 	
-	public LootCategory(IGuiHelper guihelper)
+	public LootCategory()
 	{	
 		ResourceLocation location = new ResourceLocation(LootBags.MODID, "textures/gui/JEILootbagGui.png");
-		background = guihelper.createDrawable(location, 0, 0, WIDTH, HEIGHT);
+		background = JEILoot.getJEIHelpers().getGuiHelper().createDrawable(location, 0, 0, WIDTH, HEIGHT);
 	}
 	
 	@Override
@@ -57,10 +57,6 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 	}
 
 	@Override
-	public void drawAnimations(Minecraft minecraft) {
-	}
-
-	@Override
 	public void setRecipe(@Nonnull IRecipeLayout layout, @Nonnull LootWrapper wrapper, @Nonnull IIngredients ingredients) {
 		int x = FIRSTX;
 		int y = FIRSTY;
@@ -78,9 +74,15 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 			}
 		}
 		
-		layout.getItemStacks().set(0, wrapper.getInputs());
-		int slots = Math.min(wrapper.amountOfItems(), ITEMSPERPAGE);
+		layout.getItemStacks().addTooltipCallback(wrapper);
+		IFocus<ItemStack> focus = (IFocus<ItemStack>)layout.getFocus();
+		int slots = Math.min(wrapper.amountOfItems(focus), ITEMSPERPAGE);
 		for(int i = 0; i < slots; i++)
-			layout.getItemStacks().set(i+1, wrapper.getItems(i, slots));
+			layout.getItemStacks().set(i+1, wrapper.getItems(focus, i, slots));
+	}
+
+	@Override
+	public String getModName() {
+		return "Lootbags";
 	}
 }

@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootRecipe;
 
@@ -21,6 +22,7 @@ import mal.lootbags.loot.LootRecipe;
 public class BagHandler {
 
 	private static HashMap<Integer, Bag> bagList = new HashMap<Integer, Bag>();
+	public static final int HARDMAX = 5;//absolute maximum number of items allowed in a bag, this never can be changed
 	
 	public static void clearBags()
 	{
@@ -30,6 +32,7 @@ public class BagHandler {
 	public static void addBag(Bag bag)
 	{
 		bagList.put(bag.getBagIndex(), bag);
+		LootbagsUtil.LogDebug("Added bag: " + bag.getBagName() + " with ID: " + bag.getBagIndex() + ".");
 	}
 	
 	public static Bag getBag(int index)

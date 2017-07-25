@@ -56,13 +56,20 @@ public class FakeWorld extends World{
 			}
 
 			@Override
-			public boolean unloadQueuedChunks() {
+			public String makeString() {
+				return null;
+			}
+
+			@Override
+			public boolean tick() {
+				// TODO Auto-generated method stub
 				return false;
 			}
 
 			@Override
-			public String makeString() {
-				return null;
+			public boolean isChunkGeneratedAt(int p_191062_1_, int p_191062_2_) {
+				// TODO Auto-generated method stub
+				return false;
 			}
 		};
 	}
@@ -107,6 +114,12 @@ public class FakeWorld extends World{
 
 				@Override
 				public void saveExtraData() {
+				}
+
+				@Override
+				public boolean isChunkGeneratedAt(int p_191063_1_, int p_191063_2_) {
+					// TODO Auto-generated method stub
+					return false;
 				}
 			};
 		}

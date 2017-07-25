@@ -24,6 +24,7 @@ import net.minecraft.world.storage.loot.LootContext;
 import net.minecraft.world.storage.loot.LootEntry;
 import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraft.world.storage.loot.LootEntryItemAccess;
+import net.minecraft.world.storage.loot.LootEntryTable;
 import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.RandomValueRange;
@@ -202,7 +203,7 @@ public class LootMap {
 						{
 							LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
 							generalBlacklist.add(item);
-							LootbagsUtil.LogInfo("Added General Blacklist Item: " + item.toString());
+							LootbagsUtil.LogDebug("Added General Blacklist Item: " + item.toString());
 						}
 					} catch(Exception e) {
 						LootbagsUtil.LogError("General Blacklist Error: Line: " + s + " Improperly formed Blacklisted item causing exception.");
@@ -242,7 +243,7 @@ public class LootMap {
 						{
 							LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, false);
 							generalWhitelist.add(item);
-							LootbagsUtil.LogInfo("Added General Whitelist Item: " + item.toString());
+							LootbagsUtil.LogDebug("Added General Whitelist Item: " + item.toString());
 						}
 					} catch(Exception e) {
 						LootbagsUtil.LogError("General Whitelist Error: Line: " + s + " Improperly formed Whitelisted item causing exception.");
@@ -264,7 +265,7 @@ public class LootMap {
 					{
 						LootItem item = new LootItem(null, modid, itemname, dam, minstack, maxstack, weight, nbt, false);
 						generalWhitelist.add(item);
-						LootbagsUtil.LogInfo("Added General Whitelist Item with NBT: " + item.toString());
+						LootbagsUtil.LogDebug("Added General Whitelist Item with NBT: " + item.toString());
 					}
 					} catch(Exception e) {
 						LootbagsUtil.LogError("General Whitelist Error: Line: " + s + " Improperly formed NBT Whitelisted item causing exception.");
@@ -329,6 +330,7 @@ public class LootMap {
 	public void addLootCategory(ResourceLocation categoryName, World world) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
 		LootbagsUtil.LogInfo("Starting adding items from loot table: " + categoryName + ".");
+		LootTable table = LootbagsUtil.getLootManager(world).getLootTableFromLocation(categoryName);
 		
 		//reflect the lists in the table and pool so that I can actually access them
 		String poolname;
@@ -348,7 +350,15 @@ public class LootMap {
 		Field lootListField = LootPool.class.getDeclaredField(entryname);
 		lootListField.setAccessible(true);
 		
-		LootTable table = LootbagsUtil.getLootManager(world).getLootTableFromLocation(categoryName);
+		processLootTable(table, 0, poolListField, lootListField);
+	}
+	
+	private void processLootTable(LootTable table, int count, Field poolListField, Field lootListField) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	{
+		//since this is recursive, counting the depth to keep things functional
+		if(count > 10)
+			return;
+		
 		List<LootPool> poolList = (List<LootPool>)poolListField.get(table);
 		for(LootPool pool:poolList)
 		{
@@ -376,7 +386,7 @@ public class LootMap {
 					
 					LootItem item=null;
 					boolean skip = false;
-					if(stack==null)
+					if(stack==null || stack.getItem()==null)
 					{
 						skip = true;
 						LootbagsUtil.LogInfo("Found a null item in the loot table, skipping it.");
@@ -417,7 +427,7 @@ public class LootMap {
 							if(!generalMap.containsKey(key))
 							{
 								generalMap.put(key, item);
-								//LootbagsUtil.LogInfo("Added new General Item: " + item.toString());
+								LootbagsUtil.LogDebug("Added new General Item: " + item.toString());
 								if(!totalList.containsKey(key))
 									totalList.put(key, item);
 							}
@@ -428,13 +438,20 @@ public class LootMap {
 								wweight = (wweight+item.getItemWeight())/2;
 								it.setItemWeight(wweight);
 								generalMap.put(key, it);
-								//LootbagsUtil.LogInfo("Merged new General Item: " + item.toString());
+								LootbagsUtil.LogDebug("Merged new General Item: " + item.toString());
 								if(!totalList.containsKey(key))
 									totalList.put(key, it);
 							}
 						}
+					}
 				}
-			}
+				if(loot instanceof LootEntryTable)
+				{
+					LootEntryTable tloot = (LootEntryTable)loot;
+					LootTable ltable = LootEntryItemAccess.getLootTable(tloot, context);
+					
+					processLootTable(ltable, count+1, poolListField, lootListField);//repeat the process with the new table
+				}
 			}
 		}
 	}

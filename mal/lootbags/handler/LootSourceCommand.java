@@ -34,17 +34,17 @@ public class LootSourceCommand implements ICommand{
 	}
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return "/lootbags_identifysources";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender p_71518_1_) {
+	public String getUsage(ICommandSender p_71518_1_) {
 		return "/lootbags_identifysources";
 	}
 
 	@Override
-	public List getCommandAliases() {
+	public List getAliases() {
 		return aliases;
 	}
 
@@ -107,7 +107,7 @@ public class LootSourceCommand implements ICommand{
 		}
 		
 		try {
-			File file = new File("./dumps/LootBagsSourcesDump.txt");
+			File file = new File(icommand.getServer().getDataDirectory(),"./dumps/LootBagsSourcesDump.txt");
 			if(!file.getParentFile().exists())
 				file.getParentFile().mkdirs();
 			if(!file.exists())
@@ -119,7 +119,7 @@ public class LootSourceCommand implements ICommand{
 			{
 				write.println(s);
 			}
-			icommand.addChatMessage(new TextComponentString("LootBags Loot Source Dump Written - Look in your dumps folder"));
+			icommand.sendMessage(new TextComponentString("LootBags Loot Source Dump Written - Look in your dumps folder"));
 			
 			write.close();
 		} catch (Exception exception) {
@@ -135,7 +135,7 @@ public class LootSourceCommand implements ICommand{
 
 	@Override
 	public int compareTo(ICommand o) {
-		return this.getCommandName().compareTo(o.getCommandName());
+		return this.getName().compareTo(o.getName());
 	}
 
 	@Override
@@ -144,7 +144,7 @@ public class LootSourceCommand implements ICommand{
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		return null;
 	}

@@ -22,9 +22,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 
-public class LootWrapper extends BlankRecipeWrapper{
+public class LootWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>{
 
-	public LootEntry loot;
+	public final LootEntry loot;
 	
 	public LootWrapper(LootEntry loot)
 	{
@@ -33,26 +33,13 @@ public class LootWrapper extends BlankRecipeWrapper{
 	
 	@Override
 	public void getIngredients(IIngredients ingredients) {
-		ingredients.setOutputs(ItemStack.class, this.loot.getItemStacks());
+		ingredients.setOutputs(ItemStack.class, this.loot.getItemStacks(null));
 		ingredients.setInput(ItemStack.class, this.loot.getBag().getBagItem());
 	}
 	
-	@Override
-	@Nonnull
-	public List getOutputs() {
-		return loot.getItemStacks();
-	}
-	
-	@Override
-	@Nonnull
-	public List getInputs()
+	public int amountOfItems(IFocus<ItemStack> focus)
 	{
-		return Arrays.asList(loot.getInput());
-	}
-	
-	public int amountOfItems()
-	{
-		return this.loot.getItemStacks().size();
+		return this.loot.getItemStacks(focus).size();
 	}
 	
 	/**
@@ -62,12 +49,11 @@ public class LootWrapper extends BlankRecipeWrapper{
 	 * @param pages number of pages the items need to show up
 	 * @return
 	 */
-	public List<ItemStack> getItems(int slot, int slots)
+	public List<ItemStack> getItems(IFocus<ItemStack> focus, int slot, int slots)
 	{
-		List<ItemStack> list = new ArrayList<ItemStack>(this.loot.getItemStacks().subList(slot, slot+1));
-		for(int i = 0; i< ((int)Math.ceil((double)amountOfItems()/slots)); i++)
-			list.add(this.amountOfItems() <= slot+slots*i ? null : this.loot.getItemStacks().get(slot+slots*i));
-		//list.removeIf(Objects::isNull);
+		List<ItemStack> list = this.loot.getItemStacks(focus).subList(slot, slot+1);
+		for(int i = 0; i< ((int)Math.ceil((double)amountOfItems(focus)/slots)); i++)
+			list.add(this.amountOfItems(focus) <= slot+slots*i ? null : this.loot.getItemStacks(focus).get(slot+slots*i));
 		for(int i = 0; i < list.size()-1; i++)
 		{
 			if(list.get(i) == null && list.get(i+1)==null)
@@ -78,10 +64,9 @@ public class LootWrapper extends BlankRecipeWrapper{
 		}
 		return list;
 	}
-	
+
 	@Override
-	public void drawInfo(@Nonnull Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY)
-	{
-		//FontHandler.normal.print(LootbagsUtil.translateToLocal(this.loot.getName()), 60, 7);
+	public void onTooltip(int slotIndex, boolean input, ItemStack ingredient, List<String> tooltip) {
+		tooltip.add(this.loot.getBagDrop(ingredient).toString());
 	}
 }

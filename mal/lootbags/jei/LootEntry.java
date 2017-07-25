@@ -10,6 +10,7 @@ import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.loot.LootItem;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.ItemHandlerHelper;
 import mezz.jei.api.recipe.IFocus;
 
 public class LootEntry {
@@ -40,12 +41,10 @@ public class LootEntry {
 		return drops.stream().anyMatch(drop -> drop.getContentItem().isItemEqual(item));
 	}
 	
-	public List<ItemStack> getItemStacks()
+	public List<ItemStack> getItemStacks(IFocus<ItemStack> focus)
 	{
-		ArrayList<ItemStack> list = new ArrayList<ItemStack>();
-		for(LootItem item: drops)
-			list.add(item.getContentItem());
-		return list;
+		return drops.stream().map(drop -> drop.getContentItem()).filter(stack -> focus==null || ItemStack.areItemStacksEqual(ItemHandlerHelper.copyStackWithSize(stack, focus.getValue().getCount()), focus.getValue()))
+				.collect(Collectors.toList());
 	}
 	
 	public LootItem getBagDrop(ItemStack item)

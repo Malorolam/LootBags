@@ -28,9 +28,9 @@ public class GUIHandler implements IGuiHandler{
 		if(ID==0) {
 			if(heldItems.isEmpty())
 				return null;
-			if(heldItems.get(0)!=null && Item.getIdFromItem(heldItems.get(0).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
+			if(!heldItems.get(0).isEmpty() && Item.getIdFromItem(heldItems.get(0).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
 				return new LootbagContainer(player.inventory, new LootbagWrapper(heldItems.get(0)));
-			else if(heldItems.get(1)!=null && Item.getIdFromItem(heldItems.get(1).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
+			else if(!heldItems.get(1).isEmpty() && Item.getIdFromItem(heldItems.get(1).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
 				return new LootbagContainer(player.inventory, new LootbagWrapper(heldItems.get(1)));
 		}
 		if(ID==1)
@@ -47,9 +47,9 @@ public class GUIHandler implements IGuiHandler{
 		if(ID==0) {
 			if(heldItems.isEmpty())
 				return null;
-			if(heldItems.get(0)!=null && Item.getIdFromItem(heldItems.get(0).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
+			if(!heldItems.get(0).isEmpty() && Item.getIdFromItem(heldItems.get(0).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
 				return new LootbagGui(player.inventory, new LootbagWrapper(heldItems.get(0)));
-			if(heldItems.get(1)!=null && Item.getIdFromItem(heldItems.get(1).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
+			if(!heldItems.get(1).isEmpty() && Item.getIdFromItem(heldItems.get(1).getItem()) == Item.getIdFromItem(LootBags.lootbagItem))
 				return new LootbagGui(player.inventory, new LootbagWrapper(heldItems.get(1)));
 		}
 		if(ID==1)
