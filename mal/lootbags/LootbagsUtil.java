@@ -293,6 +293,14 @@ public class LootbagsUtil {
     	
     	return null;
     }
+    
+    public static ItemStack[] getItemStackArrayEmpty(int size)
+    {
+    	ItemStack[] out = new ItemStack[size];
+    	for(int i = 0; i < size; i++)
+    		out[i] = ItemStack.EMPTY;
+    	return out;
+    }
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

@@ -1,6 +1,7 @@
 package mal.lootbags.tileentity;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.network.LootbagsPacketHandler;
@@ -27,7 +28,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	private ItemStack lootbagSlot = ItemStack.EMPTY;
 	private int lootbagCount = 0;
 	private int totalValue = 0;
-	private ItemStack[] inventory = new ItemStack[27];
+	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(27);
 	
 	public TileEntityRecycler()
 	{
