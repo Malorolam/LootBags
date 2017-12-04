@@ -332,6 +332,14 @@ public class LootbagsUtil {
         pointy -= guiTop;
         return pointx >= left - 1 && pointx < left + width + 1 && pointy >= top - 1 && pointy < top + height + 1;
 	}
+
+    public static ItemStack[] getItemStackArrayEmpty(int size)
+    {
+    	ItemStack[] out = new ItemStack[size];
+    	for(int i = 0; i < size; i++)
+    		out[i] = ItemStack.EMPTY;
+    	return out;
+    }
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

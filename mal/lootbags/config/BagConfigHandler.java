@@ -1573,6 +1573,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:true");
+		list.add(ConfigText.TAB.getText()+"$BLACKLISTRECYCLER:true");
 		list.add(ConfigText.TAB.getText()+"$STARTENTITYLIST");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$INTERNALNAME:Zombie");
 		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");

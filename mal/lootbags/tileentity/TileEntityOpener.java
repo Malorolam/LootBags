@@ -1,6 +1,7 @@
 package mal.lootbags.tileentity;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagsPacketHandler;
 import mal.lootbags.network.message.OpenerMessageServer;
@@ -21,9 +22,9 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
 public class TileEntityOpener extends TileEntity implements IInventory, ISidedInventory, ITickable{
 
-	private ItemStack[] lootbagInventory = new ItemStack[9];
+	private ItemStack[] lootbagInventory = LootbagsUtil.getItemStackArrayEmpty(9);
 	private int cooldown = 0;
-	private ItemStack[] inventory = new ItemStack[27];
+	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(27);
 	
 	public TileEntityOpener()
 	{

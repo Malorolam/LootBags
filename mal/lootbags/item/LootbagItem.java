@@ -449,7 +449,9 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	
 	@Override
 	public int getEntityLifespan(ItemStack itemStack, World world)
-	{	
+	{
+		if(itemStack.isEmpty() || !(itemStack.getItem() instanceof LootbagItem))
+			return super.getEntityLifespan(itemStack, world);
 		if(!BagHandler.isBagEmpty(itemStack.getItemDamage()))
 			return super.getEntityLifespan(itemStack, world);
 		else

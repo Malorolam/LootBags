@@ -120,6 +120,8 @@ public class BagHandler {
 	
 	public static boolean isBagEmpty(int ID)
 	{
+		if(isIDFree(ID))
+			return true;
 		return bagList.get(ID).isBagEmpty();
 	}
 	

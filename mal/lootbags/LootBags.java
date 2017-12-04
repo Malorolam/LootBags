@@ -50,7 +50,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@Mod(modid = LootBags.MODID, version = LootBags.VERSION)
+@Mod(modid = LootBags.MODID, version = LootBags.VERSION, dependencies="after:mystcraft")
 public class LootBags {
 	public static final String MODID = "lootbags";
 	public static final String VERSION = "2.5.0";

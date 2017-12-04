@@ -1,5 +1,6 @@
 package mal.lootbags.network;
 
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.item.LootbagItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -11,7 +12,7 @@ import net.minecraft.util.text.ITextComponent;
 public class LootbagWrapper implements IInventory {
 
 	private final ItemStack stack;
-	private ItemStack[] inventory = new ItemStack[5];
+	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(5);
 	
 	public LootbagWrapper(ItemStack is)
 	{
@@ -61,12 +62,12 @@ public class LootbagWrapper implements IInventory {
 	
 	public ItemStack getItemInSlot(int slot)
 	{
-		return inventory[slot];
+		return (inventory[slot]==null)?(inventory[slot]=ItemStack.EMPTY):(inventory[slot]);
 	}
 
 	@Override
 	public void setInventorySlotContents(int i, ItemStack itemstack) {
-		this.inventory[i] = itemstack;
+		this.inventory[i] = (itemstack==null)?ItemStack.EMPTY:itemstack;
 
 		if (itemstack != null && !itemstack.isEmpty() && itemstack.getCount() > this.getInventoryStackLimit())
 		{
