@@ -194,7 +194,7 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 
 	@Override
 	public int[] getSlotsForFace(EnumFacing side) {
-		return new int[] {1};
+		return new int[] {0, 1};
 	}
 
 	@Override
