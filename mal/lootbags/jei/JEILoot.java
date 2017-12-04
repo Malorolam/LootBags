@@ -1,7 +1,5 @@
 package mal.lootbags.jei;
 
-import java.lang.ref.Reference;
-
 import javax.annotation.Nonnull;
 
 import mal.lootbags.LootBags;
@@ -10,7 +8,6 @@ import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.ingredients.IIngredientRegistry;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 
 @JEIPlugin

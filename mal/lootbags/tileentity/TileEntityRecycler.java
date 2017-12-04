@@ -1,14 +1,11 @@
 package mal.lootbags.tileentity;
 
 import mal.lootbags.LootBags;
-import mal.lootbags.handler.BagHandler;
-import mal.lootbags.loot.LootItem;
 import mal.lootbags.network.LootbagsPacketHandler;
 import mal.lootbags.network.message.RecyclerMessageServer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -100,14 +97,14 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		totalValue = nbt.getInteger("totalValue");
 		
 		NBTTagList lootbag = nbt.getTagList("lootbagItem", 10);
-		NBTTagCompound var = (NBTTagCompound)lootbag.getCompoundTagAt(0);
+		NBTTagCompound var = lootbag.getCompoundTagAt(0);
 		lootbagSlot = new ItemStack(var);
 		
 		
 		NBTTagList input = nbt.getTagList("inputItems", 10);
 		for (int i = 0; i < input.tagCount(); ++i)
 		{
-			NBTTagCompound var4 = (NBTTagCompound)input.getCompoundTagAt(i);
+			NBTTagCompound var4 = input.getCompoundTagAt(i);
 			byte var5 = var4.getByte("Slot");
 
 			if (var5 >= 0 && var5 < this.inventory.length)
@@ -151,6 +148,16 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		return nbt;
 	}
 	
+	public NBTTagCompound getDropNBT()
+	{
+		int vp = (lootbagSlot.isEmpty())?(0):(1);
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("lootbagCount", lootbagCount+vp);
+		tag.setInteger("totalValue", totalValue);
+		
+		return tag;
+	}
+	
 	@Override
 	public int getSizeInventory() {
 		return inventory.length+1;
@@ -172,7 +179,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	public ItemStack decrStackSize(int slot, int dec) {
 		if(slot == 0)
 		{
-			if(lootbagSlot != null)
+			if(lootbagSlot != null && !lootbagSlot.isEmpty())
 			{
 				ItemStack is;
 				if(lootbagSlot.getCount() <= dec)
@@ -192,7 +199,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		}
 		else if(slot < getSizeInventory())
 		{
-			if(inventory[slot-1] != null)
+			if(inventory[slot-1] != null && !lootbagSlot.isEmpty())
 			{
 				ItemStack is;
 				if(inventory[slot-1].getCount() <= dec)
@@ -210,7 +217,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 				}
 			}
 		}
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	@Override
@@ -244,7 +251,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 
 	@Override
 	public boolean isUsableByPlayer(EntityPlayer par1EntityPlayer) {
-		return this.world.getTileEntity(this.pos) != this ? false : par1EntityPlayer.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : par1EntityPlayer.getDistanceSq(this.pos.getX() + 0.5D, this.pos.getY() + 0.5D, this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 
 	@Override

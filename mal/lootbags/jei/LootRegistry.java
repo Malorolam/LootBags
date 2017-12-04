@@ -3,8 +3,6 @@ package mal.lootbags.jei;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.handler.BagHandler;

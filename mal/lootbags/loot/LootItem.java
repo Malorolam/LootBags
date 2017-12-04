@@ -3,19 +3,11 @@ package mal.lootbags.loot;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-
 import javax.annotation.Nullable;
-
-import org.apache.logging.log4j.Level;
 
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentData;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemEnchantedBook;
-import net.minecraft.item.ItemRecord;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,7 +15,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.storage.loot.LootEntryItem;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class LootItem extends WeightedRandom.Item implements Comparable<LootItem>{
 
@@ -271,6 +262,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 		return lootitem;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return item.toString() + ":" + minstack + ":" + maxstack + ":" + itemWeight;

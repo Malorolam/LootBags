@@ -6,20 +6,15 @@ import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.config.BagEntitySource;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityList;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraft.util.EntityDamageSource;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.common.util.FakePlayer;
 
 /**
  * Adds the loot bag to mob drops, configurable through config
@@ -35,12 +30,12 @@ public class MobDropHandler {
 	public void onEntityDrop(LivingDropsEvent event) {
 		if(LootBags.BAGFROMPLAYERKILL == 1)
 		{
-			if(event.getSource().getEntity() == null || !(event.getSource().getEntity() instanceof EntityPlayer))
+			if(!(event.getSource() instanceof EntityDamageSource) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer))
 				return;
 		}
 		else if(LootBags.BAGFROMPLAYERKILL == 2)
 		{
-			if(event.getSource().getEntity() == null ||  event.getSource().getEntity() instanceof FakePlayer || !(event.getSource().getEntity() instanceof EntityPlayer))
+			if(!(event.getSource() instanceof EntityDamageSource) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer))
 				return;
 		}
 		

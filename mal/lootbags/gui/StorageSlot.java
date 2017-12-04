@@ -1,24 +1,27 @@
 package mal.lootbags.gui;
 
 import mal.lootbags.LootBags;
+import mal.lootbags.handler.BagHandler;
+import mal.lootbags.item.LootbagItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
-public class RecyclerSlot extends Slot {
+public class StorageSlot extends Slot{
 
-	public RecyclerSlot(IInventory p_i1824_1_, int p_i1824_2_, int p_i1824_3_,
-			int p_i1824_4_) {
-		super(p_i1824_1_, p_i1824_2_, p_i1824_3_, p_i1824_4_);
+	public StorageSlot(IInventory inventoryIn, int index, int xPosition, int yPosition) {
+		super(inventoryIn, index, xPosition, yPosition);
 	}
 
 	@Override
 	public boolean isItemValid(ItemStack stack)
-    {
-		if(stack == null || stack.isEmpty())
+	{
+		if(stack.isEmpty() || !(stack.getItem() instanceof LootbagItem) || !BagHandler.isBagInsertable(stack.getMetadata()))
 			return false;
-		return (LootBags.isItemDroppable(stack) && (!LootBags.isItemRecyleBlacklisted(stack)) || LootBags.isItemRecycleWhitelisted(stack));
-    }
+		if(LootBags.PREVENTMERGEDBAGS && BagHandler.isBagOpened(stack))
+			return false;
+		return true;
+	}
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

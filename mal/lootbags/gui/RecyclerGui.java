@@ -5,11 +5,9 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 import mal.lootbags.LootBags;
-import mal.lootbags.handler.BagHandler;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 
 public class RecyclerGui extends GuiContainer{
@@ -26,11 +24,12 @@ public class RecyclerGui extends GuiContainer{
 	/**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    protected void drawGuiContainerForegroundLayer(int par1, int par2)
+    @Override
+	protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
-    	this.fontRendererObj.drawString("Loot Recycler", 54, 5, 4210752);
+    	this.fontRenderer.drawString("Loot Recycler", 54, 5, 4210752);
     	
-    	this.fontRendererObj.drawString("Stored Bags: " + bench.getTotalBags(), 48, 35, 4210752);
+    	this.fontRenderer.drawString("Stored Bags: " + bench.getTotalBags(), 48, 35, 4210752);
     }
     
 	@Override
@@ -46,7 +45,9 @@ public class RecyclerGui extends GuiContainer{
 	@Override
 	public void drawScreen(int par1, int par2, float par3)
 	{
+        this.drawDefaultBackground();
 		super.drawScreen(par1, par2, par3);
+        this.renderHoveredToolTip(par1, par2);
 		
 		//see if the mouse is over the fuel bar
 		//TODO: fix
@@ -57,7 +58,7 @@ public class RecyclerGui extends GuiContainer{
 			list.add("\u00A73" + "Stored Loot Value:");
 			list.add("\u00A78" + bench.getValue() + "/" + LootBags.TOTALVALUE);
 			
-	        this.drawHoveringText(list, par1, par2, fontRendererObj);
+	        this.drawHoveringText(list, par1, par2, fontRenderer);
 		}
 	}
 	

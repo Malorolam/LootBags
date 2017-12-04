@@ -1,16 +1,12 @@
 package mal.lootbags.jei;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import mal.lootbags.Bag;
-import mal.lootbags.LootBags;
 import mal.lootbags.loot.LootItem;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
 import mezz.jei.api.recipe.IFocus;
 
 public class LootEntry {

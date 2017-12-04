@@ -113,13 +113,15 @@ public class FakeWorld extends World{
 				}
 
 				@Override
-				public void saveExtraData() {
-				}
-
-				@Override
 				public boolean isChunkGeneratedAt(int p_191063_1_, int p_191063_2_) {
 					// TODO Auto-generated method stub
 					return false;
+				}
+
+				@Override
+				public void flush() {
+					// TODO Auto-generated method stub
+					
 				}
 			};
 		}

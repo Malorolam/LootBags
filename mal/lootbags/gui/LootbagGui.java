@@ -5,8 +5,6 @@ import org.lwjgl.opengl.GL11;
 import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 
 public class LootbagGui extends GuiContainer{
@@ -30,6 +28,17 @@ public class LootbagGui extends GuiContainer{
         this.drawTexturedModalRect(var5, var6, 0, 0, this.xSize, this.ySize);
 	}
 
+    /**
+     * Draws the screen and all the components in it.
+     */
+    @Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawDefaultBackground();
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
+    }
+    
     /**
      * This function is what controls the hotbar shortcut check when you press a number key when hovering a stack.
      */

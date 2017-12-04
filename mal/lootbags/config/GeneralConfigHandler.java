@@ -3,14 +3,11 @@ package mal.lootbags.config;
 import java.io.File;
 import java.util.ArrayList;
 
-import org.apache.logging.log4j.Level;
-
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class GeneralConfigHandler {
@@ -109,7 +106,11 @@ public class GeneralConfigHandler {
 		prop.setComment("Disables the bag opener from being crafted.");
 		LootBags.DISABLEOPENER = prop.getBoolean();
 		
-		prop = config.get(Configuration.CATEGORY_GENERAL, "Verbose Mode", true);
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Storage Recipe", false);
+		prop.setComment("Disables the bag storage from being crafted.");
+		LootBags.DISABLESTORAGE = prop.getBoolean();
+		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Verbose Mode", false);
 		prop.setComment("Setting this to false will disable many of the info messages, only showing errors in the log.");
 		LootBags.VERBOSEMODE = prop.getBoolean();
 		
@@ -132,7 +133,7 @@ public class GeneralConfigHandler {
 			LootBags.BAGFROMPLAYERKILL=0;
 		}
 		
-		prop = config.get(Configuration.CATEGORY_GENERAL, "Bag Conversion Methods", "BOTH");
+/*		prop = config.get(Configuration.CATEGORY_GENERAL, "Bag Conversion Methods", "BOTH");
 		prop.setComment("Sets the crafting recipes of bags into other bags.  Allowable names: UP, BOTH, DOWN, NONE.  UP only allows many bags into fewer bags, DOWN only allows few bags into many bags, BOTH allows for both, NONE disables bag conversion.");
 		String craft = prop.getString();
 		switch(craft.toUpperCase())
@@ -151,7 +152,7 @@ public class GeneralConfigHandler {
 				break;
 			default:
 				LootbagsUtil.LogError("Invalid Conversion Name: " + craft + ".  Setting method to allow both types");
-		}
+		}*/
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Limit bag drop to one bag per death", true);
 		prop.setComment("This limits the loot bags to only drop one bag.  Bag weighting is dependant on drop chances.");
 		LootBags.LIMITONEBAGPERDROP = prop.getBoolean();

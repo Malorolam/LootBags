@@ -6,9 +6,9 @@ import org.lwjgl.opengl.GL11;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.tileentity.TileEntityOpener;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 
 public class OpenerGui extends GuiContainer {
@@ -31,20 +31,32 @@ public class OpenerGui extends GuiContainer {
         this.drawTexturedModalRect(var5, var6, 0, 0, this.xSize, this.ySize);
 	}
 
+    /**
+     * Draws the screen and all the components in it.
+     */
+    @Override
+	public void drawScreen(int mouseX, int mouseY, float partialTicks)
+    {
+        this.drawDefaultBackground();
+        super.drawScreen(mouseX, mouseY, partialTicks);
+        this.renderHoveredToolTip(mouseX, mouseY);
+    }
+    
 	/**
      * Draw the foreground layer for the GuiContainer (everything in front of the items)
      */
-    protected void drawGuiContainerForegroundLayer(int par1, int par2)
+    @Override
+	protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
-    	this.fontRendererObj.drawString("Lootbag Opener", 52, 5, 4210752);
+    	this.fontRenderer.drawString("Lootbag Opener", 52, 5, 4210752);
     	
     	if(LootBags.OPENERMAXCOOLDOWN>0)
     	{
-    		int red = (int)Math.floor(255*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
-    		int green = 155-(int)Math.floor(155*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
+    		int red = (int)Math.floor(255*((float)bench.getCooldown())/(LootBags.OPENERMAXCOOLDOWN));
+    		int green = 155-(int)Math.floor(155*((float)bench.getCooldown())/(LootBags.OPENERMAXCOOLDOWN));
     		Color color1 = new Color(red, green, 0, 255);
-    		int width = 162-(int) Math.floor(162*((float)bench.getCooldown())/((float)LootBags.OPENERMAXCOOLDOWN));
-    		this.drawRect(7, 37, 7+width, 41, color1.getRGB());
+    		int width = 162-(int) Math.floor(162*((float)bench.getCooldown())/(LootBags.OPENERMAXCOOLDOWN));
+    		Gui.drawRect(7, 37, 7+width, 41, color1.getRGB());
     	}
     	
     }

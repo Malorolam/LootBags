@@ -2,7 +2,7 @@ package mal.lootbags.item;
 
 import javax.annotation.Nullable;
 
-import mal.lootbags.tileentity.TileEntityRecycler;
+import mal.lootbags.tileentity.TileEntityStorage;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -17,9 +17,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class RecyclerItemBlock extends ItemBlock{
+public class StorageItemBlock extends ItemBlock{
 
-	public RecyclerItemBlock(Block block) {
+	public StorageItemBlock(Block block) {
 		super(block);
 	}
 
@@ -39,16 +39,17 @@ public class RecyclerItemBlock extends ItemBlock{
             {
                 TileEntity tileentity = worldIn.getTileEntity(pos);
 
-                if (tileentity != null && tileentity instanceof TileEntityRecycler)
+                if (tileentity != null && tileentity instanceof TileEntityStorage)
                 {
                     if (!worldIn.isRemote && tileentity.onlyOpsCanSetNbt() && (player == null || !player.canUseCommandBlock()))
                     {
                         return false;
                     }
                     
-                    int count = nbttagcompound.getInteger("lootbagCount");
-                    int value = nbttagcompound.getInteger("totalValue");
-                    ((TileEntityRecycler)tileentity).setData(count, value);
+                    int ID = nbttagcompound.getInteger("outputID");
+                    int value = nbttagcompound.getInteger("stored_value");
+                    int index = nbttagcompound.getInteger("outputindex");
+                    ((TileEntityStorage)tileentity).setDataClient(value, ID, index);
                 }
             }
 

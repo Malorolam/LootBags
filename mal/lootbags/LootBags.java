@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import mal.lootbags.blocks.BlockOpener;
 import mal.lootbags.blocks.BlockRecycler;
+import mal.lootbags.blocks.BlockStorage;
 import mal.lootbags.config.BagConfigHandler;
 import mal.lootbags.config.GeneralConfigHandler;
 import mal.lootbags.handler.BagHandler;
@@ -18,23 +19,25 @@ import mal.lootbags.handler.LootSourceCommand;
 import mal.lootbags.handler.MobDropHandler;
 import mal.lootbags.handler.NBTPullCommand;
 import mal.lootbags.item.LootbagItem;
+import mal.lootbags.item.RecyclerItemBlock;
+import mal.lootbags.item.StorageItemBlock;
 import mal.lootbags.jei.LootRegistry;
 import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootMap;
-import mal.lootbags.loot.LootRecipe;
 import mal.lootbags.network.CommonProxy;
 import mal.lootbags.network.LootbagsPacketHandler;
 import mal.lootbags.tileentity.TileEntityOpener;
 import mal.lootbags.tileentity.TileEntityRecycler;
-import net.minecraft.init.Blocks;
+import mal.lootbags.tileentity.TileEntityStorage;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBook;
 import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.FMLLog;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -43,15 +46,14 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.RecipeSorter;
-import net.minecraftforge.oredict.ShapedOreRecipe;
 
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION)
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.4.0";
+	public static final String VERSION = "2.5.0";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -87,7 +89,7 @@ public class LootBags {
 	public static int OPENERMAXCOOLDOWN = 100;
 	
 	public static boolean PREVENTMERGEDBAGS = false;
-	public static byte CRAFTTYPES = 1;//crafting controlling, 1 is both types, 0 is only upconvert, 2 is only downconvert
+	//public static byte CRAFTTYPES = 1;//crafting controlling, 1 is both types, 0 is only upconvert, 2 is only downconvert
 	
 	public static String[] LOOTCATEGORYLIST = null;
 	
@@ -97,6 +99,7 @@ public class LootBags {
 	
 	public static boolean DISABLERECYCLER = false;
 	public static boolean DISABLEOPENER = false;
+	public static boolean DISABLESTORAGE = false;
 	
 	public static LootMap LOOTMAP;
 	
@@ -110,6 +113,7 @@ public class LootBags {
 	public static LootbagItem lootbagItem;
 	public static BlockRecycler recyclerBlock;
 	public static BlockOpener openerBlock;
+	public static BlockStorage storageBlock;
 
 	@Instance(value = LootBags.MODID)
 	public static LootBags LootBagsInstance;
@@ -122,19 +126,20 @@ public class LootBags {
 		LOOTLOG = event.getModLog();
 		LOOTLOG.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION);
 		
+		LootBags.recyclerBlock = new BlockRecycler();
+		LootBags.openerBlock = new BlockOpener();
+		LootBags.lootbagItem = new LootbagItem();
+		LootBags.storageBlock = new BlockStorage();
+		
 		GeneralConfigHandler.loadConfig(event);
 		bagconfig = new BagConfigHandler(event);
 		bagconfig.initBagConfig();
 		
 		LootbagsPacketHandler.init();
 		
-		lootbagItem = new LootbagItem();
-		recyclerBlock = new BlockRecycler();
-		openerBlock = new BlockOpener();
-		
 		if(CHESTQUALITYWEIGHT <= 0)
 		{
-			FMLLog.log(Level.INFO, "Chest Weighting < 1, this causes problems for everything and is terrible.  Setting it to 1 instead.");
+			LootbagsUtil.LogInfo("Chest Weighting < 1, this causes problems for everything and is terrible.  Setting it to 1 instead.");
 			CHESTQUALITYWEIGHT = 1;
 		}
 		
@@ -194,8 +199,9 @@ public class LootBags {
 		
 		GameRegistry.registerTileEntity(TileEntityRecycler.class, "lootbags_tileentityrecycler");
 		GameRegistry.registerTileEntity(TileEntityOpener.class, "lootbags_tileentityopener");
+		GameRegistry.registerTileEntity(TileEntityStorage.class, "lootbags_tileentitystorage");
 		
-		RecipeSorter.register("lootbags:lootrecipe", LootRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
+		//RecipeSorter.register("lootbags:lootrecipe", LootRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
 		
 		LOOTMAP = new LootMap();
 		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
@@ -211,13 +217,6 @@ public class LootBags {
 		LOOTMAP.populateRecyclerWhitelist(GeneralConfigHandler.getRecyclerWhitelistConfigData());
 		LootbagsUtil.LogInfo("Completed on-load tasks.");
 		
-		if(!DISABLERECYCLER)
-			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(recyclerBlock), new Object[]{"SSS", "SCS", "SIS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
-		
-		if(!DISABLEOPENER)
-			CraftingManager.getInstance().getRecipeList().add(new ShapedOreRecipe(new ItemStack(openerBlock), new Object[]{"SIS", "SCS", "SSS", 'S', "stone", 'C', new ItemStack(Blocks.CHEST), 'I', "ingotIron"}));
-		
-		BagHandler.generateBagRecipes(CraftingManager.getInstance().getRecipeList());
 		LootRegistry.getInstance();
 		
 	}
@@ -342,6 +341,29 @@ public class LootBags {
     public static Random getRandom()
     {
     	return random;
+    }
+    
+    @Mod.EventBusSubscriber(modid = LootBags.MODID)
+    public static class RegistrationHandler {
+
+    	
+    	@SubscribeEvent
+    	public static void registerBlocks(RegistryEvent.Register<Block> event)
+    	{
+    		
+    		event.getRegistry().registerAll(LootBags.openerBlock, LootBags.recyclerBlock, LootBags.storageBlock);
+    	}
+    	
+    	@SubscribeEvent
+    	public static void registerItems(final RegistryEvent.Register<Item> event)
+    	{
+
+    		event.getRegistry().register(LootBags.lootbagItem);
+    		
+    		event.getRegistry().register(new ItemBlock(LootBags.openerBlock).setRegistryName(LootBags.openerBlock.getRegistryName()));
+    		event.getRegistry().register(new RecyclerItemBlock(LootBags.recyclerBlock).setRegistryName(LootBags.recyclerBlock.getRegistryName()));
+    		event.getRegistry().register(new StorageItemBlock(LootBags.storageBlock).setRegistryName(LootBags.storageBlock.getRegistryName()));
+    	}
     }
 }
 /*******************************************************************************

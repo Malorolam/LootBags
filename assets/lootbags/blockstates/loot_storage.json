@@ -1,0 +1,14 @@
+{
+    "forge_marker": 1,
+    "defaults": {
+        "textures": { "all": "lootbags:blocks/loot_storage" }
+    },
+    "variants": {
+        "normal": {
+            "model": "lootbags:loot_storage"
+        },
+        "inventory": {
+            "model": "lootbags:loot_storage"
+        }
+    }
+}

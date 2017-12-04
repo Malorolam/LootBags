@@ -4,17 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 
 import mal.lootbags.Bag;
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
+import mal.lootbags.item.LootbagItem;
 import mal.lootbags.loot.LootItem;
-import mal.lootbags.loot.LootRecipe;
 
 /*
  * Manages the different bag types and keeps the loot tables all straight between them
@@ -22,16 +18,24 @@ import mal.lootbags.loot.LootRecipe;
 public class BagHandler {
 
 	private static HashMap<Integer, Bag> bagList = new HashMap<Integer, Bag>();
+	private static ArrayList<Integer> storableinputIDs = new ArrayList<Integer>();
+	private static ArrayList<Integer> storableoutputIDs = new ArrayList<Integer>();
 	public static final int HARDMAX = 5;//absolute maximum number of items allowed in a bag, this never can be changed
 	
 	public static void clearBags()
 	{
 		bagList = new HashMap<Integer, Bag>();
+		storableinputIDs = new ArrayList<Integer>();
+		storableoutputIDs = new ArrayList<Integer>();
 	}
 	
 	public static void addBag(Bag bag)
 	{
 		bagList.put(bag.getBagIndex(), bag);
+		if(bag.isStorable().canInput())
+			storableinputIDs.add(bag.getBagIndex());
+		if(bag.isStorable().canOutput())
+			storableoutputIDs.add(bag.getBagIndex());
 		LootbagsUtil.LogDebug("Added bag: " + bag.getBagName() + " with ID: " + bag.getBagIndex() + ".");
 	}
 	
@@ -127,12 +131,43 @@ public class BagHandler {
 		return list;
 	}
 	
+	public static boolean isBagOpened(ItemStack bag)
+	{
+		return bag.getTagCompound() != null && bag.getTagCompound().getBoolean("generated");
+	}
+	
 	public static int getBagCount()
 	{
 		return bagList.size();
 	}
 	
-	public static void generateBagRecipes(List recipeList)
+	public static int[] getBagValue(ItemStack stack)
+	{
+		if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof LootbagItem))
+			return new int[] {-1, -1};
+		return getBag(stack.getMetadata()).getBagValue();
+	}
+	
+	public static int[] getBagValue(int ID)
+	{
+		return getBag(ID).getBagValue();
+	}
+	
+	public static boolean isBagInsertable(int ID)
+	{
+		return storableinputIDs.contains(ID);
+	}
+	
+	public static boolean isBagExtractable(int ID)
+	{
+		return storableoutputIDs.contains(ID);
+	}
+	
+	public static ArrayList<Integer> getExtractedBagList()
+	{
+		return storableoutputIDs;
+	}
+	/*public static void generateBagRecipes(List recipeList)
 	{
 		for(Bag b: bagList.values())
 		{
@@ -159,14 +194,14 @@ public class BagHandler {
 					if(LootBags.CRAFTTYPES != 0)
 					{
 						if(LootBags.CRAFTTYPES < 3)
-							recipeList.add(new LootRecipe(b.getBagItem(), c));//source to bag
+							recipeList.add(new LootRecipe_old(b.getBagItem(), c));//source to bag
 						if(LootBags.CRAFTTYPES > 1)
-							recipeList.add(new LootRecipe(new ItemStack(LootBags.lootbagItem, bagsneeded, source.getBagIndex()), d));//bag to source
+							recipeList.add(new LootRecipe_old(new ItemStack(LootBags.lootbagItem, bagsneeded, source.getBagIndex()), d));//bag to source
 					}
 				}
 			}
 		}
-	}
+	}*/
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

@@ -7,8 +7,6 @@ import java.util.List;
 import mal.lootbags.config.BagEntitySource;
 import mal.lootbags.handler.BagHandler;
 import mal.lootbags.loot.LootItem;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemEnchantedBook;
 import net.minecraft.item.ItemStack;
 
 /*
@@ -25,13 +23,15 @@ public class Bag {
 	private int bagTextureColorBase = 16777215;
 	private int bagTextureColorString = 16777215;
 	private boolean useAltJsonFile = true;
-	private int bagWeight=LootBags.getDefaultDropWeight();//the weight of the bag, used for crafting, recycling weights, and appearances in dungeon chests
-	private int craftCount=-1;//number of bags to craft into the next one
+	//private int bagWeight=LootBags.getDefaultDropWeight();//the weight of the bag, used for crafting, recycling weights, and appearances in dungeon chests
+	//private int craftCount=-1;//number of bags to craft into the next one
 	private int[] spawnChances = new int[4];//chance of the bag spawning from player, passive, monster, and boss
 	private int maxItems=5;//maximum items
 	private int minItems=1;//minimum items
 	private int maxGeneralWeight=-1;//maximum weight pulled from the general table (if enabled), negative value is no maximum
 	private int minGeneralWeight=-1;//minimum weight pulled from the general table (if enabled), negative value is no minimum
+	private int bagInsertValue=-1;//Value of the bag in relation to other bags for Storage conversions from bag to storage
+	private int bagExtractValue=-1;//Value of the bag in relation to other bags for Storage conversions from storage to the bag
 	//private List<Entity> entityList;//list of entities to either blacklist or whitelist, depending on the next boolean
 	private boolean entityExclusionToggle=false;//false has the list act as a blacklist, true is as a whitelist
 	private boolean useGeneralLootTable=false;//use the general table or not
@@ -40,7 +40,7 @@ public class Bag {
 	private int preventItemRepeats=0;//prevent an item from showing up multiple times, 1 to block the same damage, 2 to block same item class, 3 to pick the first n items in the list with no shuffling
 	private int bagMapWeight = 0;//total weight of the items in the bag
 	private boolean bagIsEmpty = false;//should never be true
-	private String sourceBagName=null;//the unlocalized name of the bag that crafts into this one, the number is determined when the recipe is added
+	//private String sourceBagName=null;//the unlocalized name of the bag that crafts into this one, the number is determined when the recipe is added
 	private HashMap<String, LootItem> map = new HashMap<String, LootItem>();//a map of the items in the bag
 	private ArrayList<LootItem> BagWhitelist = new ArrayList<LootItem>();
 	private ArrayList<LootItem> BagBlacklist = new ArrayList<LootItem>();
@@ -55,6 +55,7 @@ public class Bag {
 	
 	public void populateBag()
 	{
+		
 		//pull a loot item list based off of the minimum and maximum weights
 		ArrayList<LootItem> list;
 		if(useGeneralLootTable)
@@ -128,7 +129,7 @@ public class Bag {
 		int count = 0;
 		for(LootItem item: map.values())
 		{
-			if(item.getItemWeight() > average*10 && average > 0)
+			if(item.getItemWeight() > average*10 && average > 0 && item.getGeneral())
 				item.setItemWeight(average*10);
 			
 			bagMapWeight += item.getItemWeight();
@@ -225,10 +226,10 @@ public class Bag {
 			BagModBlacklist.add(modid);
 	}
 	
-	public void setWeight(int weight)
+/*	public void setWeight(int weight)
 	{
 		bagWeight = weight;
-	}
+	}*/
 	
 	public void setSpawnChancePlayer(int spawnchance)
 	{
@@ -250,11 +251,11 @@ public class Bag {
 		spawnChances[3] = spawnchance;
 	}
 	
-	public void setCraftingSource(String bagName, int count)
+/*	public void setCraftingSource(String bagName, int count)
 	{
 		sourceBagName = bagName;
 		craftCount = count;
-	}
+	}*/
 	
 	public void setBagNameColor(String code)
 	{
@@ -310,19 +311,65 @@ public class Bag {
 		return spawnChances;
 	}
 	
-	public String getCraftingSource()
+/*	public String getCraftingSource()
 	{
 		return sourceBagName;
-	}
+	}*/
 	
-	public int getCraftingCount()
+/*	public int getCraftingCount()
 	{
 		return craftCount;
-	}
+	}*/
 	
 	public boolean isBagEmpty()
 	{
 		return bagIsEmpty;
+	}
+	
+	public int[] getBagValue()
+	{
+		return new int[] {bagInsertValue, bagExtractValue};
+	}
+	
+	public StorageStates isStorable()
+	{
+		if(bagInsertValue > 0 && bagExtractValue > 0)
+			return StorageStates.BOTH;
+		else if(bagInsertValue > 0)
+			return StorageStates.INPUTONLY;
+		else if(bagExtractValue > 0)
+			return StorageStates.OUTPUTONLY;
+		else
+			return StorageStates.NONE;
+	}
+	public static enum StorageStates
+	{
+		INPUTONLY(true,false), OUTPUTONLY(false,true), BOTH(true,true), NONE(false,false);
+		
+		private boolean canInput, canOutput;
+		
+		StorageStates(boolean canInput, boolean canOutput)
+		{
+			this.canInput = canInput;
+			this.canOutput = canOutput;
+		}
+		
+		public boolean canInput()
+		{
+			return canInput;
+		}
+		
+		public boolean canOutput()
+		{
+			return canOutput;
+		}
+	};
+	
+	public void setBagValue(int lowerweight, int upperweight)
+	{
+		bagInsertValue = lowerweight;
+		bagExtractValue = upperweight;
+		System.out.println("Bag ID: " + this.bagIndex + "; I: " + bagInsertValue + "; O: " + bagExtractValue);
 	}
 	
 	/*
@@ -434,9 +481,9 @@ public class Bag {
 		return useAltJsonFile;
 	}
 
-	public int getBagWeight() {
+/*	public int getBagWeight() {
 		return bagWeight;
-	}
+	}*/
 
 	public HashMap<String, LootItem> getMap() {
 		return map;

@@ -3,6 +3,8 @@ package mal.lootbags.item;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.input.Keyboard;
 
 import mal.lootbags.Bag;
@@ -11,6 +13,7 @@ import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
 import mal.lootbags.rendering.IItemVarientDetails;
 import mal.lootbags.rendering.ItemRenderingRegister;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,8 +33,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
-import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -44,8 +45,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	
 	public LootbagItem()
 	{
-		GameRegistry.register(this.setRegistryName(name));
 		this.setUnlocalizedName(LootBags.MODID + "_" + name);
+		this.setRegistryName(LootBags.MODID, name);
 		setCreativeTab(CreativeTabs.MISC);
 		this.setMaxStackSize(1);
 		this.setHasSubtypes(true);
@@ -56,7 +57,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return name;
 	}
 	
-    public String getItemStackDisplayName(ItemStack stack)
+    @Override
+	public String getItemStackDisplayName(ItemStack stack)
     {
         String s = ("" + I18n.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
         Bag b = BagHandler.getBag(stack.getItemDamage());
@@ -66,7 +68,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
         	return s;
     }
     
-    public void addInformation(ItemStack is, EntityPlayer ep, List list, boolean bool) {
+    @Override
+	public void addInformation(ItemStack is, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
     	Bag b = BagHandler.getBag(is.getItemDamage());
     	if(b==null)
     		return;
@@ -155,7 +158,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		NBTTagList items = is.getTagCompound().getTagList("inventory", 10);
 
 		for (int i = 0; i < items.tagCount(); ++i) {
-			NBTTagCompound item = (NBTTagCompound) items.getCompoundTagAt(i);
+			NBTTagCompound item = items.getCompoundTagAt(i);
 			int slot = item.getInteger("Slot");
 
 			if (slot >= 0 && slot < inventory.length) {
@@ -260,6 +263,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return false;
 	}
 	
+	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand handIn) {
 		ItemStack is = player.getHeldItem(handIn);
 		if (!world.isRemote && !player.isSneaking()) {
@@ -335,7 +339,8 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return EnumActionResult.SUCCESS;
 	}
 	
-    public void onUpdate(ItemStack is, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    @Override
+	public void onUpdate(ItemStack is, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
 		if(entityIn instanceof EntityPlayer && LootbagItem.checkInventory(is))
 		{
@@ -386,6 +391,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return false;
 	}
 	
+	@Override
 	public String getUnlocalizedName(ItemStack stack)
 	{
 		String base = "name."+LootBags.MODID;
@@ -397,12 +403,12 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> subItems)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
 		for(Bag b:BagHandler.getBagList().values())
 		{
 			if(!b.getSecret() || LootBags.SHOWSECRETBAGS)
-				subItems.add(new ItemStack(itemIn, 1, b.getBagIndex()));
+				items.add(new ItemStack(this, 1, b.getBagIndex()));
 		}
     }
 
@@ -441,6 +447,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		return true;
 	}
 	
+	@Override
 	public int getEntityLifespan(ItemStack itemStack, World world)
 	{	
 		if(!BagHandler.isBagEmpty(itemStack.getItemDamage()))

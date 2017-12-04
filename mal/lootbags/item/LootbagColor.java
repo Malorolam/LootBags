@@ -11,7 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LootbagColor implements IItemColor {
 
 	@Override
-	public int getColorFromItemstack(ItemStack stack, int tintIndex) {
+	public int colorMultiplier(ItemStack stack, int tintIndex) {
 		Bag bag = BagHandler.getBag(stack.getItemDamage());
 		if(bag==null)
 			return 16777215;

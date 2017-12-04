@@ -1,0 +1,17 @@
+{
+    "conditions": [{
+        "type": "lootbags:lootbags_storage" 
+    }],
+    "type": "forge:ore_shaped",
+    "pattern": [
+        "SSS",
+        "ICI",
+        "SSS"
+    ],
+    "key": {
+        "S": { "ore": "stone", "type": "forge:ore_dict" },
+        "C": { "item": "minecraft:chest" },
+        "I": { "ore": "ingotIron", "type": "forge:ore_dict" }
+    },
+    "result": { "item": "lootbags:loot_storage" }
+}

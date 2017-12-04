@@ -1,0 +1,8 @@
+{
+    "conditions":
+        {
+            "lootbags_recycler": "mal.lootbags.recipe.RecyclerCondition",
+            "lootbags_opener": "mal.lootbags.recipe.OpenerCondition",
+            "lootbags_storage": "mal.lootbags.recipe.StorageCondition"
+        }
+}

@@ -1,26 +1,14 @@
 package mal.lootbags.jei;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
-import org.lwjgl.input.Keyboard;
-
-import mal.core.util.FontHandler;
-import mal.lootbags.Bag;
-import mal.lootbags.LootbagsUtil;
-import mal.lootbags.item.LootbagItem;
 import mezz.jei.api.gui.ITooltipCallback;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.IFocus;
-import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextFormatting;
 
 public class LootWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>{
 

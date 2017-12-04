@@ -2,15 +2,12 @@ package mal.lootbags.handler;
 
 import java.io.File;
 import java.io.PrintWriter;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
-import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -20,7 +17,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.storage.loot.LootTableList;
 
 public class LootSourceCommand implements ICommand{

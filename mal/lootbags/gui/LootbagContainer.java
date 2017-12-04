@@ -1,25 +1,12 @@
 package mal.lootbags.gui;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Sets;
-
 import mal.lootbags.LootBags;
-import mal.lootbags.LootbagsUtil;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagWrapper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class LootbagContainer extends Container{
@@ -73,6 +60,7 @@ public class LootbagContainer extends Container{
 		return wrapper.isUsableByPlayer(p_75145_1_); //&& LootBags.areItemStacksEqualItem(player.mainInventory[islot], wrapper.getStack(), true, false);
 	}
 
+	@Override
 	public void detectAndSendChanges()
     {	
 		super.detectAndSendChanges();
@@ -118,9 +106,9 @@ public class LootbagContainer extends Container{
     	ItemStack var3 = ItemStack.EMPTY;
     	Slot var4 = null;
     	if(this.inventorySlots.get(slot) instanceof FixedSlot)
-    		var4 = (FixedSlot)this.inventorySlots.get(slot);
+    		var4 = this.inventorySlots.get(slot);
     	else
-    		var4 = (Slot)this.inventorySlots.get(slot);
+    		var4 = this.inventorySlots.get(slot);
 
         if (var4 != null && var4.getHasStack())
         {

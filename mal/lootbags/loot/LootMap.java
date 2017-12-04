@@ -5,13 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
-
 import javax.annotation.Nullable;
 
-import mal.core.util.FakeWorld;
 import mal.lootbags.Bag;
-import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
 import net.minecraft.item.ItemEnchantedBook;
@@ -29,9 +25,6 @@ import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.RandomValueRange;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-
-import org.apache.logging.log4j.Level;
 
 public class LootMap {
 

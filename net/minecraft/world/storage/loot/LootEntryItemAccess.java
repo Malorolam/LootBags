@@ -3,8 +3,6 @@ package net.minecraft.world.storage.loot;
 import java.lang.reflect.Field;
 
 import mal.lootbags.LootBags;
-import mal.lootbags.LootbagsUtil;
-import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
@@ -13,7 +11,6 @@ import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraft.world.storage.loot.functions.SetCount;
 import net.minecraft.world.storage.loot.functions.SetDamage;
 import net.minecraft.world.storage.loot.functions.SetMetadata;
-import net.minecraft.world.storage.loot.functions.SetNBT;
 
 /*
  * Access the protected fields in the loot package... because getters are apparently too hard to add in

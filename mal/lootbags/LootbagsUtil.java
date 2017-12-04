@@ -4,27 +4,35 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.StringTokenizer;
 import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nullable;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.JsonUtils;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.loot.LootEntryItemAccess;
 import net.minecraft.world.storage.loot.LootTableManager;
-import net.minecraftforge.fml.common.FMLLog;
-
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.JsonContext;
 import org.apache.logging.log4j.Level;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import mal.core.util.FakeWorld;
 import mal.lootbags.loot.LootItem;
@@ -293,6 +301,37 @@ public class LootbagsUtil {
     	
     	return null;
     }
+    
+    public static NonNullList<Ingredient> parseShapeless(final JsonContext context, final JsonObject json)
+    {
+    	final NonNullList<Ingredient> ingredients = NonNullList.create();
+    	for(final JsonElement element: JsonUtils.getJsonArray(json, "ingredients"))
+    		ingredients.add(CraftingHelper.getIngredient(element, context));
+    	
+    	if(ingredients.isEmpty())
+    		throw new JsonParseException("No Ingredients.");
+    	
+    	return ingredients;
+    }
+    
+    public static String formatSciNot(int value)
+    {
+    	NumberFormat formatter = new DecimalFormat("0.##E0");
+    	if(value > 99999)
+    		return formatter.format(value);
+    	else
+    		return Integer.toString(value);
+    }
+    
+	/*
+	 * Helper method for determining if a point is in a region of a gui
+	 */
+	public static boolean isPointInRegion(int left, int top, int width, int height, int pointx,
+			int pointy, int guiLeft, int guiTop) {
+        pointx -= guiLeft;
+        pointy -= guiTop;
+        return pointx >= left - 1 && pointx < left + width + 1 && pointy >= top - 1 && pointy < top + height + 1;
+	}
 }
 /*******************************************************************************
  * Copyright (c) 2017 Malorolam.

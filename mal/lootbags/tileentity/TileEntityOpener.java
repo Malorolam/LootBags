@@ -4,7 +4,6 @@ import mal.lootbags.LootBags;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.network.LootbagsPacketHandler;
 import mal.lootbags.network.message.OpenerMessageServer;
-import mal.lootbags.network.message.RecyclerMessageServer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
@@ -12,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
@@ -143,7 +141,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 		NBTTagList input = nbt.getTagList("inputItems", 10);
 		for (int i = 0; i < input.tagCount(); ++i)
 		{
-			NBTTagCompound var4 = (NBTTagCompound)input.getCompoundTagAt(i);
+			NBTTagCompound var4 = input.getCompoundTagAt(i);
 			byte var5 = var4.getByte("Slot");
 
 			if (var5 >= 0 && var5 < this.lootbagInventory.length)
@@ -155,7 +153,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 		NBTTagList output = nbt.getTagList("outputItems", 10);
 		for (int i = 0; i < output.tagCount(); ++i)
 		{
-			NBTTagCompound var4 = (NBTTagCompound)output.getCompoundTagAt(i);
+			NBTTagCompound var4 = output.getCompoundTagAt(i);
 			byte var5 = var4.getByte("Slot");
 
 			if (var5 >= 0 && var5 < this.inventory.length)
@@ -302,7 +300,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 	@Override
 	public boolean isUsableByPlayer(EntityPlayer player) {
-		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
+		return this.world.getTileEntity(this.pos) != this ? false : player.getDistanceSq(this.pos.getX() + 0.5D, this.pos.getY() + 0.5D, this.pos.getZ() + 0.5D) <= 64.0D;
 	}
 
 	@Override

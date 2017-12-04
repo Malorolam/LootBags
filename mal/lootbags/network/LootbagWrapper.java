@@ -95,7 +95,7 @@ public class LootbagWrapper implements IInventory {
 
 		for (int i = 0; i < items.tagCount(); ++i)
 		{
-			NBTTagCompound item = (NBTTagCompound) items.getCompoundTagAt(i);
+			NBTTagCompound item = items.getCompoundTagAt(i);
 			int slot = item.getInteger("Slot");
 
 			if (slot >= 0 && slot < getSizeInventory())

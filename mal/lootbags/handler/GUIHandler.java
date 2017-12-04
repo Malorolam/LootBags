@@ -9,9 +9,12 @@ import mal.lootbags.gui.OpenerContainer;
 import mal.lootbags.gui.OpenerGui;
 import mal.lootbags.gui.RecyclerContainer;
 import mal.lootbags.gui.RecyclerGui;
+import mal.lootbags.gui.StorageContainer;
+import mal.lootbags.gui.StorageGui;
 import mal.lootbags.network.LootbagWrapper;
 import mal.lootbags.tileentity.TileEntityOpener;
 import mal.lootbags.tileentity.TileEntityRecycler;
+import mal.lootbags.tileentity.TileEntityStorage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -37,6 +40,8 @@ public class GUIHandler implements IGuiHandler{
 			return new RecyclerContainer(player.inventory, (TileEntityRecycler) world.getTileEntity(new BlockPos(x,y,z)));
 		if(ID==2)
 			return new OpenerContainer(player.inventory, (TileEntityOpener)world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID==3)
+			return new StorageContainer(player.inventory, (TileEntityStorage)world.getTileEntity(new BlockPos(x,y,z)));
 		return null;
 	}
 
@@ -56,6 +61,8 @@ public class GUIHandler implements IGuiHandler{
 			return new RecyclerGui(player.inventory, (TileEntityRecycler) world.getTileEntity(new BlockPos(x,y,z)));
 		if(ID==2)
 			return new OpenerGui(player.inventory, (TileEntityOpener)world.getTileEntity(new BlockPos(x,y,z)));
+		if(ID==3)
+			return new StorageGui(player.inventory, (TileEntityStorage)world.getTileEntity(new BlockPos(x,y,z)));
 		return null;
 	}
 
