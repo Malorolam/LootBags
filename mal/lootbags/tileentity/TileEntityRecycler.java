@@ -149,6 +149,17 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		return nbt;
 	}
 	
+	
+	public NBTTagCompound getDropNBT()
+	{
+		int vp = (lootbagSlot==null)?(0):(1);
+		NBTTagCompound tag = new NBTTagCompound();
+		tag.setInteger("lootbagCount", lootbagCount+vp);
+		tag.setInteger("totalValue", totalValue);
+		
+		return tag;
+	}
+	
 	@Override
 	public int getSizeInventory() {
 		return inventory.length+1;

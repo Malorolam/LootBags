@@ -1,6 +1,6 @@
 {
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "lootbags:items/lootbagSoarynItemTexture"
-    }
+	"parent": "item/generated",
+	"textures": {
+		"layer0": "lootbags:items/lootbagSoarynItemTexture"
+	}
 }
