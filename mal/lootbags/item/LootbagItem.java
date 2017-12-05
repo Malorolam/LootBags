@@ -405,11 +405,14 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	@SideOnly(Side.CLIENT)
     public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-		for(Bag b:BagHandler.getBagList().values())
+		if(this.isInCreativeTab(tab))
 		{
-			if(!b.getSecret() || LootBags.SHOWSECRETBAGS)
-				items.add(new ItemStack(this, 1, b.getBagIndex()));
-		}
+			for(Bag b:BagHandler.getBagList().values())
+			{
+				if(!b.getSecret() || LootBags.SHOWSECRETBAGS)
+					items.add(new ItemStack(this, 1, b.getBagIndex()));
+			}
+    	}
     }
 
 	@Override

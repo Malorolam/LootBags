@@ -202,9 +202,20 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		if(!(itemStackIn.getItem() instanceof LootbagItem))
 			return false;
 		if(LootBags.PREVENTMERGEDBAGS)
-			return (!BagHandler.isBagOpened(itemStackIn) && BagHandler.isBagInsertable(itemStackIn.getMetadata()));
+			if (!BagHandler.isBagOpened(itemStackIn) && BagHandler.isBagInsertable(itemStackIn.getMetadata()))
+			{
+				if(stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] == Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] < 0)
+					return false;
+				return true;
+			}
 		else
-			return BagHandler.isBagInsertable(itemStackIn.getMetadata());
+			if (BagHandler.isBagInsertable(itemStackIn.getMetadata()))
+			{
+				if(stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] == Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] < 0)
+					return false;
+				return true;
+			}
+		return false;
 			
 	}
 
@@ -320,11 +331,23 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		if(index == 0 || !(stack.getItem() instanceof LootbagItem) || !BagHandler.isBagInsertable(stack.getMetadata()))
+		if(!(stack.getItem() instanceof LootbagItem))
 			return false;
-		if(LootBags.PREVENTMERGEDBAGS && BagHandler.isBagOpened(stack))
-			return false;
-		return true;
+		if(LootBags.PREVENTMERGEDBAGS)
+			if (!BagHandler.isBagOpened(stack) && BagHandler.isBagInsertable(stack.getMetadata()))
+			{
+				if(stored_value+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
+					return false;
+				return true;
+			}
+		else
+			if (BagHandler.isBagInsertable(stack.getMetadata()))
+			{
+				if(stored_value+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
+					return false;
+				return true;
+			}
+		return false;
 	}
 
 	@Override

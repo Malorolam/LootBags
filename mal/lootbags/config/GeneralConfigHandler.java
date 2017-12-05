@@ -40,9 +40,6 @@ public class GeneralConfigHandler {
 		prop.setComment("This is a list of the loot sources the bags pull from to generate the loot tables.  Probably a good idea to not mess with this unless you know what you're doing as entering in" +
 				" a category that doesn't exist will simply make a new.");
 		LootBags.LOOTCATEGORYLIST = prop.getStringList();
-		prop = config.get("Loot Categories", "Chest Drop Weight", 20);
-		prop.setComment("This is the weighting of the bags in any of the worldgen chests.");
-		LootBags.CHESTQUALITYWEIGHT = prop.getInt();
 		
 		prop = config.get("Blacklisted Items", "Global Blacklist", new String[]{""});
 		prop.setComment("Adding a modid and internal item name to this list will remove the item from the general loot table.  " +
@@ -162,10 +159,10 @@ public class GeneralConfigHandler {
 		LootBags.RECYCLEDID = prop.getInt();
 		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Prevent Merging Opened Bags", false);
-		prop.setComment("If set to true, prevents bag crafting from working if any of the bags have been opened.");
+		prop.setComment("If set to true, prevents bag storage from accepting opened bags.");
 		LootBags.PREVENTMERGEDBAGS = prop.getBoolean();
 		
-		prop = config.get("Recycler", "Value Formula Multiplier", 2.0);
+		prop = config.get("Recycler", "Value Formula Multiplier", 1.5);
 		prop.setComment("Multiplies the recycler value of an item in the Recycler, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the a variable.");
 		LootBags.RECYCLERVALUENUMERATOR = prop.getDouble();
 		

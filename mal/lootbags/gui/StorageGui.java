@@ -57,6 +57,11 @@ public class StorageGui extends GuiContainer{
         {
         	this.renderToolTip(new ItemStack(LootBags.lootbagItem, 1, bench.getID()), mouseX, mouseY);
         }
+        
+        if(LootbagsUtil.isPointInRegion(44, 26, 40, 8, mouseX, mouseY, guiLeft, guiTop))
+        {
+        	this.drawHoveringText(Integer.toString(bench.getStorage()), mouseX, mouseY);
+        }
     }
     
 	@Override
@@ -75,7 +80,10 @@ public class StorageGui extends GuiContainer{
 	protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
     	this.fontRenderer.drawString("Lootbag Storage", 52, 5, 4210752);
-    	this.fontRenderer.drawString("Stored Value: " + LootbagsUtil.formatSciNot(bench.getStorage()), 26, 38, 4210752);
+    	this.fontRenderer.drawString("Stored: ", 44, 16, 4210752);
+    	this.fontRenderer.drawString(LootbagsUtil.formatSciNot(bench.getStorage()), 44, 26, 4210752);
+    	this.fontRenderer.drawString("Needed: ", 96, 16, 4210752);
+    	this.fontRenderer.drawString(LootbagsUtil.formatSciNot(BagHandler.getBagValue(bench.getID())[1]), 96, 26, 4210752);
     	//this.fontRenderer.drawString(Integer.toString(bench.getID()), 52, 25, 4210752);
     	
     	this.itemRender.renderItemIntoGUI(new ItemStack(LootBags.lootbagItem,1,bench.getID()), 135, 16);
