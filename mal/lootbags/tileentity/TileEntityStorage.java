@@ -202,19 +202,23 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		if(!(itemStackIn.getItem() instanceof LootbagItem))
 			return false;
 		if(LootBags.PREVENTMERGEDBAGS)
+		{
 			if (!BagHandler.isBagOpened(itemStackIn) && BagHandler.isBagInsertable(itemStackIn.getMetadata()))
 			{
 				if(stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] == Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		else
+		{
 			if (BagHandler.isBagInsertable(itemStackIn.getMetadata()))
 			{
 				if(stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] == Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(itemStackIn.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		return false;
 			
 	}
@@ -334,19 +338,23 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		if(!(stack.getItem() instanceof LootbagItem))
 			return false;
 		if(LootBags.PREVENTMERGEDBAGS)
+		{
 			if (!BagHandler.isBagOpened(stack) && BagHandler.isBagInsertable(stack.getMetadata()))
 			{
 				if(stored_value+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		else
+		{
 			if (BagHandler.isBagInsertable(stack.getMetadata()))
 			{
 				if(stored_value+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || stored_value+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		return false;
 	}
 

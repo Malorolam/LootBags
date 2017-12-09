@@ -20,19 +20,23 @@ public class StorageSlot extends Slot{
 		if(!(stack.getItem() instanceof LootbagItem))
 			return false;
 		if(LootBags.PREVENTMERGEDBAGS)
+		{
 			if (!BagHandler.isBagOpened(stack) && BagHandler.isBagInsertable(stack.getMetadata()))
 			{
 				if(((TileEntityStorage)this.inventory).getStorage()+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || ((TileEntityStorage)this.inventory).getStorage()+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		else
+		{
 			if (BagHandler.isBagInsertable(stack.getMetadata()))
 			{
 				if(((TileEntityStorage)this.inventory).getStorage()+BagHandler.getBagValue(stack.getMetadata())[0] >= Integer.MAX_VALUE || ((TileEntityStorage)this.inventory).getStorage()+BagHandler.getBagValue(stack.getMetadata())[0] < 0)
 					return false;
 				return true;
 			}
+		}
 		return false;
 	}
 }
