@@ -91,7 +91,7 @@ public class GeneralConfigHandler {
 		prop.setComment("This if true will show all the secret bags in creative inventory or item list mods.  Kind of ruins the fun if you ask me.");
 		LootBags.SHOWSECRETBAGS = prop.getBoolean();
 		
-		prop = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1000);
+		prop = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1500);
 		prop.setComment("This is kind of ambiguous, but essentially it's the value of loot stuff needed to fabricate new bags in the loot recycler.");
 		LootBags.TOTALVALUE = prop.getInt();
 		
@@ -162,15 +162,15 @@ public class GeneralConfigHandler {
 		prop.setComment("If set to true, prevents bag storage from accepting opened bags.");
 		LootBags.PREVENTMERGEDBAGS = prop.getBoolean();
 		
-		prop = config.get("Recycler", "Value Formula Multiplier", 1.5);
+		prop = config.get("Recycler", "Value Formula Multiplier", 0.75);
 		prop.setComment("Multiplies the recycler value of an item in the Recycler, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the a variable.");
 		LootBags.RECYCLERVALUENUMERATOR = prop.getDouble();
 		
-		prop = config.get("Recycler", "Stackable Formula Divider", 8.0);
+		prop = config.get("Recycler", "Stackable Formula Divider", 10.0);
 		prop.setComment("Divides the recycler value of an item in the Recycler by this if the item stacks past one item, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the b variable.");
 		LootBags.RECYCLERVALUESTACK = prop.getDouble();
 		
-		prop = config.get("Recycler", "Non-Stackable Formula Divider", 1.0);
+		prop = config.get("Recycler", "Non-Stackable Formula Divider", 2.0);
 		prop.setComment("Divides the recycler value of an item in the Recycler by this if the item does not stack past one item, in the formula (a*Total Value)/(Item Value*(isStackable)?(b):(c)), this is the c variable.");
 		LootBags.RECYCLERVALUENONSTACK = prop.getDouble();
 		
@@ -196,7 +196,7 @@ public class GeneralConfigHandler {
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2017 Malorolam.
+ * Copyright (c) 2018 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

@@ -49,13 +49,13 @@ public class ItemRenderingRegister {
 	
 	public void reg(Item item, int metadata, ResourceLocation file)
 	{
-		ModelResourceLocation loc = new ModelResourceLocation(LootBags.MODID+":"+file, "inventory");
+		ModelResourceLocation loc = new ModelResourceLocation(file, "inventory");
 		
 		ModelLoader.setCustomModelResourceLocation(item, metadata, loc);
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2017 Malorolam.
+ * Copyright (c) 2018 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

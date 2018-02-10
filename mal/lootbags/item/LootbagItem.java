@@ -35,6 +35,7 @@ import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IRegistryDelegate;
 
 /*
  * New Lootbag Item class, to use the updated config and bag creation
@@ -346,7 +347,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		{
 			EntityPlayer player = (EntityPlayer)entityIn;
 			if(LootBags.areItemStacksEqualItem(is, player.getHeldItemOffhand(), true, true))
-				player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, null);
+				player.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, ItemStack.EMPTY);
 			else
 				player.inventory.removeStackFromSlot(itemSlot);
 		}
@@ -462,7 +463,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2017 Malorolam.
+ * Copyright (c) 2018 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

@@ -27,14 +27,13 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 
 	private int stored_value;
 	private int outputID, outputindex;
-	private ItemStack[] input_inventory;
+	private ItemStack input_inventory;
 	//private ItemStack output_inventory;
 	private ArrayList<Integer> outputIDlist;
 	
 	public TileEntityStorage()
 	{
-		input_inventory = new ItemStack[1];
-		input_inventory[0] = ItemStack.EMPTY;
+		input_inventory = ItemStack.EMPTY;
 		outputIDlist = new ArrayList<Integer>();
 		outputIDlist.addAll(BagHandler.getExtractedBagList());
 		outputindex = 0;
@@ -121,16 +120,8 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		outputindex = nbt.getInteger("outputindex");
 		
 		NBTTagList input = nbt.getTagList("inputItems", 10);
-		for (int i = 0; i < input.tagCount(); ++i)
-		{
-			NBTTagCompound var4 = input.getCompoundTagAt(i);
-			byte var5 = var4.getByte("Slot");
-
-			if (var5 >= 0 && var5 < this.input_inventory.length)
-			{
-				this.input_inventory[var5] = new ItemStack(var4);
-			}
-		}
+		NBTTagCompound var4 = input.getCompoundTagAt(0);
+		this.input_inventory = new ItemStack(var4);
 		
 		//NBTTagList olootbag = nbt.getTagList("outputItem", 10);
 		//NBTTagCompound var3 = (NBTTagCompound)olootbag.getCompoundTagAt(0);
@@ -147,16 +138,9 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		nbt.setInteger("outputindex", outputindex);
 		
 		NBTTagList input = new NBTTagList();
-		for (int i = 0; i < this.input_inventory.length; ++i)
-		{
-			if (this.input_inventory[i] != null && !this.input_inventory[i].isEmpty())
-			{
-				NBTTagCompound var4 = new NBTTagCompound();
-				var4.setByte("Slot", (byte) i);
-				this.input_inventory[i].writeToNBT(var4);
-				input.appendTag(var4);
-			}
-		}
+		NBTTagCompound var4 = new NBTTagCompound();
+		this.input_inventory.writeToNBT(var4);
+		input.appendTag(var4);
 		nbt.setTag("inputItems", input);
 		
 		/*NBTTagList olootbag = new NBTTagList();
@@ -230,7 +214,7 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 
 	@Override
 	public int getSizeInventory() {
-		return input_inventory.length+1;
+		return 2;
 	}
 
 	@Override
@@ -246,7 +230,7 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 				return ItemStack.EMPTY;
 		}
 		else
-			return input_inventory[index-1];
+			return input_inventory;
 	}
 
 	@Override
@@ -262,20 +246,20 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		}
 		else
 		{
-			if(input_inventory[slot-1] != null)
+			if(input_inventory != null)
 			{
 				ItemStack is;
-				if(input_inventory[slot-1].getCount() <= dec)
+				if(input_inventory.getCount() <= dec)
 				{
-					is = input_inventory[slot-1];
-					input_inventory[slot-1] = ItemStack.EMPTY;
+					is = input_inventory;
+					input_inventory = ItemStack.EMPTY;
 					return is;
 				}
 				else
 				{
-					is = input_inventory[slot-1].splitStack(dec);
-					if(input_inventory[slot-1].getCount() == 0)
-						input_inventory[slot-1] = ItemStack.EMPTY;
+					is = input_inventory.splitStack(dec);
+					if(input_inventory.getCount() == 0)
+						input_inventory = ItemStack.EMPTY;
 					return is;
 				}
 			}
@@ -300,24 +284,15 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
 		//if(world != null && !this.world.isRemote)
-		{
-			if(index==0)
-			{
-				
-			}
-			else if(index<getSizeInventory())
-			{
-				if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof LootbagItem))
-					return;
-				
-				int value = BagHandler.getBagValue(stack)[0];
-				if(value < 1)
-					return;
-				stored_value += value;
-			}
-			
-			this.markDirty();
-		}
+		if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof LootbagItem))
+			return;
+		
+		int value = BagHandler.getBagValue(stack)[0];
+		if(value < 1)
+			return;
+		stored_value += value;
+	
+		this.markDirty();
 	}
 
 	@Override
@@ -418,7 +393,7 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2017 Malorolam.
+ * Copyright (c) 2018 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.
