@@ -9,7 +9,7 @@ public class CommonProxy {
         return null;
     }
 
-	public void registerRenderersPreInit() {}
+	public void registerRenderersItem() {}
 	public void registerRenderersInit() {}
 }
 /*******************************************************************************

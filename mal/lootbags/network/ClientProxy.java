@@ -20,7 +20,7 @@ public class ClientProxy extends CommonProxy{
     }
 	
 	@Override
-	public void registerRenderersPreInit()
+	public void registerRenderersItem()
 	{
 		ItemRenderingRegister.registerItemRender();
 	}
