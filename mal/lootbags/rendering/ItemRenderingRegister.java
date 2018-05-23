@@ -10,7 +10,7 @@ public class ItemRenderingRegister {
 
 	private static ItemRenderingRegister render;
 	
-	private ItemRenderingRegister(){};
+	private ItemRenderingRegister(){}
 	
 	public static ItemRenderingRegister instance()
 	{

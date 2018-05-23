@@ -190,13 +190,22 @@ public class LootMap {
 					try {
 						String modid = tempwords[0];
 						String itemname = tempwords[1];
-						ArrayList<Integer> itemdamage = LootbagsUtil.constructDamageRange(tempwords[2]);
-						
-						for(Integer dam: itemdamage)
+						if(tempwords[2].equalsIgnoreCase("*")) 
 						{
-							LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
+							LootItem item = new LootItem(null, modid, itemname, -1, 1, 1, 1, false);
 							generalBlacklist.add(item);
 							LootbagsUtil.LogDebug("Added General Blacklist Item: " + item.toString());
+						}
+						else
+						{
+							ArrayList<Integer> itemdamage = LootbagsUtil.constructDamageRange(tempwords[2]);
+						
+							for(Integer dam: itemdamage)
+							{
+								LootItem item = new LootItem(null, modid, itemname, dam, 1, 1, 1, false);
+								generalBlacklist.add(item);
+								LootbagsUtil.LogDebug("Added General Blacklist Item: " + item.toString());
+							}
 						}
 					} catch(Exception e) {
 						LootbagsUtil.LogError("General Blacklist Error: Line: " + s + " Improperly formed Blacklisted item causing exception.");
@@ -356,6 +365,9 @@ public class LootMap {
 		for(LootPool pool:poolList)
 		{
 			List<LootEntry> lootList = (List<LootEntry>)lootListField.get(pool);
+			RandomValueRange prange = pool.getRolls();
+			float average = (prange.getMin()+prange.getMax())/2;
+			System.out.println(average);
 			for(LootEntry loot:lootList)
 			{
 				if(loot instanceof LootEntryItem)
@@ -405,12 +417,12 @@ public class LootMap {
 						}
 						for(LootItem entry:generalBlacklist)
 						{
-							String name = entry.getItemName();
-							if(ForgeRegistries.ITEMS.getKey(item.getContentItem().getItem()).getResourcePath().equalsIgnoreCase(name))//if(GameData.getItemRegistry().getNameForObject(c.theItemId.getItem()).getResourcePath().equalsIgnoreCase(name))
-							{
-								skip = true;
-								LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
-							}
+							if(item.getContentItem().getItem().equals(entry.getContentItem().getItem()))
+								if(entry.getMetadata() == -1 || item.getContentItem().getMetadata() == entry.getMetadata())
+								{
+									skip = true;
+									LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
+								}
 						}
 						if(!skip)
 						{

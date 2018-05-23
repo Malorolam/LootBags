@@ -3,6 +3,8 @@ package mal.lootbags;
 import java.util.HashMap;
 import java.util.Random;
 
+import mal.lootbags.handler.*;
+import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
@@ -11,13 +13,6 @@ import mal.lootbags.blocks.BlockRecycler;
 import mal.lootbags.blocks.BlockStorage;
 import mal.lootbags.config.BagConfigHandler;
 import mal.lootbags.config.GeneralConfigHandler;
-import mal.lootbags.handler.BagHandler;
-import mal.lootbags.handler.ConfigReloadCommand;
-import mal.lootbags.handler.GUIHandler;
-import mal.lootbags.handler.ItemDumpCommand;
-import mal.lootbags.handler.LootSourceCommand;
-import mal.lootbags.handler.MobDropHandler;
-import mal.lootbags.handler.NBTPullCommand;
 import mal.lootbags.item.LootbagItem;
 import mal.lootbags.item.RecyclerItemBlock;
 import mal.lootbags.item.StorageItemBlock;
@@ -26,7 +21,6 @@ import mal.lootbags.loot.LootItem;
 import mal.lootbags.loot.LootMap;
 import mal.lootbags.network.CommonProxy;
 import mal.lootbags.network.LootbagsPacketHandler;
-import mal.lootbags.rendering.ItemRenderingRegister;
 import mal.lootbags.tileentity.TileEntityOpener;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import mal.lootbags.tileentity.TileEntityStorage;
@@ -54,7 +48,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION, dependencies="after:mystcraft")
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.5.4b";
+	public static final String VERSION = "2.5.5";
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -101,6 +95,7 @@ public class LootBags {
 	public static boolean DISABLERECYCLER = false;
 	public static boolean DISABLEOPENER = false;
 	public static boolean DISABLESTORAGE = false;
+	public static boolean DISABLEENCHANTCUT = false;
 	
 	public static LootMap LOOTMAP;
 	
@@ -198,9 +193,9 @@ public class LootBags {
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		
-		GameRegistry.registerTileEntity(TileEntityRecycler.class, "lootbags_tileentityrecycler");
-		GameRegistry.registerTileEntity(TileEntityOpener.class, "lootbags_tileentityopener");
-		GameRegistry.registerTileEntity(TileEntityStorage.class, "lootbags_tileentitystorage");
+		GameRegistry.registerTileEntity(TileEntityRecycler.class, new ResourceLocation("lootbags", "tileentityrecycler"));
+		GameRegistry.registerTileEntity(TileEntityOpener.class, new ResourceLocation("lootbags", "tileentityopener"));
+		GameRegistry.registerTileEntity(TileEntityStorage.class, new ResourceLocation("lootbags", "_tileentitystorage"));
 		
 		//RecipeSorter.register("lootbags:lootrecipe", LootRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
 		
@@ -229,6 +224,7 @@ public class LootBags {
 		event.registerServerCommand(new LootSourceCommand());
 		event.registerServerCommand(new NBTPullCommand());
 		event.registerServerCommand(new ConfigReloadCommand());
+		event.registerServerCommand(new InventoryDumpCommand());
 		LootBags.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0]);
 	}
 	

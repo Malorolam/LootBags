@@ -342,7 +342,7 @@ public class Bag {
 		else
 			return StorageStates.NONE;
 	}
-	public static enum StorageStates
+	public enum StorageStates
 	{
 		INPUTONLY(true,false), OUTPUTONLY(false,true), BOTH(true,true), NONE(false,false);
 		
@@ -363,7 +363,7 @@ public class Bag {
 		{
 			return canOutput;
 		}
-	};
+	}
 	
 	public void setBagValue(int lowerweight, int upperweight)
 	{

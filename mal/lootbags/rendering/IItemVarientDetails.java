@@ -1,7 +1,7 @@
 package mal.lootbags.rendering;
 
 public interface IItemVarientDetails {
-	public void registerItemVariants(ItemRenderingRegister register);
+	void registerItemVariants(ItemRenderingRegister register);
 }
 /*******************************************************************************
  * Copyright (c) 2018 Malorolam.

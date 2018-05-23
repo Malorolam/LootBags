@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.annotation.Nullable;
 
+import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.WeightedRandom;
 import net.minecraft.world.storage.loot.LootEntryItem;
+import net.minecraft.world.storage.loot.LootEntryItemAccess;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 public class LootItem extends WeightedRandom.Item implements Comparable<LootItem>{
@@ -72,6 +74,13 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 				this.nbt=LootbagsUtil.compress(item.getTagCompound());
 		} catch (IOException e) {
 			//e.printStackTrace();
+		}
+		if(!LootBags.DISABLEENCHANTCUT && lootitem != null && this.generalItem && LootEntryItemAccess.isItemEnchanted(lootitem))//cut down on weight on enchanted items from the general table
+		{
+			int val = (int) Math.floor(this.getItemWeight()/2);
+			if (val < 1)
+				val = 1;
+			this.setItemWeight(val);
 		}
 	}
 	
@@ -260,6 +269,11 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 	public LootEntryItem getLootItem()
 	{
 		return lootitem;
+	}
+	
+	public int getMetadata()
+	{
+		return damage;
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class LootbagGui extends GuiContainer{
 
 	private static LootbagContainer cont;

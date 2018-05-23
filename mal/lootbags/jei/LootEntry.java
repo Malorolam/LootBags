@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import mal.lootbags.Bag;
 import mal.lootbags.loot.LootItem;
-import net.minecraft.item.ItemStack;
 import mezz.jei.api.recipe.IFocus;
+import net.minecraft.item.ItemStack;
 
 public class LootEntry {
 

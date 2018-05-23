@@ -31,11 +31,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IRegistryDelegate;
 
 /*
  * New Lootbag Item class, to use the updated config and bag creation
@@ -61,7 +59,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
     @Override
 	public String getItemStackDisplayName(ItemStack stack)
     {
-        String s = ("" + I18n.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
+        String s = ("" + LootbagsUtil.translateToLocal(this.getUnlocalizedNameInefficiently(stack) + ".name")).trim();
         Bag b = BagHandler.getBag(stack.getItemDamage());
         if(b!= null)
         	return b.getBagNameColor()+s;
@@ -107,7 +105,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 			return new ArrayList<String>();
 		
 		String color = "";
-		if(text.startsWith("§"))
+		if(text.startsWith("ï¿½"))
 		{
 			color = text.substring(0, 2);
 			text = text.substring(2);
@@ -117,7 +115,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 		{
 			case "DROPCHANCES":
 			{
-				sret = I18n.translateToLocal("name."+LootBags.MODID+"_"+currentBag.getBagName()+".name") + " drop chances: Monster: " + currentBag.getMonsterDropChance()
+				sret = LootbagsUtil.translateToLocal("name."+LootBags.MODID+"_"+currentBag.getBagName()+".name") + " drop chances: Monster: " + currentBag.getMonsterDropChance()
 						+ " Passive: " + currentBag.getPassiveDropChance() + " Player: " + currentBag.getPlayerDropChance() + " Boss: " + currentBag.getBossDropChance();
 				break;
 			}

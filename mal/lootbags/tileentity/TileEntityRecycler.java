@@ -48,7 +48,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 						if(totalValue <= Integer.MAX_VALUE-val)
 						{
 							totalValue += val;
-							inventory[i].shrink(1);;
+							inventory[i].shrink(1);
 							if(inventory[i].getCount() <= 0)
 								inventory[i] = ItemStack.EMPTY;
 						}

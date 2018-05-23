@@ -115,6 +115,10 @@ public class GeneralConfigHandler {
 		prop.setComment("Setting this to true will display extra information about the contents of the bags and tables.");
 		LootBags.DEBUGMODE = prop.getBoolean();
 		
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Enchantment Reduction", false);
+		prop.setComment("Setting this to true will disable the weight reduction of enchanted items from imported tables.");
+		LootBags.DISABLEENCHANTCUT = prop.getBoolean();
+		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Valid Kill Methods", "All");
 		prop.setComment("Sources of entity death that are counted to determine if a bag can drop.  Allowable names: All, Player, Real.  All is any source of death, Player is any player entity including mod fake players, Real is only real players.");
 		String method = prop.getString();
@@ -158,7 +162,7 @@ public class GeneralConfigHandler {
 		prop.setComment("The bag ID (see the bag config) used in the recycler to fabricate new bags.");
 		LootBags.RECYCLEDID = prop.getInt();
 		
-		prop = config.get(Configuration.CATEGORY_GENERAL, "Prevent Merging Opened Bags", false);
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Prevent Merging Opened Bags", true);
 		prop.setComment("If set to true, prevents bag storage from accepting opened bags.");
 		LootBags.PREVENTMERGEDBAGS = prop.getBoolean();
 		

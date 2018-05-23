@@ -33,6 +33,7 @@ import net.minecraftforge.common.config.Configuration.UnicodeInputStreamReader;
 /*
  * Handles the bag config file, loading and parsing it 
  */
+@SuppressWarnings("FieldCanBeLocal")
 public class BagConfigHandler {
 
 	private enum ConfigText
@@ -41,7 +42,7 @@ public class BagConfigHandler {
 		
 		private String text;
 		
-		private ConfigText(String text)
+		ConfigText(String text)
 		{
 			this.text = text;
 		}
@@ -63,18 +64,18 @@ public class BagConfigHandler {
     private static final String CONFIG_VERSION_MARKER = "~CONFIG_VERSION";
     private static final Pattern CONFIG_START = Pattern.compile("START: \"([^\\\"]+)\"");
     private static final Pattern CONFIG_END = Pattern.compile("END: \"([^\\\"]+)\"");
-    public static final CharMatcher allowedProperties = CharMatcher.JAVA_LETTER_OR_DIGIT.or(CharMatcher.anyOf(ALLOWED_CHARS));
-    
+    public static final CharMatcher allowedProperties = CharMatcher.javaLetterOrDigit().or(CharMatcher.anyOf(ALLOWED_CHARS));
+
     public static ICommandSender command = null;
-    
+
     private ArrayList<String> fileList;
     private FMLPreInitializationEvent FMLPreEvent;
-    
+
     public BagConfigHandler(FMLPreInitializationEvent event)
     {
     	FMLPreEvent = event;
     }
-	
+
 	public void initBagConfig()
 	{
 		file = new File(FMLPreEvent.getModConfigurationDirectory(), "Lootbags_BagConfig.cfg");
@@ -97,8 +98,8 @@ public class BagConfigHandler {
         {
             File fileBak = new File(file.getAbsolutePath() + "_" + 
                     new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date()) + ".errored");
-            FMLLog.severe("An exception occurred while loading config file %s. This file will be renamed to %s " +
-            		"and a new config file will be generated.", file.getName(), fileBak.getName());
+            LootbagsUtil.LogError("An exception occurred while loading config file" + file.getName() + ". This file will be renamed to " + fileBak.getName() +
+            		"and a new config file will be generated.");
             e.printStackTrace();
             
             file.renameTo(fileBak);
@@ -169,7 +170,7 @@ public class BagConfigHandler {
         		try
         		{
         			input.close();
-        		} catch (IOException e){}
+        		} catch (IOException ignored){}
         	}
         }
 	}
@@ -220,7 +221,7 @@ public class BagConfigHandler {
 			String trim = line.trim();
 			
 			//regex to separate the words
-			String[] words = trim.split("(?<!$):");
+			String[] words = trim.split("(?<![$]):");
 			
 			if(words[0].startsWith("$"))//command
 			{
@@ -1609,10 +1610,10 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"$VISIBLENAME:Direwolf20");
 		list.add(ConfigText.TAB.getText()+"$ENDENTITYLIST");
 		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:64:64:20");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:stone:0:62:62:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cobblestone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cobblestone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cobblestone:0:64:64:20");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cobblestone:0:62:62:20");
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:glass:0:36:36:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbag_Direwolf");

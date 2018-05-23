@@ -4,16 +4,17 @@ import javax.annotation.Nonnull;
 
 import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
+import mezz.jei.api.IGuiHelper;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.ingredients.IIngredients;
-import mezz.jei.api.recipe.BlankRecipeCategory;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.IRecipeCategory;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-public class LootCategory extends BlankRecipeCategory<LootWrapper>{
+public class LootCategory implements IRecipeCategory<LootWrapper> {
 
 	protected static final int FIRSTY = 46;
 	protected static final int FIRSTX = 1;
@@ -28,10 +29,10 @@ public class LootCategory extends BlankRecipeCategory<LootWrapper>{
 	@Nonnull
 	private final IDrawable background;
 	
-	public LootCategory()
+	public LootCategory(IGuiHelper guiHelper)
 	{	
 		ResourceLocation location = new ResourceLocation(LootBags.MODID, "textures/gui/jei_lootbag_gui.png");
-		background = JEILoot.getJEIHelpers().getGuiHelper().createDrawable(location, 0, 0, WIDTH, HEIGHT);
+		background = guiHelper.createDrawable(location, 0, 0, WIDTH, HEIGHT);
 	}
 	
 	@Override

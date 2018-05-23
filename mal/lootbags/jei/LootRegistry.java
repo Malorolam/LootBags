@@ -36,7 +36,7 @@ public class LootRegistry {
 	}
 }
 /*******************************************************************************
- * Copyright (c) 2016 Malorolam.
+ * Copyright (c) 2018 Malorolam.
  * 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the included license.

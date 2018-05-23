@@ -6,11 +6,11 @@ import java.util.Objects;
 
 import mezz.jei.api.gui.ITooltipCallback;
 import mezz.jei.api.ingredients.IIngredients;
-import mezz.jei.api.recipe.BlankRecipeWrapper;
 import mezz.jei.api.recipe.IFocus;
+import mezz.jei.api.recipe.IRecipeWrapper;
 import net.minecraft.item.ItemStack;
 
-public class LootWrapper extends BlankRecipeWrapper implements ITooltipCallback<ItemStack>{
+public class LootWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>{
 
 	public final LootEntry loot;
 	
@@ -39,14 +39,13 @@ public class LootWrapper extends BlankRecipeWrapper implements ITooltipCallback<
 			list.add(this.amountOfItems(focus) <= slot+slots*i ? null : this.loot.getItemStacks(focus).get(slot+slots*i));
 			list.add(this.amountOfItems(focus) <= slot+slots*i ? null : this.loot.getItemStacks(focus).get(slot+slots*i));
 		}
-/*		for(int i = 0; i < list.size()-1; i++)
+		for(int i = list.size()-1 ; i >=0; i--)
 		{
-			if(list.get(i) == null && list.get(i+1)==null)
+			if(list.get(i) == null)
 			{
 				list.remove(i);
-				list.remove(i+1);
 			}
-		}*/
+		}
 		if(amountOfItems(focus) < LootCategory.ITEMSPERPAGE)
 			list.removeIf(Objects::isNull);
 		return list;

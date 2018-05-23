@@ -7,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
+import net.minecraft.world.storage.loot.functions.EnchantRandomly;
+import net.minecraft.world.storage.loot.functions.EnchantWithLevels;
 import net.minecraft.world.storage.loot.functions.LootFunction;
 import net.minecraft.world.storage.loot.functions.SetCount;
 import net.minecraft.world.storage.loot.functions.SetDamage;
@@ -34,6 +36,7 @@ public class LootEntryItemAccess {
 		return context.getLootTableManager().getLootTableFromLocation(rtable);
 	}
 	
+	@SuppressWarnings("UnnecessaryLocalVariable")
 	public static RandomValueRange getStackSizes(LootEntryItem item)
 	{
 		for(int i = 0; i < item.functions.length; i++)
@@ -79,6 +82,18 @@ public class LootEntryItemAccess {
         }
 		
 		return stack;
+	}
+	
+	public static boolean isItemEnchanted(LootEntryItem item)
+	{
+		if(item.functions.length == 0)
+			return false;
+		for(LootFunction func : item.functions)
+		{
+			if(func instanceof EnchantRandomly || func instanceof EnchantWithLevels)
+				return true;
+		}
+		return false;
 	}
 	
 	private static ItemStack applyMetadata(LootEntryItem item, ItemStack stack)

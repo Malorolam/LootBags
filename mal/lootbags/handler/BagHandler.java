@@ -133,6 +133,7 @@ public class BagHandler {
 		return list;
 	}
 	
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public static boolean isBagOpened(ItemStack bag)
 	{
 		return bag.getTagCompound() != null && bag.getTagCompound().getBoolean("generated");

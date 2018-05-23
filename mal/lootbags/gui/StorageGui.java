@@ -12,6 +12,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class StorageGui extends GuiContainer{
 
 	private TileEntityStorage bench;

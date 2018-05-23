@@ -13,6 +13,7 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
@@ -21,7 +22,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.loot.LootEntryItemAccess;
@@ -263,7 +264,7 @@ public class LootbagsUtil {
     
     public static String translateToLocal(String text)
     {
-    	return I18n.translateToLocal(text);
+    	return new TextComponentTranslation(text).getFormattedText();
     }
     
     private static LootTableManager manager;
