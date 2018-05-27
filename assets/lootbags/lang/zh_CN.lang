@@ -1,4 +1,4 @@
-name.lootbags_lootbag_Common.name=普通战利品袋
+﻿name.lootbags_lootbag_Common.name=普通战利品袋
 name.lootbags_lootbag_Uncommon.name=罕见战利品袋
 name.lootbags_lootbag_Rare.name=稀有战利品袋
 name.lootbags_lootbag_Epic.name=史诗战利品袋
@@ -13,6 +13,7 @@ name.lootbags_lootbag_Wyld.name=Wyld袋
 name.lootbags_lootbag_Darkosto.name=Darkosto袋
 name.lootbags_lootbag_Direwolf.name=Direwolf20袋
 name.lootbags_lootbag_Patient.name=Patient袋
+name.lootbags_lootbag_Artificial.name=人造袋
 
 tile.lootbags_loot_recycler.name=礼袋回收器
 tile.lootbags_loot_opener.name=开袋器

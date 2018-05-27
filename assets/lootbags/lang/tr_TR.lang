@@ -1,4 +1,4 @@
-name.lootbags_lootbag_Common.name=Genel Ganimet TorbasÄ±
+﻿name.lootbags_lootbag_Common.name=Genel Ganimet TorbasÄ±
 name.lootbags_lootbag_Uncommon.name=Genel Olmayan Ganimet TorbasÄ±
 name.lootbags_lootbag_Rare.name=Nadir Ganimet TorbasÄ±
 name.lootbags_lootbag_Epic.name=Epik Ganimet TorbasÄ±
@@ -13,6 +13,7 @@ name.lootbags_lootbag_Wyld.name=Wyld TorbasÄ±
 name.lootbags_lootbag_Darkosto.name=Darkosto TorbasÄ±
 name.lootbags_lootbag_Direwolf.name=Direwolf20 TorbasÄ±
 name.lootbags_lootbag_Patient.name=SabÄ±rlÄ± Hasta TorbasÄ±
+name.lootbags_lootbag_Artificial.name=Suni TorbasÄ±
 
 tile.lootbags_loot_recycler.name=Ganimet Geri DÃ¶nÃ¼ÅŸtÃ¼rÃ¼cÃ¼sÃ¼
 tile.lootbags_loot_opener.name=Torba AÃ§Ä±cÄ±

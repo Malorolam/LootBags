@@ -6,6 +6,7 @@ import mal.lootbags.tileentity.TileEntityStorage;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
@@ -16,6 +17,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
+
+import java.util.List;
 
 public class StorageItemBlock extends ItemBlock{
 
@@ -56,7 +60,24 @@ public class StorageItemBlock extends ItemBlock{
             return false;
         }
     }
-	
+
+    @Override
+    public void addInformation(ItemStack is, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+	    if(is.getTagCompound() != null)
+        {
+            list.add("Stored Value: " + is.getTagCompound().getInteger("stored_value"));
+        }
+        if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
+        {
+            list.add("This block is capable of storing most Lootbags and convert between configured types.  It will save it's contents when broken.");
+        }
+        else
+        {
+            list.add("Press Shift for more info.");
+        }
+
+    }
+
     @Override
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
     {

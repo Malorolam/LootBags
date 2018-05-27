@@ -1583,8 +1583,31 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:13:1:1:9999");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbag_Patient");
-		
-		
+
+
+		//Artificial Bag
+		list.add("$STARTBAG:lootbag_Artificial:14");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$YELLOW");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:One of many?");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:No, not really.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$WHITE:Hopefully not a dire error.");
+		list.add(ConfigText.TAB.getText()+"$BAGVALUE:2:-1");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:3");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:20");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:10");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add("$ENDBAG:lootbag_Artificial");
+
+
 		//Direwolf20 Bag
 		list.add("$STARTBAG:lootbag_Direwolf:20");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:93|181|204:70|71|135");
