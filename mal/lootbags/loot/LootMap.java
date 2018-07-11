@@ -367,14 +367,13 @@ public class LootMap {
 			List<LootEntry> lootList = (List<LootEntry>)lootListField.get(pool);
 			RandomValueRange prange = pool.getRolls();
 			float average = (prange.getMin()+prange.getMax())/2;
-			System.out.println(average);
 			for(LootEntry loot:lootList)
 			{
 				if(loot instanceof LootEntryItem)
 				{
 					LootEntryItem lloot = (LootEntryItem) loot;
 					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
-					int weight = LootEntryItemAccess.getLootEntryItemWeight(lloot);
+					int weight = (int)Math.floor(LootEntryItemAccess.getLootEntryItemWeight(lloot)*average);
 					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
 					int minstack;
 					int maxstack;

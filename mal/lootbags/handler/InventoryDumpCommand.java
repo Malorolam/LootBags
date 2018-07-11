@@ -72,31 +72,33 @@ public class InventoryDumpCommand implements ICommand {
             PrintWriter write = new PrintWriter(file);
 
             for(ItemStack stack:stacks) {
-                byte[] barray = new byte[0];
-                if (stack.hasTagCompound()) {
-                    try {
-                        ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-                        CompressedStreamTools.writeCompressed(stack.getTagCompound(), ostream);
-                        barray = ostream.toByteArray();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
+                if(!stack.isEmpty()) {
+                    byte[] barray = new byte[0];
+                    if (stack.hasTagCompound()) {
+                        try {
+                            ByteArrayOutputStream ostream = new ByteArrayOutputStream();
+                            CompressedStreamTools.writeCompressed(stack.getTagCompound(), ostream);
+                            barray = ostream.toByteArray();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
 			/*icommand.addChatMessage(new TextComponentString("Lootbags NBT Dump Failed: Held itemstack " + stack.toString() + " has no NBT data."));
 			return;*/
-                }
-
-                String s = "";
-                ResourceLocation id = stack.getItem().getRegistryName();
-                s = id.getResourceDomain() + ":" + id.getResourcePath() + ":" + stack.getItemDamage() + ":" + stack.getCount() + ":" + stack.getMaxStackSize() + ":20";
-                if (barray != null) {
-                    s += ":";
-                    for (byte b : barray) {
-                        s += b + "|";
                     }
+
+                    String s = "";
+                    ResourceLocation id = stack.getItem().getRegistryName();
+                    s = id.getResourceDomain() + ":" + id.getResourcePath() + ":" + stack.getItemDamage() + ":" + stack.getCount() + ":" + stack.getMaxStackSize() + ":20";
+                    if (barray != null) {
+                        s += ":";
+                        for (byte b : barray) {
+                            s += b + "|";
+                        }
+                    }
+                    s = s.substring(0, s.length() - 1);
+                    write.println(s);
                 }
-                s = s.substring(0, s.length() - 1);
-                write.println(s);
             }
 
 

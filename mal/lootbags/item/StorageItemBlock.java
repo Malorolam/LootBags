@@ -2,6 +2,7 @@ package mal.lootbags.item;
 
 import javax.annotation.Nullable;
 
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.tileentity.TileEntityStorage;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
@@ -65,11 +66,11 @@ public class StorageItemBlock extends ItemBlock{
     public void addInformation(ItemStack is, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
 	    if(is.getTagCompound() != null)
         {
-            list.add("Stored Value: " + is.getTagCompound().getInteger("stored_value"));
+            list.add("Stored Value: " + LootbagsUtil.formatSciNot(is.getTagCompound().getInteger("stored_value")));
         }
         if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
         {
-            list.add("This block is capable of storing most Lootbags and convert between configured types.  It will save it's contents when broken.");
+            list.add("This block is capable of storing most Lootbags and convert between configured types.  It will save its contents when broken.");
         }
         else
         {

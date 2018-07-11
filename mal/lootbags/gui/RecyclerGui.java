@@ -2,6 +2,7 @@ package mal.lootbags.gui;
 
 import java.util.ArrayList;
 
+import mal.lootbags.LootbagsUtil;
 import org.lwjgl.opengl.GL11;
 
 import mal.lootbags.LootBags;
@@ -29,7 +30,7 @@ public class RecyclerGui extends GuiContainer{
     {
     	this.fontRenderer.drawString("Loot Recycler", 54, 5, 4210752);
     	
-    	this.fontRenderer.drawString("Stored Bags: " + bench.getTotalBags(), 48, 35, 4210752);
+    	this.fontRenderer.drawString("Stored Bags: " + LootbagsUtil.formatSciNot(bench.getTotalBags()), 48, 35, 4210752);
     }
     
 	@Override
@@ -54,7 +55,9 @@ public class RecyclerGui extends GuiContainer{
 		if(isPointInRegion(48, 35, 80, 8, par1, par2, guiLeft, guiTop))
 		{
 			ArrayList list = new ArrayList();
-			
+
+			list.add("\u00A73" + "Stored Bags:");
+			list.add("\u00A78" + bench.getTotalBags());
 			list.add("\u00A73" + "Stored Loot Value:");
 			list.add("\u00A78" + bench.getValue() + "/" + LootBags.TOTALVALUE);
 			

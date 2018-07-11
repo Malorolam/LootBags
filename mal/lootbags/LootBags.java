@@ -5,6 +5,8 @@ import java.util.Random;
 
 import mal.lootbags.handler.*;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
@@ -45,10 +47,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@Mod(modid = LootBags.MODID, version = LootBags.VERSION, dependencies="after:mystcraft")
+@Mod(modid = LootBags.MODID, version = LootBags.VERSION, dependencies="required:forge@[14.23.4.2703,);after:mystcraft")
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.5.5";
+	public static final String VERSION = "2.5.7";
+	public static final String CONFIGVERSION = "CONFIGVER257";
+	public static boolean configMismatch = true;//gets falsed if the bag config has the right version
 	
 	public static int SPECIALDROPCHANCE = 250;
 	
@@ -120,7 +124,7 @@ public class LootBags {
 		MinecraftForge.EVENT_BUS.register(handler);
 		NetworkRegistry.INSTANCE.registerGuiHandler(LootBagsInstance, new GUIHandler());
 		LOOTLOG = event.getModLog();
-		LOOTLOG.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION);
+		LOOTLOG.log(Level.INFO, "Your current LootBags version is: " + LootBags.VERSION + "; Your current LootBags Config Version is: " + LootBags.CONFIGVERSION);
 		
 		LootBags.recyclerBlock = new BlockRecycler();
 		LootBags.openerBlock = new BlockOpener();
@@ -188,6 +192,7 @@ public class LootBags {
 	public void Init(FMLInitializationEvent event) {
 		
 		LootBags.prox.registerRenderersInit();
+		MinecraftForge.EVENT_BUS.register(new LootEventHandler());
 	}
 	
 	@EventHandler
@@ -227,7 +232,7 @@ public class LootBags {
 		event.registerServerCommand(new InventoryDumpCommand());
 		LootBags.LOOTMAP.setContext(FMLCommonHandler.instance().getMinecraftServerInstance().worlds[0]);
 	}
-	
+
 /*	@EventHandler
 	public void serverLoaded(FMLServerStartedEvent event)
 	{		

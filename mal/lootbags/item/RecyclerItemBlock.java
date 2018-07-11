@@ -2,10 +2,12 @@ package mal.lootbags.item;
 
 import javax.annotation.Nullable;
 
+import mal.lootbags.LootbagsUtil;
 import mal.lootbags.tileentity.TileEntityRecycler;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemBlock;
@@ -16,12 +18,32 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import org.lwjgl.input.Keyboard;
+
+import java.util.List;
 
 public class RecyclerItemBlock extends ItemBlock{
 
 	public RecyclerItemBlock(Block block) {
 		super(block);
 	}
+
+    @Override
+    public void addInformation(ItemStack is, @Nullable World worldIn, List<String> list, ITooltipFlag flagIn) {
+        if(is.getTagCompound() != null)
+        {
+            list.add("Stored Bags: " + LootbagsUtil.formatSciNot(is.getTagCompound().getInteger("lootbagCount")));
+        }
+        if(Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54))
+        {
+            list.add("This block is capable of converting items that can drop from lootbags into more lootbags.  It will save its contents when broken.");
+        }
+        else
+        {
+            list.add("Press Shift for more info.");
+        }
+
+    }
 
 	public static boolean setTileEntityNBT(World worldIn, @Nullable EntityPlayer player, BlockPos pos, ItemStack stackIn)
     {

@@ -295,25 +295,25 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 				for(int j = 0; j < iss.length; j++)
 				{
 					ItemStack stack = iss[j];
-					if(stack!=null)
+					if(!stack.isEmpty() && stack != null)
 					{
 						IInventory ite = ((IInventory)te);
 						int size = ite.getSizeInventory();
 						for(int i = 0; i < size; i++)
 						{
 							ItemStack itstack = ite.getStackInSlot(i);
-							if(ite.isItemValidForSlot(i, stack) && (itstack==null || (LootBags.areItemStacksEqualItem(itstack, stack, true, true) || ite.getStackInSlot(i) == null)))
+							if(ite.isItemValidForSlot(i, stack) && (itstack.isEmpty() || (LootBags.areItemStacksEqualItem(itstack, stack, true, true) || ite.getStackInSlot(i).isEmpty())))
 							{
-								if(itstack == null)
+								if(itstack.isEmpty())
 								{
 									ite.setInventorySlotContents(i, stack);
-									iss[j] = null;
+									iss[j] = ItemStack.EMPTY;
 									break;
 								}
 								else if(itstack.getCount()+stack.getCount()<=itstack.getMaxStackSize())
 								{
 									itstack.grow(stack.getCount());
-									iss[j] = null;
+									iss[j] = ItemStack.EMPTY;
 									break;
 								}
 								else if(itstack.getCount()<itstack.getMaxStackSize())
@@ -323,7 +323,7 @@ public class LootbagItem extends Item implements IItemVarientDetails{
 									stack.shrink(diff);
 									if(stack.getCount()<=0)
 									{
-										iss[j] = null;
+										iss[j] = ItemStack.EMPTY;
 										break;
 									}	
 								}

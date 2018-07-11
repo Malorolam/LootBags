@@ -213,6 +213,7 @@ public class BagConfigHandler {
 	{
 		String activeBagName=null;
 		Bag currentBag = null;
+		boolean commentEscape = false;
 		
 		for(int linenum = 0; linenum < fileList.size(); linenum++)
 		{
@@ -222,11 +223,57 @@ public class BagConfigHandler {
 			
 			//regex to separate the words
 			String[] words = trim.split("(?<![$]):");
-			
-			if(words[0].startsWith("$"))//command
+			if(trim.startsWith("//"))
 			{
+				//do nothing
+				int l = linenum+1;
+				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Comment at line " + l);
+			}
+			else if(trim.startsWith("/*"))
+			{
+				commentEscape = true;
+				int l = linenum+1;
+				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Comment start at line " + l);
+			}
+			else if(trim.endsWith("*/"))
+			{
+				commentEscape = false;
+				int l = linenum+1;
+				LootbagsUtil.LogInfo(ConfigText.INFO.getText()+"Comment end at line " + l);
+			}
+			else if(words[0].startsWith("$") && !commentEscape)//command and not in a comment block
+			{
+				//look in the words for comment information and trim out words after it
+				int excludeIndex;
+				for(int i = 0; i < words.length; i++)
+				{
+					String wd = words[i];
+					if(wd.contains("//"))
+					{
+						excludeIndex = (i+1<=words.length)?(i+1):(i);//avoid array out of bounds exceptions hopefully
+						boolean notched = false;
+						if(wd.startsWith("//")) {
+							excludeIndex -= 1;//notch the words down if it's the entire thing
+							notched = true;
+						}
+						String[] wwd = new String[excludeIndex];
+						for(int j = 0; j < wwd.length; j++)
+							wwd[j] = words[j];
+						words = wwd;
+
+						//Remove characters from this word after the excape characters
+						if(words.length > i) {//no need to work with this word if it's been removed
+							String[] wds = wd.split("/(?=/)");
+							words[i] = wds[0];
+						}
+						break;
+					}
+				}
 				switch(words[0].toUpperCase())
 				{
+				case "$CONFIGVERSION":
+					checkVersion(words, linenum+1);
+					break;
 				case "$STARTBAG"://start bag command, it expects two other words
 					currentBag = startNewBag(words, linenum+1, currentBag);
 					break;
@@ -306,7 +353,7 @@ public class BagConfigHandler {
 				}
 					
 			}
-			else
+			else if (!commentEscape)
 			{
 				int l = linenum+1;
 				LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Text at line: " + l + " is not a command or in a list.  Please only have commands, list components, or whitespace in the config.", command);
@@ -314,6 +361,12 @@ public class BagConfigHandler {
 			}
 		}
 		LootbagsUtil.LogInfo("Bag Config Completed.");
+	}
+
+	private void checkVersion(String[] words, int linenum)
+	{
+		if(words.length == 2 && (words[1].equals(LootBags.CONFIGVERSION) || words[1].equals("BYPASS")))
+			LootBags.configMismatch = false;
 	}
 
 	private Bag startNewBag(String[] words, int linenum, Bag currentBag)
@@ -1225,6 +1278,8 @@ public class BagConfigHandler {
 		/**
 		 * Standard Bags
 		 */
+		//version info
+		list.add("$CONFIGVERSION:"+ LootBags.CONFIGVERSION);
 		//common bag
 		list.add("$STARTBAG:lootbag_Common:0");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
@@ -1264,7 +1319,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:20");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:40");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
@@ -1288,7 +1343,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:15");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:30");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
@@ -1312,7 +1367,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:10");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:20");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
@@ -1336,7 +1391,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:5");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:5");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:10");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
@@ -1344,61 +1399,7 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:0");
 		list.add(ConfigText.TAB.getText()+"$ENDBLACKLIST");
 		list.add("$ENDBAG:lootbag_Legendary");
-		
-		//artifact bag
-		list.add("$STARTBAG:lootbag_Artifact:11");
-		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
-		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$YELLOW");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:One of a kind?");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:No, not really.");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$WHITE:Hopefully not a supernova on a stick.");
-		list.add(ConfigText.TAB.getText()+"$BAGVALUE:1024:1024");
-		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:1");
-		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:3");
-		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:2");
-		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
-		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
-		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:1");
-		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbag_Artifact");
-		
-		//Old Blue Bag
-		list.add("$STARTBAG:lootbag_Old_Blue:12");
-		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:84|89|142:17|23|84");
-		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:A mysterious blue bag that");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:seems to hold something inside.");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$BLUE:I don't know what I expected.");
-		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$BLUE:You'll have to open it to find out.");
-		list.add(ConfigText.TAB.getText()+"$BAGVALUE:0:64");
-		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:0");
-		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:0");
-		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:0");
-		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:0");
-		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:-1");
-		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:15");
-		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
-		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
-		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
-		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:20");
-		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
-		list.add("$ENDBAG:lootbag_Old_Blue");
-		
-		/**
-		 * Secret Bags
-		 */
+
 		//Bacon Bag
 		list.add("$STARTBAG:lootbag_Bacon:5");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
@@ -1555,7 +1556,58 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"minecraft:cake:0:1:1:20");
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbag_Darkosto");
-		
+
+		//artifact bag
+		list.add("$STARTBAG:lootbag_Artifact:11");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:false");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$YELLOW");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$AQUA:One of a kind?");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:No, not really.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$WHITE:Hopefully not a supernova on a stick.");
+		list.add(ConfigText.TAB.getText()+"$BAGVALUE:1024:1024");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:1");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:3");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:6");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:1");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbag_Artifact");
+
+		//Old Blue Bag
+		list.add("$STARTBAG:lootbag_Old_Blue:12");
+		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:84|89|142:17|23|84");
+		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTCOLOR:$BLUE");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:A mysterious blue bag that");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTUNOPENED:$BLUE:seems to hold something inside.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTOPENED:$BLUE:I don't know what I expected.");
+		list.add(ConfigText.TAB.getText()+"$BAGTEXTSHIFT:$BLUE:You'll have to open it to find out.");
+		list.add(ConfigText.TAB.getText()+"$BAGVALUE:0:64");
+		list.add(ConfigText.TAB.getText()+"$PASSIVESPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$PLAYERSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$MOBSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$BOSSSPAWNWEIGHT:0");
+		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:-1");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:20");
+		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
+		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
+		list.add(ConfigText.TAB.getText()+"$STARTWHITELIST");
+		list.add(ConfigText.TAB.getText()+ConfigText.TAB.getText()+"lootbags:itemlootbag:12:1:1:20");
+		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
+		list.add("$ENDBAG:lootbag_Old_Blue");
+
 		//Patient Bag
 		list.add("$STARTBAG:lootbag_Patient:13");
 		list.add(ConfigText.TAB.getText()+"$ISSECRET:true");
@@ -1584,7 +1636,6 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$ENDWHITELIST");
 		list.add("$ENDBAG:lootbag_Patient");
 
-
 		//Artificial Bag
 		list.add("$STARTBAG:lootbag_Artificial:14");
 		list.add(ConfigText.TAB.getText()+"$BAGCOLOR:244|167|66:89|79|53");
@@ -1601,12 +1652,11 @@ public class BagConfigHandler {
 		list.add(ConfigText.TAB.getText()+"$USEGENERALLOOTSOURCES:true");
 		list.add(ConfigText.TAB.getText()+"$MAXIMUMITEMS:3");
 		list.add(ConfigText.TAB.getText()+"$MINIMUMITEMS:1");
-		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:20");
-		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:10");
+		list.add(ConfigText.TAB.getText()+"$MAXIMUMGENERALLOOTWEIGHT:40");
+		list.add(ConfigText.TAB.getText()+"$MINIMUMGENERALLOOTWEIGHT:20");
 		list.add(ConfigText.TAB.getText()+"$PREVENTITEMREPEATS:none");
 		list.add(ConfigText.TAB.getText()+"$EXCLUDEENTITIES:false");
 		list.add("$ENDBAG:lootbag_Artificial");
-
 
 		//Direwolf20 Bag
 		list.add("$STARTBAG:lootbag_Direwolf:20");

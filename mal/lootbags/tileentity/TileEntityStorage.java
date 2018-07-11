@@ -95,7 +95,13 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 			if(outputindex < 0)
 				outputindex = outputIDlist.size()-1;
 		}
-		outputID = outputIDlist.get(outputindex);
+		try {
+			outputID = outputIDlist.get(outputindex);
+		} catch(IndexOutOfBoundsException e)
+		{
+			outputID = outputIDlist.get(0);
+			outputindex = 0;
+		}
 		if(world.isRemote)
 			LootbagsPacketHandler.instance.sendToServer(new StorageMessageClient(this, outputID, outputindex));
 	}
