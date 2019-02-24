@@ -21,6 +21,7 @@ import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -1055,6 +1056,21 @@ public class BagConfigHandler {
 				
 				currentBag.addWhitelistItem(modid, itemname, itemdamage, minstack, maxstack, weight, nbt);
 				} catch(Exception e) {
+					int l = templine+1;
+					LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Parsing error at line " + l + ": " + line + ": skipping line", command);
+					e.printStackTrace();
+				}
+			}
+			else if (tempwords.length == 2)//length for a loot category
+			{
+				try {
+					String modid = tempwords[0];
+					String loc = tempwords[1];
+					String tt = modid + ":" + loc;
+					ResourceLocation catloc = new ResourceLocation(tt);
+					currentBag.addWhitelistCategory(catloc);
+				} catch (Exception e)
+				{
 					int l = templine+1;
 					LootbagsUtil.LogError(ConfigText.ERROR.getText()+"Parsing error at line " + l + ": " + line + ": skipping line", command);
 					e.printStackTrace();

@@ -90,6 +90,10 @@ public class GeneralConfigHandler {
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Show Secret Bags", false);
 		prop.setComment("This if true will show all the secret bags in creative inventory or item list mods.  Kind of ruins the fun if you ask me.");
 		LootBags.SHOWSECRETBAGS = prop.getBoolean();
+
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Show Stored Bag Count", true);
+		prop.setComment("This if true will show the number of stored bags in the Bag Storage to any method that queries items in slots. Certain mods may pull items out of blocks in such a way that causes dupe bugs, disabling this will remove them.");
+		LootBags.STOREDCOUNT = prop.getBoolean();
 		
 		prop = config.get(Configuration.CATEGORY_GENERAL,  "Total Loot Value to Create a New Bag", 1500);
 		prop.setComment("This is kind of ambiguous, but essentially it's the value of loot stuff needed to fabricate new bags in the loot recycler.");

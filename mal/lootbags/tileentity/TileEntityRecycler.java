@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
@@ -25,12 +26,14 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	private ItemStack lootbagSlot = ItemStack.EMPTY;
 	private int lootbagCount = 0;
 	private int totalValue = 0;
-	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(27);
+	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(1);
+	private NetworkRegistry.TargetPoint point;
 	
 	public TileEntityRecycler()
 	{
 		for(int i = 0; i < inventory.length; i++)
 			inventory[i] = ItemStack.EMPTY;
+
 	}
 	
 	@Override
@@ -38,27 +41,34 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	{
 		if(world != null && !this.world.isRemote)
 		{
+			if(point==null)
+				point = new NetworkRegistry.TargetPoint(world.provider.getDimension(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), 16);
 			//consume inventory to make a lootbag
 			for(int i = 0; i < inventory.length; i++)
 			{
-				if(inventory[i] != null)
-					if(LootBags.isItemDroppable(inventory[i]))
+				if(inventory[i] != null && inventory[i] != ItemStack.EMPTY) {
+					int val = LootBags.getItemValue(inventory[i]);
+					if(totalValue <= Integer.MAX_VALUE-val)
 					{
-						int val = LootBags.getItemValue(inventory[i]);
-						if(totalValue <= Integer.MAX_VALUE-val)
-						{
-							totalValue += val;
-							inventory[i].shrink(1);
-							if(inventory[i].getCount() <= 0)
-								inventory[i] = ItemStack.EMPTY;
-						}
+						totalValue += val;
+						inventory[i].shrink(1);
+						if(inventory[i].getCount() <= 0)
+							inventory[i] = ItemStack.EMPTY;
 					}
+				}
 			}
-			
-			if(totalValue >= LootBags.TOTALVALUE && lootbagCount < Integer.MAX_VALUE-1)
+
+			int mult = (int)Math.floor(totalValue/ LootBags.TOTALVALUE);
+			if(totalValue >= LootBags.TOTALVALUE && lootbagCount < Integer.MAX_VALUE-mult)
 			{
-				totalValue -= LootBags.TOTALVALUE;
-				lootbagCount += 1;
+				totalValue -= LootBags.TOTALVALUE*mult;
+				lootbagCount += mult;
+			}
+			else if(totalValue >= LootBags.TOTALVALUE && lootbagCount >= Integer.MAX_VALUE-mult)
+			{
+				int truemult = Integer.MAX_VALUE - lootbagCount-1;
+				totalValue -= LootBags.TOTALVALUE*truemult;
+				lootbagCount += truemult;
 			}
 			
 			if(lootbagSlot == null || lootbagSlot.isEmpty() && lootbagCount > 0)
@@ -68,8 +78,8 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			}
 			if(lootbagCount <= 0)
 				lootbagCount = 0;
-			
-			LootbagsPacketHandler.instance.sendToAll(new RecyclerMessageServer(this, lootbagCount, totalValue));
+
+			LootbagsPacketHandler.instance.sendToAllAround(new RecyclerMessageServer(this, lootbagCount, totalValue), point);
 		}
 	}
 	
@@ -234,12 +244,22 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 		}
 		else if(slot<getSizeInventory())
 		{
-			inventory[slot-1] = item;
-
-			if (item != null && !item.isEmpty() && item.getCount() > this.getInventoryStackLimit())
-			{
-				item.setCount(this.getInventoryStackLimit());
-			}
+				if (item != null && !item.isEmpty() && LootBags.isItemRecyclable(item) && inventory[slot-1].isEmpty()) {
+					int val = LootBags.getItemValue(item)*item.getCount();
+					if(totalValue <= Integer.MAX_VALUE-val) {
+						totalValue += val;
+					}
+					else//not enough space, so filling the inventory
+					{
+						inventory[slot-1] = item;
+					}
+					int mult = (int)Math.floor(totalValue/ LootBags.TOTALVALUE);
+					if(totalValue >= LootBags.TOTALVALUE && lootbagCount < Integer.MAX_VALUE-mult)
+					{
+						totalValue -= LootBags.TOTALVALUE*mult;
+						lootbagCount += mult;
+					}
+				}
 		}
 		
 		this.markDirty();
@@ -261,11 +281,7 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 			return false;
 		else if(slot < getSizeInventory())
 		{
-			if(LootBags.isItemRecyleBlacklisted(stack) && !LootBags.isItemRecycleWhitelisted(stack))
-				return false;
-			
-			if(LootBags.isItemDroppable(stack))
-				return true;
+			return LootBags.isItemRecyclable(stack);
 		}
 		return false;
 	}
@@ -303,9 +319,9 @@ public class TileEntityRecycler extends TileEntity implements IInventory, ISided
 	}
 
 	@Override
-	public boolean canInsertItem(int slot, ItemStack itemStackIn,
+	public boolean canInsertItem(int slot, ItemStack stack,
 			EnumFacing direction) {
-		if(slot != 0)
+		if(slot != 0 && LootBags.isItemDroppable(stack))
 			return true;
 		return false;
 	}

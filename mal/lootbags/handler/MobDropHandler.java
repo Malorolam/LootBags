@@ -13,6 +13,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.IAnimals;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EntityDamageSource;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -28,14 +29,17 @@ public class MobDropHandler {
 
 	@SubscribeEvent
 	public void onEntityDrop(LivingDropsEvent event) {
-		if(LootBags.BAGFROMPLAYERKILL == 1)
+		if(LootBags.BAGFROMPLAYERKILL == 1)//any kind of player
 		{
-			if(!(event.getSource() instanceof EntityDamageSource) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer))
+			if(!(event.getSource() instanceof EntityDamageSource) ||
+					!(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer))
 				return;
 		}
-		else if(LootBags.BAGFROMPLAYERKILL == 2)
+		else if(LootBags.BAGFROMPLAYERKILL == 2)//only a "true" player
 		{
-			if(!(event.getSource() instanceof EntityDamageSource) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer) || !(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer))
+			if(!(event.getSource() instanceof EntityDamageSource) ||
+					!(((EntityDamageSource)event.getSource()).getTrueSource() instanceof EntityPlayer) ||
+					(((EntityDamageSource)event.getSource()).getTrueSource() instanceof FakePlayer))
 				return;
 		}
 		

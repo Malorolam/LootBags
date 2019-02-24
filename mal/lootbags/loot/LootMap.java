@@ -8,6 +8,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import mal.lootbags.Bag;
+import mal.lootbags.LootBags;
 import mal.lootbags.LootbagsUtil;
 import mal.lootbags.handler.BagHandler;
 import net.minecraft.item.ItemEnchantedBook;
@@ -37,6 +38,7 @@ public class LootMap {
 	public HashMap<String, LootItem> totalList;
 	public ArrayList<LootItem> recyclerBlacklist;
 	public ArrayList<LootItem> recyclerWhitelist;
+	public HashMap<String, LootItem> recyclerMap;
 	
 	private LootContext context;
 	
@@ -49,15 +51,16 @@ public class LootMap {
 	
 	public void clearMapData()
 	{
-		generalMap = new HashMap<String, LootItem>();
-		generalLootSources = new ArrayList<ResourceLocation>();
-		generalModBlacklist = new ArrayList<String>();
-		generalBlacklist = new ArrayList<LootItem>();
-		generalWhitelist = new ArrayList<LootItem>();
-		recyclerBlacklist = new ArrayList<LootItem>();
-		recyclerWhitelist = new ArrayList<LootItem>();
+		generalMap = new HashMap<>();
+		generalLootSources = new ArrayList<>();
+		generalModBlacklist = new ArrayList<>();
+		generalBlacklist = new ArrayList<>();
+		generalWhitelist = new ArrayList<>();
+		recyclerBlacklist = new ArrayList<>();
+		recyclerWhitelist = new ArrayList<>();
 		
-		totalList = new HashMap<String, LootItem>();
+		totalList = new HashMap<>();
+		recyclerMap = new HashMap<>();
 		
 		generalTotalWeight = 0;
 	}
@@ -168,7 +171,30 @@ public class LootMap {
 			}
 		}
 	}
-	
+
+	public void populateRecyclerMap()
+	{
+		for(Bag b:BagHandler.getBagList().values())
+		{
+			for(LootItem i:b.getMap().values())
+			{
+				if(LootBags.isItemRecyclable(i.getContentItem()))
+					recyclerMap.put(i.getItemModID()+i.getItemName()+i.getContentItem().getItemDamage(),i);
+			}
+		}
+	}
+
+	public void populateLootValues()
+	{
+		for(Bag b:BagHandler.getBagList().values())
+		{
+			for(LootItem i:b.getMap().values())
+			{
+				i.setRecyclerValue();
+			}
+		}
+	}
+
 	/*
 	 * Populates the general black list from the general config
 	 */
@@ -310,8 +336,7 @@ public class LootMap {
 				String key = item.getItemModID()+item.getItemName()+item.getContentItem().getItemDamage();
 				if(item.getContentItem().getItem() instanceof ItemEnchantedBook && item.getContentItem().hasTagCompound())//a specific enchanted book
 					key += item.getContentItem().getTagCompound().toString();
-				if(generalMap.containsKey(key))
-					generalMap.remove(key);//remove the existing entry to overwrite it with the whitelisted version
+				generalMap.remove(key);//remove the existing entry to overwrite it with the whitelisted version
 				
 				generalMap.put(key, item);
 				
@@ -320,14 +345,9 @@ public class LootMap {
 			}
 		}
 	}
-	
+
 	/**
 	 * Add every item in a category to the map calculating the drop chance
-	 * @param categoryName
-	 * @throws SecurityException 
-	 * @throws NoSuchFieldException 
-	 * @throws IllegalAccessException 
-	 * @throws IllegalArgumentException 
 	 */
 	public void addLootCategory(ResourceLocation categoryName, World world) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
 	{
@@ -481,7 +501,15 @@ public class LootMap {
 		
 		return ret;
 	}
-	
+
+	public ArrayList<String> getGeneralModBlacklist() {
+		return generalModBlacklist;
+	}
+
+	public ArrayList<LootItem> getGeneralBlacklist() {
+		return generalBlacklist;
+	}
+
 	public HashMap<String, LootItem> getMap()
 	{
 		return generalMap;

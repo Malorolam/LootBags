@@ -47,8 +47,35 @@ public class StorageContainer extends Container{
 	@Override
 	public ItemStack slotClick(int slotId, int dragType, ClickType clickTypeIn, EntityPlayer player)
     {
+        //stops a dupe issue
 		flag = false;
-		return super.slotClick(slotId, dragType, clickTypeIn, player);
+
+		//this is to enable the storage to remove bag value when a bag is swapped out (hotkey press)
+        //why is this here and the function isn't redone so it doesn't run twice?
+        //PROTECTED METHODS ~ PROTECTED METHODS EVERYWHERE
+		InventoryPlayer inventoryplayer = player.inventory;
+		if (clickTypeIn == ClickType.SWAP && slotId==1)
+        {
+        Slot slot4 = this.inventorySlots.get(slotId);
+        ItemStack itemstack6 = inventoryplayer.getStackInSlot(dragType);
+        ItemStack itemstack10 = slot4.getStack();
+
+        if (!itemstack6.isEmpty() || !itemstack10.isEmpty())
+        {
+            if (itemstack6.isEmpty()) {
+                if (slot4.canTakeStack(player)) {
+                    //the actual situation where a bag is removed
+                    bench.removeBag();
+/*                    inventoryplayer.setInventorySlotContents(dragType, itemstack10);
+                    slot4.onSwapCraft(itemstack10.getCount());
+                    slot4.putStack(ItemStack.EMPTY);
+                    slot4.onTake(player, itemstack10);*/
+                }
+            }
+        }
+    }
+        //the actual slotClick function
+        return super.slotClick(slotId, dragType, clickTypeIn, player);
     }
 	/**
      * Called when a player shift-clicks on a slot. You must override this or you will crash when someone does that.

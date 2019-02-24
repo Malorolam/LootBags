@@ -17,6 +17,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
@@ -25,6 +26,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 	private ItemStack[] lootbagInventory = LootbagsUtil.getItemStackArrayEmpty(9);
 	private int cooldown = 0;
 	private ItemStack[] inventory = LootbagsUtil.getItemStackArrayEmpty(27);
+	private NetworkRegistry.TargetPoint point;
 	
 	public TileEntityOpener()
 	{
@@ -49,6 +51,9 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 	public void update() {
 		if(world != null && !world.isRemote)
 		{
+			if(point == null)
+				point = new NetworkRegistry.TargetPoint(world.provider.getDimension(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), 16);
+
 			//if not cooled down yet, don't do anything
 			if(cooldown > 0)
 				cooldown--;
@@ -88,9 +93,13 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 							invslot++;
 					}
 				}
+				LootbagsPacketHandler.instance.sendToAllAround(new OpenerMessageServer(this, cooldown), point);
 			}
-			
-			LootbagsPacketHandler.instance.sendToAll(new OpenerMessageServer(this, cooldown));
+		}
+		else if (world.isRemote)
+		{
+			if(cooldown > 0)
+				cooldown--;
 		}
 	}
 

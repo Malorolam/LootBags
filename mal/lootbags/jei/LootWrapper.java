@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import mal.lootbags.LootBags;
 import mezz.jei.api.gui.ITooltipCallback;
 import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IFocus;
@@ -53,8 +54,11 @@ public class LootWrapper implements IRecipeWrapper, ITooltipCallback<ItemStack>{
 
 	@Override
 	public void onTooltip(int slotIndex, boolean input, ItemStack ingredient, List<String> tooltip) {
-		if(slotIndex != 0)
-			tooltip.add(this.loot.getBagDrop(ingredient).toString());
+		if(slotIndex != 0) {
+			tooltip.add("Drop Chance: " + String.format("%.2f", this.loot.getItemChance(ingredient)) + "%.");
+			if(LootBags.DEBUGMODE)
+				tooltip.add(this.loot.getBagDrop(ingredient).toString());
+		}
 	}
 	
 	public List<ItemStack> getBag()

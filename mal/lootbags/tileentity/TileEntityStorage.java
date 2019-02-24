@@ -20,6 +20,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.SidedInvWrapper;
 
@@ -30,6 +31,8 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	private ItemStack input_inventory;
 	//private ItemStack output_inventory;
 	private ArrayList<Integer> outputIDlist;
+	private boolean justRemoved = false;//flag for when the value has just been reduced to allow for bag counts to not mess up
+	private NetworkRegistry.TargetPoint point;
 	
 	public TileEntityStorage()
 	{
@@ -38,7 +41,7 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		outputIDlist.addAll(BagHandler.getExtractedBagList());
 		outputindex = 0;
 		outputID = outputIDlist.get(outputindex);
-		//output_inventory = new ItemStack(LootBags.lootbagItem,1,outputID);
+		//output_inventory = new ItemStack(LootBags.lootbagItem,1,outputID)
 	}
 	
 	public void activate(World world, BlockPos pos, EntityPlayer player) {
@@ -50,6 +53,8 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	public void update() {
 		if(world != null && !this.world.isRemote)
 		{
+			if(point==null)
+				point = new NetworkRegistry.TargetPoint(world.provider.getDimension(), this.pos.getX(), this.pos.getY(), this.pos.getZ(), 16);
 			//make sure the output slot has a bag in it
 			/*if(output_inventory == null || output_inventory.isEmpty())
 				if(stored_value >= BagHandler.getBagValue(outputID)[1])
@@ -58,8 +63,9 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 					output_inventory = new ItemStack(LootBags.lootbagItem, 1, outputID);
 				}
 			*/
-			LootbagsPacketHandler.instance.sendToAll(new StorageMessageServer(this, stored_value, outputID, outputindex));
+			LootbagsPacketHandler.instance.sendToAllAround(new StorageMessageServer(this, stored_value, outputID, outputindex), point);
 		}
+		justRemoved = false;
 	}
 	
 	public void setDataClient(int value, int ID, int index)
@@ -171,7 +177,20 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 		
 		return tag;
 	}
-	
+
+	//Just removes a single bag of whatever is selected, or returns false if it can't
+	public boolean removeBag()
+	{
+		int value = BagHandler.getBagValue(outputID)[1];
+		if(stored_value >= value)
+		{
+			stored_value -= value;
+			justRemoved = true;
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public String getName() {
 		return "storage";
@@ -227,10 +246,13 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	public ItemStack getStackInSlot(int index) {
 		if(index==0)
 		{
-			if(stored_value >= BagHandler.getBagValue(outputID)[1])
+			if(stored_value >= BagHandler.getBagValue(outputID)[1] || justRemoved)
 			{
 				//stored_value -= BagHandler.getBagValue(outputID)[1];
-				return new ItemStack(LootBags.lootbagItem, 1, outputID);
+				if(LootBags.STOREDCOUNT)
+					return new ItemStack(LootBags.lootbagItem, (int)Math.floor(stored_value/BagHandler.getBagValue(outputID)[1]), outputID);
+				else
+					return new ItemStack(LootBags.lootbagItem, 1, outputID);
 			}
 			else
 				return ItemStack.EMPTY;
@@ -290,8 +312,13 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
 		//if(world != null && !this.world.isRemote)
-		if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof LootbagItem))
-			return;
+		if(stack == null || stack.isEmpty() || !(stack.getItem() instanceof LootbagItem)) {//edited to try and fix dupe issue with Mekanism
+			if(stored_value < BagHandler.getBagValue(outputID)[1])//there can't be a bag to replace in this case
+				return;
+			else {
+				stored_value -= BagHandler.getBagValue(outputID)[1];//there is a bag and it got sucked out
+			}
+		}
 		
 		int value = BagHandler.getBagValue(stack)[0];
 		if(value < 1)

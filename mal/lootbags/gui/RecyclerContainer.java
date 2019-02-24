@@ -14,27 +14,23 @@ public class RecyclerContainer extends Container{
 	public RecyclerContainer(InventoryPlayer player, TileEntityRecycler te)
 	{
 		bench = te;
-		this.addSlotToContainer(new LootbagSlot(te, 0, 80, 15));
-		
-		for(int i = 0; i < 9; i++)
-			for(int j = 0; j<3; j++)
-			{
-				this.addSlotToContainer(new RecyclerSlot(te, i+9*j+1, 8+i*18, 46+j*18));
-			}
+		this.addSlotToContainer(new LootbagSlot(te, 0, 116, 15));
+
+		this.addSlotToContainer(new RecyclerSlot(te, 1, 44, 15));
 		
 		//main inventory, so 18-44
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 105 + i * 18));
+                this.addSlotToContainer(new Slot(player, j + i * 9+9, 8 + j * 18, 50 + i * 18));
             }
         }
 
         //hotbar, so 45-53
         for (int i = 0; i < 9; ++i)
         {
-            this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 162));
+            this.addSlotToContainer(new Slot(player, i, 8 + i * 18, 105));
         }
 	}
 	
@@ -59,7 +55,7 @@ public class RecyclerContainer extends Container{
 
             if(slot==0)//inventory
             {
-            	if (!this.mergeItemStack(var5, 28, 64, true))
+            	if (!this.mergeItemStack(var5, 28, 38, true))
                 {
                     return ItemStack.EMPTY;
                 }
@@ -67,9 +63,9 @@ public class RecyclerContainer extends Container{
                 var4.onSlotChange(var5, var3);
 
             }
-            else if(slot>0 && slot<=27)
+            else if(slot>0 && slot<=1)
             {
-            	if (!this.mergeItemStack(var5, 28, 64, true))
+            	if (!this.mergeItemStack(var5, 2, 38, true))
                 {
                     return ItemStack.EMPTY;
                 }
@@ -78,7 +74,7 @@ public class RecyclerContainer extends Container{
             }
             else
             {
-            	if (!this.mergeItemStack(var5, 1, 28, true))
+            	if (!this.mergeItemStack(var5, 1, 2, true))
                 {
                     return ItemStack.EMPTY;
                 }

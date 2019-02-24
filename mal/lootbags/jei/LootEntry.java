@@ -48,6 +48,13 @@ public class LootEntry {
 	{
 		return drops.stream().filter(drop -> ItemStack.areItemsEqual(drop.getContentItem(), item)).findFirst().orElse(null);
 	}
+
+	public double getItemChance(ItemStack item)
+	{
+		LootItem loot = getBagDrop(item);
+		Double dd = (loot.getItemWeight()*100.0)/ bag.getBagMapWeight();
+		return dd;
+	}
 	
 	public Bag getBag()
 	{

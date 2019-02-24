@@ -30,6 +30,7 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 	//private int weight;
 	private byte[] nbt;
 	private boolean generalItem=false;
+	private int recyclerValue;
 	
 	/**
 	 * The new LootItem, moved to the correct package, there is now no fixed loot sources, so this is just in whichever list is needed
@@ -43,8 +44,13 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 		this.modid = modid;
 		this.name = itemname;
 		this.damage = item.getItemDamage();
-		this.minstack = minstack;
-		this.maxstack = maxstack;
+		if(minstack <= maxstack) {
+			this.minstack = minstack;
+			this.maxstack = maxstack;
+		} else {
+			this.maxstack = minstack;
+			this.minstack = maxstack;
+		}
 		this.generalItem = isgeneral;
 		try {
 			if(item.getTagCompound() != null)
@@ -66,8 +72,13 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 		}
 		this.item = item;
 		this.damage = item.getItemDamage();
-		this.minstack = minstack;
-		this.maxstack = maxstack;
+		if(minstack <= maxstack) {
+			this.minstack = minstack;
+			this.maxstack = maxstack;
+		} else {
+			this.maxstack = minstack;
+			this.minstack = maxstack;
+		}
 		this.generalItem = isgeneral;
 		try {
 			if(item.getTagCompound() != null)
@@ -95,8 +106,13 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 		this.modid = modid;
 		this.name = itemname;
 		this.damage = damage;
-		this.minstack = minstack;
-		this.maxstack = maxstack;
+		if(minstack <= maxstack) {
+			this.minstack = minstack;
+			this.maxstack = maxstack;
+		} else {
+			this.maxstack = minstack;
+			this.minstack = maxstack;
+		}
 		this.nbt = null;
 		this.generalItem = isgeneral;
 		
@@ -131,8 +147,13 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 		this.modid = modid;
 		this.name = itemname;
 		this.damage = damage;
-		this.minstack = minstack;
-		this.maxstack = maxstack;
+		if(minstack <= maxstack) {
+			this.minstack = minstack;
+			this.maxstack = maxstack;
+		} else {
+			this.maxstack = minstack;
+			this.minstack = maxstack;
+		}
 		//this.weight = weight;
 		this.nbt = nbt;
 		this.generalItem = isgeneral;
@@ -275,6 +296,10 @@ public class LootItem extends WeightedRandom.Item implements Comparable<LootItem
 	{
 		return damage;
 	}
+
+	public int getRecyclerValue() { return recyclerValue; }
+
+	public void setRecyclerValue() { recyclerValue = LootBags.getItemValue(this.getContentItem()); }
 	
 	@Override
 	public String toString()

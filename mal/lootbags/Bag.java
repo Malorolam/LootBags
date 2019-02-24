@@ -1,5 +1,6 @@
 package mal.lootbags;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +8,14 @@ import java.util.List;
 import mal.lootbags.config.BagEntitySource;
 import mal.lootbags.handler.BagHandler;
 import mal.lootbags.loot.LootItem;
+import mal.lootbags.loot.LootMap;
+import net.minecraft.entity.EntityList;
 import net.minecraft.item.ItemStack;
+import net.minecraft.launchwrapper.Launch;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.storage.loot.*;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 
 /*
  * A single bag, contains ALL the information about it
@@ -205,7 +213,118 @@ public class Bag {
 			BagWhitelist.add(item);
 		}
 	}
-	
+
+	public void addWhitelistCategory(ResourceLocation category) {
+		try {
+			LootTable table = LootbagsUtil.getLootManager(null).getLootTableFromLocation(category);
+
+			//reflect the lists in the table and pool so that I can actually access them
+			String poolname;
+			String entryname;
+			if ((boolean) Launch.blackboard.get("fml.deobfuscatedEnvironment")) {
+				poolname = "pools";
+				entryname = "lootEntries";
+			} else {
+				poolname = "field_186466_c";
+				entryname = "field_186453_a";
+			}
+			Field poolListField = LootTable.class.getDeclaredField(poolname);
+			poolListField.setAccessible(true);
+			Field lootListField = LootPool.class.getDeclaredField(entryname);
+			lootListField.setAccessible(true);
+
+			processLootTable(table, 0, poolListField, lootListField);
+		} catch (Exception e) {
+			LootbagsUtil.LogError("Issue with parsing Bag Whitelist of category: " + category.toString());
+		}
+	}
+
+	private void processLootTable(LootTable table, int count, Field poolListField, Field lootListField) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException
+	{
+		//since this is recursive, counting the depth to keep things functional
+		if(count > 10)
+			return;
+
+		List<LootPool> poolList = (List<LootPool>)poolListField.get(table);
+		for(LootPool pool:poolList)
+		{
+			List<LootEntry> lootList = (List<LootEntry>)lootListField.get(pool);
+			RandomValueRange prange = pool.getRolls();
+			float average = (prange.getMin()+prange.getMax())/2;
+			for(LootEntry loot:lootList)
+			{
+				if(loot instanceof LootEntryItem)
+				{
+					LootEntryItem lloot = (LootEntryItem) loot;
+					ItemStack stack = LootEntryItemAccess.getLootEntryItemStack(lloot);
+					int weight = (int)Math.floor(LootEntryItemAccess.getLootEntryItemWeight(lloot)*average);
+					RandomValueRange range = LootEntryItemAccess.getStackSizes(lloot);
+					int minstack;
+					int maxstack;
+					if(range != null)
+					{
+						minstack = (int) range.getMin();
+						maxstack = (int) range.getMax();
+					}
+					else
+					{
+						minstack = 1;
+						maxstack = 1;
+					}
+
+					LootItem item=null;
+					boolean skip = false;
+					if(stack==null || stack.getItem()==null)
+					{
+						skip = true;
+						LootbagsUtil.LogInfo("Found a null item in the loot table, skipping it.");
+					}
+					else
+						item = new LootItem(lloot, stack, minstack, maxstack, weight, true);
+					//Do some fixing to prevent <1 errors in the bags
+					if(item != null && item.getItemWeight() < 1)
+					{
+						LootbagsUtil.LogError("Item " + item.getContentItem().toString() + " has a weighting of " + item.getItemWeight() + ".  This is not a Lootbags error but an error in a different mod!  "
+								+ "This item will be excluded from the Lootbags loot table.");
+					}
+					else if(!skip)
+					{
+
+						for(String modid:LootBags.LOOTMAP.getGeneralModBlacklist())
+						{
+							if(ForgeRegistries.ITEMS.getKey(item.getContentItem().getItem()).getResourceDomain().equalsIgnoreCase(modid))
+							{
+								skip = true;
+								LootbagsUtil.LogInfo("Found item to skip from Blacklisted mod: " + item.toString());
+							}
+						}
+						for(LootItem entry:LootBags.LOOTMAP.getGeneralBlacklist())
+						{
+							if(item.getContentItem().getItem().equals(entry.getContentItem().getItem()))
+								if(entry.getMetadata() == -1 || item.getContentItem().getMetadata() == entry.getMetadata())
+								{
+									skip = true;
+									LootbagsUtil.LogInfo("Found Blacklisted item to skip: " + item.toString());
+								}
+						}
+						if(!skip)
+						{
+							BagWhitelist.add(item);
+							LootbagsUtil.LogDebug("Added new Category Item: " + item.toString());
+						}
+					}
+				}
+				if(loot instanceof LootEntryTable)
+				{
+					LootEntryTable tloot = (LootEntryTable)loot;
+					LootTable ltable = LootEntryItemAccess.getLootTable(tloot, LootBags.LOOTMAP.getContext());
+
+					processLootTable(ltable, count+1, poolListField, lootListField);//repeat the process with the new table
+				}
+			}
+		}
+	}
+
 	public void addBlacklistItem(LootItem item)
 	{
 		BagBlacklist.add(item);
@@ -310,7 +429,12 @@ public class Bag {
 	{
 		return spawnChances;
 	}
-	
+
+
+	public int getBagMapWeight() {
+		return bagMapWeight;
+	}
+
 /*	public String getCraftingSource()
 	{
 		return sourceBagName;
