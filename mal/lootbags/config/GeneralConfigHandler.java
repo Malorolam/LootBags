@@ -118,6 +118,10 @@ public class GeneralConfigHandler {
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Debug Mode", false);
 		prop.setComment("Setting this to true will display extra information about the contents of the bags and tables.");
 		LootBags.DEBUGMODE = prop.getBoolean();
+
+		prop = config.get(Configuration.CATEGORY_GENERAL, "Pipe Dupe Fix", false);
+		prop.setComment("Setting this to true will enable a slightly inefficient fix for dupe bugs caused by certain naughty piping systems that show up when Show Stored Bag Count is enabled.");
+		LootBags.MEKOVERRIDE = prop.getBoolean();
 		
 		prop = config.get(Configuration.CATEGORY_GENERAL, "Disable Enchantment Reduction", false);
 		prop.setComment("Setting this to true will disable the weight reduction of enchanted items from imported tables.");

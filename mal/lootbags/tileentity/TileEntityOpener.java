@@ -323,7 +323,7 @@ public class TileEntityOpener extends TileEntity implements IInventory, ISidedIn
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		if(index>=0 && index<lootbagInventory.length && stack.getItem() instanceof LootbagItem)
+		if(index>=0 && index<lootbagInventory.length && stack.getItem() instanceof LootbagItem && stack.getCount()==1)
 			return true;//input inventory
 		return false;
 	}

@@ -249,8 +249,14 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 			if(stored_value >= BagHandler.getBagValue(outputID)[1] || justRemoved)
 			{
 				//stored_value -= BagHandler.getBagValue(outputID)[1];
-				if(LootBags.STOREDCOUNT)
-					return new ItemStack(LootBags.lootbagItem, (int)Math.floor(stored_value/BagHandler.getBagValue(outputID)[1]), outputID);
+				if(LootBags.STOREDCOUNT) {
+					if(LootBags.MEKOVERRIDE) {
+						String ss = (new Throwable()).getStackTrace()[1].getClassName();
+						if (ss.startsWith("mekanism"))//make it so that Mekanism literally cannot pull out more than one bag
+							return new ItemStack(LootBags.lootbagItem, 1, outputID);
+					}
+					return new ItemStack(LootBags.lootbagItem, (int) Math.floor(stored_value / BagHandler.getBagValue(outputID)[1]), outputID);
+				}
 				else
 					return new ItemStack(LootBags.lootbagItem, 1, outputID);
 			}
@@ -317,9 +323,25 @@ public class TileEntityStorage extends TileEntity implements IInventory, ISidedI
 				return;
 			else {
 				stored_value -= BagHandler.getBagValue(outputID)[1];//there is a bag and it got sucked out
+				return;
 			}
 		}
-		
+
+	/*	if(stack.getItem() instanceof LootbagItem && stack.getCount()>1)//The only instance where this could happen is because of a NAUGHTY ITEM TRANSPORT MOD
+		{																//so, do some logic to assume what caused it
+			if(LootBags.STOREDCOUNT) {//looks that the returned stack is the bag count that remains from the stack
+				int cnt = (int)Math.floor(stored_value/BagHandler.getBagValue(stack)[1]);
+				if(stack.getCount() <= cnt) {//Overflow return?
+					int cc = cnt - stack.getCount();
+					stored_value -= cc*BagHandler.getBagValue(stack)[1];
+				}
+				else if(stack.getCount() >= cnt && stack.getCount() <= 64) {//adding a stack of bags probably?
+					stored_value += stack.getCount()*BagHandler.getBagValue(stack)[1];
+				}
+				//Anything else is probably some odd corner case that sucks
+			}
+			return;
+		}*/
 		int value = BagHandler.getBagValue(stack)[0];
 		if(value < 1)
 			return;

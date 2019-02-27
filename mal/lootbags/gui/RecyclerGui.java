@@ -19,7 +19,7 @@ public class RecyclerGui extends GuiContainer{
 		super(new RecyclerContainer(player, te));
 		
 		bench = te;
-		ySize = 186;
+		ySize = 131;
 	}
 
 	/**

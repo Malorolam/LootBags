@@ -50,7 +50,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 @Mod(modid = LootBags.MODID, version = LootBags.VERSION, dependencies="required:forge@[14.23.4.2703,);after:mystcraft")
 public class LootBags {
 	public static final String MODID = "lootbags";
-	public static final String VERSION = "2.5.8";
+	public static final String VERSION = "2.5.8.5";
 	public static final String CONFIGVERSION = "CONFIGVER257";
 	public static boolean configMismatch = true;//gets falsed if the bag config has the right version
 	
@@ -69,6 +69,7 @@ public class LootBags {
 	public static boolean VERBOSEMODE = true;//controls a lot of the non-critical log messages
 	public static boolean DEBUGMODE = false;//controls even more messages displaying in the log
 	public static boolean STOREDCOUNT = true;//controls if the bag storage shows the full count or not
+	public static boolean MEKOVERRIDE = false;//experimental override to fix problem caused by naughty item transport mods
 	
 	public static final int MINCHANCE = 0;
 	public static final int MAXCHANCE = 1000;
@@ -133,10 +134,6 @@ public class LootBags {
 		LootBags.storageBlock = new BlockStorage();
 
 		GeneralConfigHandler.loadConfig(event);
-
-		LOOTMAP = new LootMap();
-		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
-		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 
 		bagconfig = new BagConfigHandler(event);
 		bagconfig.initBagConfig();
@@ -209,6 +206,10 @@ public class LootBags {
 		GameRegistry.registerTileEntity(TileEntityStorage.class, new ResourceLocation("lootbags", "_tileentitystorage"));
 		
 		//RecipeSorter.register("lootbags:lootrecipe", LootRecipe.class, RecipeSorter.Category.SHAPELESS, "after:minecraft:shapeless");
+
+		LOOTMAP = new LootMap();
+		LOOTMAP.populateGeneralBlacklist(GeneralConfigHandler.getBlacklistConfigData());
+		LOOTMAP.populateGeneralWhitelist(GeneralConfigHandler.getWhitelistConfigData());
 
 		LOOTMAP.setLootSources(LOOTCATEGORYLIST);
 		

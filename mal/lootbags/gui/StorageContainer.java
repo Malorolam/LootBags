@@ -1,5 +1,6 @@
 package mal.lootbags.gui;
 
+import mal.lootbags.item.LootbagItem;
 import mal.lootbags.tileentity.TileEntityStorage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -93,6 +94,8 @@ public class StorageContainer extends Container{
         if (var4 != null && var4.getHasStack())
         {
             ItemStack var5 = var4.getStack();
+            if(var5.getItem() instanceof LootbagItem && var5.getCount()>1)
+                var5.setCount(1);
             var3 = var5.copy();
 
             if(slot==0)//input
